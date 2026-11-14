@@ -62,3 +62,17 @@ Este archivo solo crece por el final.
 - **Informe PDF con la impresión del navegador.** Muestra todas las secciones abiertas.
 - **La clave de Gemini recibida no funciona.** Google la rechazó con 401 (por cabecera, por parámetro y como token).
   Tiri sigue respondiendo con reglas hasta tener una clave válida.
+
+## 2026-11-14, madrugada del domingo
+
+- **Gemini resuelto.** La clave anterior estaba revocada o era inválida: las dos nuevas (formato `AQ.`) responden con
+  `gemini-2.5-flash` por la cabecera `x-goog-api-key`. El código no tenía el error: usaba la cabecera correcta y no
+  validaba el prefijo. Si un modelo da 404, Tiri pasa a `gemini-2.5-flash`.
+- **Logo oficial y menú de AgroVision.** Portada y resultados siguen la distribución de seis tarjetas: ubicación,
+  suelo, clima y pronóstico, relieve y topografía, humedad y agua, predicciones, más «Comenzar análisis». El resto
+  (riesgos, qué sembrar, plagas, legal, ganancias, fuentes) va como pestañas secundarias.
+- **Imágenes reales.** Mapa y vista del terreno con Esri World Imagery; fotos de cultivos, plagas y especies invasoras
+  de Wikimedia Commons, con autor y licencia de cada una (`scripts/fetch_images.mjs`).
+- **Relieve en 3D.** Elevación de las teselas Terrarium de AWS Open Data (basadas en SRTM, píxel de unos 9 m) con la
+  imagen satelital encima, en 2,3 km alrededor del terreno, con three.js. Las teselas pasan por `/api/terrain` porque
+  el origen no permite leerlas desde el navegador. Se carga solo al pulsar «Ver el relieve en 3D».

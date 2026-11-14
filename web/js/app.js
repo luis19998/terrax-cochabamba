@@ -51,8 +51,29 @@ const PRIORITIES = [
   { id: "risk", label: "Menos riesgo" }, { id: "water", label: "Ahorrar agua" }, { id: "soil", label: "Cuidar el suelo" },
   { id: "forage", label: "Forraje para el ganado" }, { id: "preferred", label: "Mis cultivos preferidos" },
 ];
-const TABS = ["general", "clima", "suelo", "relieve", "agua", "riesgos", "cultivos", "plagas", "legal", "ganancias", "fuentes"];
+// Line icons (24 x 24, stroke = currentColor)
+const ICON_PATHS = {
+  pin: '<path d="M12 21s-6-5.6-6-11a6 6 0 1 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',
+  sprout: '<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 14c0-3-2.4-5-6-5 0 3 2.4 5 6 5z"/>',
+  cloud: '<circle cx="8" cy="7" r="2.5"/><path d="M8 2.5v1M3.5 7h1M4.8 3.8l.7.7M11.2 3.8l-.7.7"/><path d="M7 19h10a4 4 0 0 0 0-8 5 5 0 0 0-9.6 1.5A3.3 3.3 0 0 0 7 19z"/>',
+  mountain: '<path d="M3 20l6.5-11 4 6.5 2.5-4L21 20z"/>',
+  drop: '<path d="M12 3s-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>',
+  chart: '<path d="M4 20V14M9 20v-6M14 20v-9M19 20V8"/><path d="M4 10l5-3 5 2 6-5"/>',
+  map: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
+};
+const icon = (name) => `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[name] || ""}</svg>`;
+// The six modules of the AgroVision layout, in its order; each opens one section of the results.
+const MODULES = [
+  { id: "ubicacion", tab: "general", icon: "pin", label: "Ubicación del terreno" },
+  { id: "suelo", tab: "suelo", icon: "sprout", label: "Análisis del suelo" },
+  { id: "clima", tab: "clima", icon: "cloud", label: "Clima y pronóstico" },
+  { id: "relieve", tab: "relieve", icon: "mountain", label: "Relieve y topografía" },
+  { id: "agua", tab: "agua", icon: "drop", label: "Humedad y agua" },
+  { id: "predicciones", tab: "predicciones", icon: "chart", label: "Predicciones" },
+];
+const TABS = ["general", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "cultivos", "plagas", "legal", "ganancias", "fuentes"];
 const LAYERS = [
+  { id: "satelite", label: "Vista satélite", on: true, kind: "base", opacity: 1 },
   { id: "periurbanos", label: "Zonas periurbanas (GAMC)", on: true, kind: "gamc", opacity: 0.5 },
   { id: "drenaje", label: "Drenaje (GAMC)", on: false, kind: "gamc", opacity: 0.9 },
   { id: "distritos", label: "Distritos (GAMC)", on: true, kind: "gamc", opacity: 0.9 },
@@ -78,7 +99,10 @@ let climate;
 let crops;
 let grid;
 let knowledge;
+let images = { crops: {}, pests: {}, invasive: {}, places: {} };
 let map;
+let miniMap;
+let terrainView;
 let marker;
 let shape;
 
@@ -234,10 +258,17 @@ function initMap() {
   map = L.map(box, { minZoom: 11, maxBounds: [[grid.min_lat - 0.1, grid.min_lon - 0.14], [grid.max_lat + 0.1, grid.max_lon + 0.14]] }).fitBounds(bounds);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
   for (const layer of LAYERS) {
+    if (layer.kind === "base") {
+      layer.leaflet = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 19, zIndex: 1, attribution: "Esri, Maxar, Earthstar Geographics",
+      });
+      if (layer.on) layer.leaflet.addTo(map);
+      continue;
+    }
     layer.leaflet = layer.kind === "gamc"
-      ? L.tileLayer.wms(`/api/gamc/wms?layer=${layer.id}`, { layers: "", format: "image/png", transparent: true, version: "1.1.1", opacity: layer.opacity, attribution: "GAMC" })
+      ? L.tileLayer.wms(`/api/gamc/wms?layer=${layer.id}`, { layers: "", format: "image/png", transparent: true, version: "1.1.1", opacity: layer.opacity, zIndex: 5, attribution: "GAMC" })
       : L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layer.id}/default/default/GoogleMapsCompatible_Level${layer.zoom}/{z}/{y}/{x}.png`, {
-        maxNativeZoom: layer.zoom, maxZoom: 19, opacity: layer.opacity, attribution: "NASA GIBS",
+        maxNativeZoom: layer.zoom, maxZoom: 19, opacity: layer.opacity, zIndex: 4, attribution: "NASA GIBS",
       });
     if (layer.on) layer.leaflet.addTo(map);
   }
@@ -450,17 +481,91 @@ function renderResults() {
     <ul class="domains">${Object.entries(levels).map(([k, lv]) => `<li class="domain domain--${lv ? LEVEL[lv][0] : "none"}"><button type="button" data-tab-go="${k === "riesgos" ? "riesgos" : k}"><span aria-hidden="true">${icons[k]}</span><b>${names[k]}</b><span>${lv ? LEVEL[lv][2] : "Sin dato"}</span></button></li>`).join("")}</ul>`;
   $("summary-card").querySelectorAll("[data-tab-go]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tabGo)));
   renderTabs();
-  renderGeneral(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderCultivos(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
+  renderGeneral(); renderPredicciones(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderCultivos(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
 }
 
+/** A real photo with its credit line, or nothing if there is none. */
+function photo(entry, alt, cls = "photo") {
+  if (!entry) return "";
+  return `<figure class="${cls}"><img src="${esc(entry.thumb)}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer"><figcaption>Foto: ${esc(entry.author)}, ${esc(entry.licence)}, <a href="${esc(entry.file_page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption></figure>`;
+}
+
+function initMiniMap() {
+  const box = $("mini-map");
+  if (!box || !window.L) return;
+  if (miniMap) { miniMap.remove(); miniMap = null; }
+  miniMap = L.map(box, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView([state.site.lat, state.site.lon], 16);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Esri, Maxar, Earthstar Geographics" }).addTo(miniMap);
+  if (state.polygon) {
+    const poly = L.polygon(state.polygon, { color: "#ff8a3d", weight: 3, fillOpacity: 0.12 }).addTo(miniMap);
+    miniMap.fitBounds(poly.getBounds(), { padding: [20, 20], maxZoom: 17 });
+  } else {
+    L.circleMarker([state.site.lat, state.site.lon], { radius: 8, color: "#fff", weight: 3, fillColor: "#ff8a3d", fillOpacity: 1 }).addTo(miniMap);
+  }
+}
+
+// --- Predicciones ---
+function renderPredicciones() {
+  const o = state.outlook;
+  const r = state.result;
+  const a = state.assessment;
+  const w = o && o.weekly ? o.weekly.weeks : null;
+  const next7 = o && o.daily ? o.daily.days.slice(0, 7) : null;
+  const rainyDays = next7 ? next7.filter((d) => d.pRain >= 0.5).length : null;
+  const frostDays = next7 ? next7.filter((d) => d.pFrost >= 0.3).length : null;
+  const heavy = next7 ? Math.max(...next7.map((d) => d.pHeavyRain)) : null;
+  const best = r.strategies[1];
+  panel("predicciones").innerHTML = `
+    <h2>Predicciones</h2>
+    <p class="hint">Probabilidades a partir de los escenarios del pronóstico y de 45 años de datos de la NASA. Se actualizan cada vez que abres el análisis.</p>
+    ${next7 ? `<div class="facts">
+      <div class="fact"><b>${rainyDays} de 7</b><span>días con lluvia probable esta semana</span></div>
+      <div class="fact"><b>${frostDays} de 7</b><span>días con riesgo de helada</span></div>
+      <div class="fact"><b>${pct(heavy)}</b><span>probabilidad máxima de un día con 10 mm o más</span></div>
+      ${w ? `<div class="fact"><b>${tenths(w[0].pAboveNormal)}</b><span>escenarios con más lluvia que lo normal esta semana</span></div>` : ""}
+    </div>` : '<p class="hint">El pronóstico no respondió ahora; abajo siguen las probabilidades históricas.</p>'}
+    <h3>Próximas semanas</h3>
+    ${w ? w.map((x, i) => notice(x.pWetterThanUsual >= 0.6 || x.pFrost >= 0.3 ? 2 : 1, `<p><b>${i === 0 ? "Esta semana" : "La próxima semana"}:</b> unos ${num(x.rainMedian)} mm (entre ${num(x.rainP10)} y ${num(x.rainP90)} mm), cuando lo normal son ${num(x.normal)} mm.${x.pWetterThanUsual >= 0.6 ? " Mucho más lluvia que de costumbre: revisar canales y drenes." : ""}${x.pDrierThanUsual >= 0.6 ? " Más seco que de costumbre: planificar el riego." : ""}${x.pFrost > 0 ? ` Helada en ${tenths(x.pFrost)} escenarios.` : ""}</p>`)).join("") : '<p class="hint">Sin dato.</p>'}
+    <h3>Próximos meses</h3>
+    ${o && o.monthly ? `<div class="weeks">${o.monthly.months.map((m) => `<div class="fact"><b>${esc(m.name[0].toUpperCase() + m.name.slice(1))}</b><span>Unos ${num(m.rainMedian)} mm. Mes muy seco ${tenths(m.pDryMonth)} años; muy lluvioso ${tenths(m.pWetMonth)} años.${m.pFrost > 0 ? ` Heló ${tenths(m.pFrost)} años.` : ""}</span></div>`).join("")}</div>` : ""}
+    <h3>Qué puede pasar con tu terreno</h3>
+    ${a.hazards.filter((h) => h.level >= 2).map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.text)}</p>`)).join("") || notice(1, "<p>Sin riesgos altos previstos con los datos disponibles.</p>")}
+    <h3>Si siembras la rotación recomendada</h3>
+    <p>${best.years.filter((y) => y.group !== "fallow").map((y) => `${esc(y.name)}: helada dañina ${pct(y.frostProb)} de las campañas, la lluvia cubre ${pct(y.coverage)} del agua`).join("; ")}. Riego total en 3 años: ${mm(best.irrigationTotalMm)} frente a ${mm(r.strategies[0].irrigationTotalMm)} de tu rotación actual.</p>
+    <div class="whatif">
+      <h3>Simula otro clima</h3>
+      <label class="slider"><span>Lluvia: <output>${state.scenario.rainPct ? `${Math.abs(state.scenario.rainPct)} % ${state.scenario.rainPct < 0 ? "menos" : "más"}` : "igual que siempre"}</output></span><input type="range" id="rain" min="-30" max="30" step="10" value="${state.scenario.rainPct}"></label>
+      <label class="slider"><span>Temperatura: <output>${state.scenario.tempC ? `${num(Math.abs(state.scenario.tempC), 1)} °C ${state.scenario.tempC < 0 ? "menos" : "más"}` : "igual que siempre"}</output></span><input type="range" id="temp" min="-1" max="3" step="0.5" value="${state.scenario.tempC}"></label>
+      <p class="hint">Recalcula rotaciones, agua y riesgos en todas las secciones.</p>
+    </div>
+    ${source(`${o && o.daily ? `${o.daily.model}, ${o.daily.members} escenarios; ` : ""}NASA POWER ${climate.meta.period.replace(" to ", " a ")}.`)}`;
+  $("rain").addEventListener("change", (e) => { state.scenario.rainPct = Number(e.target.value); compute(); });
+  $("temp").addEventListener("change", (e) => { state.scenario.tempC = Number(e.target.value); compute(); });
+}
+
+function moduleCards(active) {
+  return MODULES.map((m) => `<button type="button" class="module" data-module="${m.tab}" aria-pressed="${active === m.tab}">
+      <span class="module__icon">${icon(m.icon)}</span><b>${esc(t(`mod_${m.id}`, state.lang) === `mod_${m.id}` ? m.label : t(`mod_${m.id}`, state.lang))}</b></button>`).join("");
+}
 function renderTabs() {
-  $("tabs").innerHTML = TABS.map((k) => `<button type="button" class="tab-btn${k === "fuentes" ? " mid-up" : ""}" data-tab-btn="${k}" aria-pressed="${state.tab === k}">${t(`tab_${k}`, state.lang)}</button>`).join("");
+  const secondary = TABS.filter((k) => !MODULES.some((m) => m.tab === k));
+  $("tabs").innerHTML = `<div class="modules modules--nav">${moduleCards(state.tab)}</div>
+    <div class="subtabs">${secondary.map((k) => `<button type="button" class="tab-btn${k === "fuentes" ? " mid-up" : ""}" data-tab-btn="${k}" aria-pressed="${state.tab === k}">${t(`tab_${k}`, state.lang)}</button>`).join("")}</div>`;
+  $("tabs").querySelectorAll("[data-module]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.module)));
   $("tabs").querySelectorAll("[data-tab-btn]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tabBtn)));
+}
+function renderHomeModules() {
+  $("home-modules").innerHTML = moduleCards(null);
+  $("home-modules").querySelectorAll("[data-module]").forEach((b) => b.addEventListener("click", () => {
+    if (state.result) { show("results"); setTab(b.dataset.module); } else show("wizard");
+  }));
+  document.querySelectorAll('[data-icon="map"]').forEach((el) => { el.innerHTML = icon("map"); });
 }
 function setTab(k) {
   state.tab = k;
   document.querySelectorAll(".tab").forEach((s) => { s.hidden = s.dataset.tab !== k; });
   renderTabs();
+  if (k === "general" && miniMap) setTimeout(() => miniMap.invalidateSize(), 50);
 }
 const panel = (k) => document.querySelector(`.tab[data-tab="${k}"]`);
 
@@ -484,7 +589,11 @@ function renderGeneral() {
           ${state.areaHa ? `<div><dt>Agua que ahorra en tu terreno</dt><dd>${num(Math.max(0, r.strategies[0].irrigationTotalMm - best.irrigationTotalMm) * 10 * state.areaHa)} m³ en 3 años</dd></div>` : ""}
         </dl>
       </div>
-    </div>`;
+    </div>
+    <h3>Ubicación del terreno, vista satelital</h3>
+    <div id="mini-map" class="mini-map" role="img" aria-label="Imagen satelital del terreno"></div>
+    ${source("Imagen satelital: Esri World Imagery (Esri, Maxar, Earthstar Geographics). La fecha de la imagen puede tener uno o más años.")}`;
+  initMiniMap();
 }
 
 // --- Clima ---
@@ -524,16 +633,8 @@ function renderClima() {
     <h2>Clima y pronóstico</h2>
     <div class="chips" role="group" aria-label="Periodo">${periods.map(([k, l]) => `<button type="button" class="chip" data-period="${k}" aria-pressed="${state.period === k}">${l}</button>`).join("")}</div>
     <div class="period">${body}</div>
-    ${c ? `<h3>Cómo vino el último mes</h3><p>En los últimos 30 días llovieron <b>${num(c.rain30)} mm</b>; lo normal para estas fechas son ${num(c.rain30Normal)} mm.${c.soilWetness === null ? "" : ` La humedad del suelo en la zona de raíces está en ${num(c.soilWetness * 100)} % (lo normal: ${num(c.soilWetnessNormal * 100)} %).`}</p>${source(`${c.source}, hasta el ${c.asOf}. Dato preliminar.`)}` : ""}
-    <div class="whatif mid-up">
-      <h3>¿Y si el clima cambia?</h3>
-      <label class="slider"><span>Lluvia: <output id="rain-out">${state.scenario.rainPct ? `${Math.abs(state.scenario.rainPct)} % ${state.scenario.rainPct < 0 ? "menos" : "más"}` : "igual que siempre"}</output></span><input type="range" id="rain" min="-30" max="30" step="10" value="${state.scenario.rainPct}"></label>
-      <label class="slider"><span>Temperatura: <output id="temp-out">${state.scenario.tempC ? `${num(Math.abs(state.scenario.tempC), 1)} °C ${state.scenario.tempC < 0 ? "menos" : "más"}` : "igual que siempre"}</output></span><input type="range" id="temp" min="-1" max="3" step="0.5" value="${state.scenario.tempC}"></label>
-      <p class="hint">Cambia las rotaciones y el agua de todas las secciones.</p>
-    </div>`;
+    ${c ? `<h3>Cómo vino el último mes</h3><p>En los últimos 30 días llovieron <b>${num(c.rain30)} mm</b>; lo normal para estas fechas son ${num(c.rain30Normal)} mm.${c.soilWetness === null ? "" : ` La humedad del suelo en la zona de raíces está en ${num(c.soilWetness * 100)} % (lo normal: ${num(c.soilWetnessNormal * 100)} %).`}</p>${source(`${c.source}, hasta el ${c.asOf}. Dato preliminar.`)}` : ""}`;
   panel("clima").querySelectorAll("[data-period]").forEach((b) => b.addEventListener("click", () => { state.period = b.dataset.period; renderClima(); }));
-  $("rain").addEventListener("change", (e) => { state.scenario.rainPct = Number(e.target.value); compute(); });
-  $("temp").addEventListener("change", (e) => { state.scenario.tempC = Number(e.target.value); compute(); });
 }
 
 function calendarHtml() {
@@ -626,7 +727,41 @@ function renderRelieve() {
     </div>
     <p>Tu terreno está en la <b>${position}</b> (${diff >= 0 ? "+" : "−"}${num(Math.abs(diff))} m frente al promedio de alrededor).</p>
     ${hz.length ? hz.map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.text)}</p><p>${esc(h.action)}</p>`)).join("") : notice(1, "<p>Sin señales de erosión ni de acumulación de agua con estos datos.</p>")}
-    ${source(`NASA SRTM 30 m${slope ? `; ${slope.source}` : ""}. Pendiente en un tramo de 180 m: no ve cárcavas pequeñas dentro de la parcela.`)}`;
+    ${source(`NASA SRTM 30 m${slope ? `; ${slope.source}` : ""}. Pendiente en un tramo de 180 m: no ve cárcavas pequeñas dentro de la parcela.`)}
+    <h3>Tu terreno en 3D</h3>
+    <p class="hint">Relieve real con la imagen satelital encima, en unos 2,3 km alrededor de tu terreno (marcado en naranja). Arrastra para girar y usa la rueda o dos dedos para acercar.</p>
+    <div class="terrain-tools no-print">
+      <button class="btn" type="button" id="terrain-open">Ver el relieve en 3D</button>
+      <label class="slider terrain-ex" hidden><span>Exagerar la altura: <output id="terrain-ex-out">2×</output></span><input type="range" id="terrain-ex" min="1" max="5" step="0.5" value="2"></label>
+    </div>
+    <div id="terrain3d" class="terrain3d"></div>
+    <p class="source" id="terrain-stats"></p>`;
+  if (terrainView) { terrainView.dispose(); terrainView = null; }
+  $("terrain-open").addEventListener("click", openTerrain);
+}
+
+async function openTerrain() {
+  const btn = $("terrain-open");
+  btn.disabled = true;
+  try {
+    const { renderTerrain3D } = await import("./terrain3d.js");
+    if (terrainView) terrainView.dispose();
+    terrainView = await renderTerrain3D($("terrain3d"), {
+      lat: state.site.lat, lon: state.site.lon, polygon: state.polygon, exaggeration: 2,
+      onStats: (s) => {
+        $("terrain-stats").textContent = `Altura entre ${num(s.min)} y ${num(s.max)} m en ${num(s.sizeKm, 1)} km; tu terreno a ${num(s.plotElev)} m. Elevación: SRTM en teselas Terrarium (AWS Open Data), píxel de ${num(s.metresPerPixel)} m. Imagen: Esri World Imagery.`;
+      },
+    });
+    btn.hidden = true;
+    document.querySelector(".terrain-ex").hidden = false;
+    $("terrain-ex").addEventListener("input", (e) => {
+      $("terrain-ex-out").textContent = `${e.target.value}×`;
+      if (terrainView) terrainView.setExaggeration(Number(e.target.value));
+    });
+  } catch (error) {
+    $("terrain3d").innerHTML = `<p class="hint" style="padding:1rem">No se pudo cargar el 3D: ${esc(error.message)}. Revisa la conexión.</p>`;
+    btn.disabled = false;
+  }
 }
 
 // --- Agua ---
@@ -731,6 +866,7 @@ function renderCultivos() {
       <article class="strategy strategy--${s.kind}" data-selected="${state.selected === s.kind}">
         <p class="strategy__tag">${esc(s.label)}</p>
         <p class="strategy__name">${s.years.map((y) => esc(y.name)).join(", ")}</p>
+        <div class="strategy__photos mid-up">${[...new Set(s.years.map((y) => y.crop))].map((id) => (images.crops[id] ? `<img src="${esc(images.crops[id].thumb)}" alt="${esc(crops.crops.find((c) => c.id === id).name)}" title="Foto: ${esc(images.crops[id].author)}, ${esc(images.crops[id].licence)} (Wikimedia Commons)" loading="lazy" referrerpolicy="no-referrer">` : "")).join("")}</div>
         ${wheel(s)}
         <ul class="years">${s.years.map((y) => `<li><span class="swatch" style="background:${CROP_COLORS[y.crop]}"></span><span>Año ${y.year}: <b>${esc(y.name)}</b></span><span class="when">${y.group === "fallow" ? "El suelo descansa o lleva abono verde." : `Siembra hacia el ${weekLabel(y.sowWeek)}. Riego: ${mm(y.irrigationMm)}.`}</span></li>`).join("")}</ul>
         <div class="bars mid-up">${Object.entries(SCORE_LABELS).map(([k, [l, max]]) => `<div class="bar"><span>${l}</span><span class="bar__track"><span class="bar__fill" style="width:${Math.round((s.parts[k] / max) * 100)}%"></span></span><span class="bar__value">${num(s.parts[k])}/${max}</span></div>`).join("")}</div>
@@ -758,8 +894,10 @@ function renderPlagas() {
     ${ids.map((id) => {
       const pests = knowledge.pests[id] || [];
       if (!pests.length) return "";
-      return `<h3>${esc(crops.crops.find((c) => c.id === id).name)}</h3>
+      const cropName = crops.crops.find((c) => c.id === id).name;
+      return `<div class="crop-head">${photo(images.crops[id], cropName, "photo photo--round")}<h3>${esc(cropName)}</h3></div>
         <div class="cards">${pests.map((p) => `<article class="card">
+          ${photo(images.pests[p.scientific], p.name)}
           <p class="card__title">${esc(p.name)} <span class="adv-only small"><i>${esc(p.scientific)}</i></span></p>
           <p class="small">${esc(p.type)} · ${esc(p.season)}</p>
           <p><b>Señales:</b> ${esc(p.signs)}</p>
@@ -770,7 +908,7 @@ function renderPlagas() {
     <div class="cards">${knowledge.repellents.map((r) => `<article class="card"><p class="card__title">${esc(r.name)}</p><p class="small">Para ${esc(r.for)}</p><p class="mid-up">${esc(r.how)}</p><p class="small">${esc(r.care)}</p></article>`).join("")}</div>
     ${notice(2, `<p>${esc(knowledge.meta.safety)}</p>`)}
     <h3>Especies invasoras a vigilar</h3>
-    <div class="cards">${knowledge.invasive.map((x) => `<article class="card"><p class="card__title">${esc(x.name)} <span class="adv-only small"><i>${esc(x.scientific)}</i></span></p><p class="small">Origen: ${esc(x.origin)}</p><p>${esc(x.risk)}</p><p><b>Qué hacer:</b> ${esc(x.action)}</p></article>`).join("")}</div>
+    <div class="cards">${knowledge.invasive.map((x) => `<article class="card">${photo(images.invasive[x.scientific], x.name)}<p class="card__title">${esc(x.name)} <span class="adv-only small"><i>${esc(x.scientific)}</i></span></p><p class="small">Origen: ${esc(x.origin)}</p><p>${esc(x.risk)}</p><p><b>Qué hacer:</b> ${esc(x.action)}</p></article>`).join("")}</div>
     <p class="source adv-only">Fuentes de referencia: ${esc(knowledge.meta.sources.join("; "))}.</p>`;
 }
 
@@ -912,6 +1050,7 @@ function setLang(lang) {
   applyLanguage(lang);
   document.querySelectorAll("[data-lang]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
   renderStepper();
+  if ($("home-modules").children.length) renderHomeModules();
   if (state.result) renderTabs();
   savePrefs();
 }
@@ -923,9 +1062,11 @@ async function start() {
     document.querySelector("#hero-fact .hero__fact-body").textContent = `No se pudieron cargar los datos. ${error.message}. Recarga la página.`;
     return;
   }
+  try { images = await loadJson("data/images.json", 8000); } catch { /* photos are optional */ }
   const prefs = readStore().prefs || {};
   setMode(prefs.mode || "medio");
   setLang(prefs.lang || "es");
+  renderHomeModules();
   renderHeroFact();
   renderForm();
   renderSaved();

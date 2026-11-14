@@ -124,7 +124,18 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge }) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "");
     if (path === "/api/health") {
+      // one cheap call to the municipal service, to tell a wrong key (401/403) from a blocked or slow server
+      let gamcCheck = "sin clave";
+      if (env.GAMC_API_KEY) {
+        try {
+          const r = await gamcFetch("distritos", { REQUEST: "GetLegendGraphic", VERSION: "1.0.0", FORMAT: "image/png", check: String(Date.now()) });
+          gamcCheck = r.status === 200 ? "ok" : `HTTP ${r.status}${r.status === 401 || r.status === 403 ? ": el GAMC rechazó la clave" : ""}`;
+        } catch (error) {
+          gamcCheck = `sin respuesta del GAMC (${error.name === "TimeoutError" ? "tiempo agotado" : error.message})`;
+        }
+      }
       return json(200, {
+        gamc_check: gamcCheck,
         ok: true, climate: climate.meta.period, crops: crops.crops.length, gamc: Boolean(env.GAMC_API_KEY),
         tiri: await terra.status(),
         warnings: ["GEMINI_API_KEY", "ANTHROPIC_API_KEY"].filter((k) => env[k] && !usableKey(env[k]))
@@ -134,6 +145,22 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge }) {
     }
     if (path === "/api/whatsapp") return whatsapp(request);
     if (path === "/api/tiri" || path === "/api/terra") return json(200, await terra.ask(await body(request, url)));
+    const terrainTile = path.match(/^\/api\/terrain\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})\.png$/);
+    if (terrainTile) {
+      // Elevation tiles (Terrarium encoding, SRTM-based) from the AWS open data registry. They are proxied because
+      // the bucket sends no CORS header and the 3D view needs to read their pixels.
+      const [, z, x, y] = terrainTile.map(Number);
+      if (z > 15) throw fail(400, "Zoom máximo 15");
+      const key = `terrain:${z}/${x}/${y}`;
+      let tile = cache.get(key);
+      if (!tile) {
+        const r = await fetch(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`, { signal: AbortSignal.timeout(15000) });
+        if (!r.ok) throw fail(502, `Teselas de elevación: HTTP ${r.status}`);
+        tile = new Uint8Array(await r.arrayBuffer());
+        remember(key, tile, 400);
+      }
+      return new Response(tile, { status: 200, headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" } });
+    }
     if (path === "/api/outlook") {
       const la = Number(url.searchParams.get("lat"));
       const lo = Number(url.searchParams.get("lon"));

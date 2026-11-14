@@ -1,0 +1,236 @@
+{
+ "source": "Wikipedia y Wikimedia Commons; cada imagen con su autor y licencia",
+ "generated": "2026-11-14",
+ "crops": {
+  "papa": {
+   "title": "Solanum tuberosum",
+   "wiki": "https://es.wikipedia.org/wiki/Solanum_tuberosum",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/S._tuberosum-5.JPG/960px-S._tuberosum-5.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:S._tuberosum-5.JPG",
+   "licence": "CC BY-SA 3.0",
+   "author": "Philmarin"
+  },
+  "maiz": {
+   "title": "Zea mays",
+   "wiki": "https://es.wikipedia.org/wiki/Zea_mays",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Zea_mays_Blanco2.279.png/960px-Zea_mays_Blanco2.279.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Zea_mays_Blanco2.279.png",
+   "licence": "Public domain",
+   "author": "Francisco Manuel Blanco (O.S.A.)"
+  },
+  "haba": {
+   "title": "Vicia faba",
+   "wiki": "https://es.wikipedia.org/wiki/Vicia_faba",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Illustration_Vicia_faba1.jpg/960px-Illustration_Vicia_faba1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Illustration_Vicia_faba1.jpg",
+   "licence": "Public domain",
+   "author": "Wikimedia Commons"
+  },
+  "arveja": {
+   "title": "Pisum sativum",
+   "wiki": "https://es.wikipedia.org/wiki/Pisum_sativum",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Illustration_Pisum_sativum0_clean.jpg/960px-Illustration_Pisum_sativum0_clean.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Illustration_Pisum_sativum0_clean.jpg",
+   "licence": "Public domain",
+   "author": "User:Kilom691"
+  },
+  "trigo": {
+   "title": "Common wheat",
+   "wiki": "https://en.wikipedia.org/wiki/Common_wheat",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/Bl%C3%A9_tendre_%28GRAPELLI%29_AO-5-cliche_Jean_Weber_%285%29_%2823975019962%29.jpg/960px-Bl%C3%A9_tendre_%28GRAPELLI%29_AO-5-cliche_Jean_Weber_%285%29_%2823975019962%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Bl%C3%A9_tendre_(GRAPELLI)_AO-5-cliche_Jean_Weber_(5)_(23975019962).jpg",
+   "licence": "CC BY 2.0",
+   "author": "INRA DIST from France"
+  },
+  "cebada": {
+   "title": "Barley",
+   "wiki": "https://en.wikipedia.org/wiki/Barley",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Barley_%28Hordeum_vulgare%29_-_United_States_National_Arboretum_-_24_May_2009.jpg/960px-Barley_%28Hordeum_vulgare%29_-_United_States_National_Arboretum_-_24_May_2009.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Barley_(Hordeum_vulgare)_-_United_States_National_Arboretum_-_24_May_2009.jpg",
+   "licence": "CC BY 2.0",
+   "author": "Cliff from Arlington, Virginia, USA"
+  },
+  "quinua": {
+   "title": "Chenopodium quinoa",
+   "wiki": "https://es.wikipedia.org/wiki/Chenopodium_quinoa",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Quinoa_farmer_in_Cachilaya.JPG/960px-Quinoa_farmer_in_Cachilaya.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Quinoa_farmer_in_Cachilaya.JPG",
+   "licence": "CC BY-SA 3.0",
+   "author": "Michael Hermann"
+  },
+  "alfalfa": {
+   "title": "Medicago sativa",
+   "wiki": "https://es.wikipedia.org/wiki/Medicago_sativa",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Illustration_Medicago_sativa1.jpg/960px-Illustration_Medicago_sativa1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Illustration_Medicago_sativa1.jpg",
+   "licence": "Public domain",
+   "author": "Prof. Dr. Otto Wilhelm Thomé"
+  },
+  "cebolla": {
+   "title": "Allium cepa",
+   "wiki": "https://es.wikipedia.org/wiki/Allium_cepa",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/ARS_red_onion.jpg/960px-ARS_red_onion.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:ARS_red_onion.jpg",
+   "licence": "Public domain",
+   "author": "Stephen Ausmus, USDA ARS"
+  },
+  "tomate": {
+   "title": "Solanum lycopersicum",
+   "wiki": "https://es.wikipedia.org/wiki/Solanum_lycopersicum",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/Bright_red_tomato_and_cross_section02.jpg/960px-Bright_red_tomato_and_cross_section02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Bright_red_tomato_and_cross_section02.jpg",
+   "licence": "GFDL 1.2",
+   "author": "fir0002 flagstaffotos [at] gmail.com Canon 20D + Sigma 150mm f/2.8"
+  }
+ },
+ "pests": {
+  "Premnotrypes spp.": {
+   "title": "Premnotrypes",
+   "wiki": "https://en.wikipedia.org/wiki/Premnotrypes",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Premnotrypes_vorax_-_5179011.jpg/960px-Premnotrypes_vorax_-_5179011.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Premnotrypes_vorax_-_5179011.jpg",
+   "licence": "CC BY 3.0 us",
+   "author": "Natasha Wright, Florida Department of Agriculture and Consumer Services, Bugwood.org"
+  },
+  "Phthorimaea operculella y Symmetrischema tangolias": {
+   "title": "Phthorimaea operculella",
+   "wiki": "https://en.wikipedia.org/wiki/Phthorimaea_operculella",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Phthorimaea_operculella_dorsal.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Phthorimaea_operculella_dorsal.jpg",
+   "licence": "CC BY 3.0 au",
+   "author": "Caroline Harding, MAF"
+  },
+  "Phytophthora infestans": {
+   "title": "Phytophthora infestans",
+   "wiki": "https://en.wikipedia.org/wiki/Phytophthora_infestans",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Late_blight_on_potato_leaf_2.jpg/960px-Late_blight_on_potato_leaf_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Late_blight_on_potato_leaf_2.jpg",
+   "licence": "CC BY 3.0 us",
+   "author": "Howard F. Schwartz, Colorado State University, United States"
+  },
+  "Globodera spp.": {
+   "title": "Globodera",
+   "wiki": "https://es.wikipedia.org/wiki/Globodera",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/7/7d/PotatoNematodeCysts.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:PotatoNematodeCysts.jpg",
+   "licence": "Public domain",
+   "author": "Xiaohong Wang"
+  },
+  "Spodoptera frugiperda": {
+   "title": "Spodoptera frugiperda",
+   "wiki": "https://es.wikipedia.org/wiki/Spodoptera_frugiperda",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Spodoptera_frugiperda_worm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Spodoptera_frugiperda_worm.jpg",
+   "licence": "Public domain",
+   "author": "Wikimedia Commons"
+  },
+  "Helicoverpa spp.": {
+   "title": "Helicoverpa",
+   "wiki": "https://es.wikipedia.org/wiki/Helicoverpa",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/7/78/Helicoverpa_armigera.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Helicoverpa_armigera.jpg",
+   "licence": "CC BY 2.5",
+   "author": "Eric SYLVESTRE"
+  },
+  "Botrytis fabae": null,
+  "Aphis fabae": {
+   "title": "Aphis fabae",
+   "wiki": "https://es.wikipedia.org/wiki/Aphis_fabae",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/9/90/Aphids_May_2010-3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Aphids_May_2010-3.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Alvesgaspar"
+  },
+  "Bruchus rufimanus": {
+   "title": "Bruchus rufimanus",
+   "wiki": "https://es.wikipedia.org/wiki/Bruchus_rufimanus",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/9/98/Bruchus_rufimanus1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Bruchus_rufimanus1.jpg",
+   "licence": "CC BY 3.0 au",
+   "author": "Simon Hinkley &amp; Ken Walker, Museum Victoria"
+  },
+  "Erysiphe pisi": {
+   "title": "Erysiphe pisi",
+   "wiki": "https://en.wikipedia.org/wiki/Erysiphe_pisi",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Erysiphe_pisi_DK16_%283%29.jpg/960px-Erysiphe_pisi_DK16_%283%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Erysiphe_pisi_DK16_(3).jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Jerzy Opioła"
+  },
+  "Liriomyza spp.": {
+   "title": "Liriomyza",
+   "wiki": "https://es.wikipedia.org/wiki/Liriomyza",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Liriomyza_pusilla_03.jpg/960px-Liriomyza_pusilla_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Liriomyza_pusilla_03.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "AfroBrazilian"
+  },
+  "Puccinia spp.": null,
+  "varias especies": null,
+  "Eurysacca quinoae y E. melanocampta": null,
+  "Peronospora variabilis": null,
+  "Agrotis spp.": {
+   "title": "Agrotis",
+   "wiki": "https://es.wikipedia.org/wiki/Agrotis",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Agrotis_exclamationis01.jpg/960px-Agrotis_exclamationis01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Agrotis_exclamationis01.jpg",
+   "licence": "Attribution",
+   "author": "Wikimedia Commons"
+  },
+  "Thrips tabaci": {
+   "title": "Thrips",
+   "wiki": "https://en.wikipedia.org/wiki/Thrips",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Thysanoptera.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Thysanoptera.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Wikimedia Commons"
+  },
+  "Peronospora destructor": {
+   "title": "Peronospora destructor",
+   "wiki": "https://en.wikipedia.org/wiki/Peronospora_destructor",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/Peronospora_destructor.JPG/960px-Peronospora_destructor.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Peronospora_destructor.JPG",
+   "licence": "CC BY 3.0 us",
+   "author": "Howard F. Schwartz, Colorado State University, Bugwood.org"
+  },
+  "Tuta absoluta": {
+   "title": "Tuta absoluta",
+   "wiki": "https://es.wikipedia.org/wiki/Tuta_absoluta",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Tuta_absoluta_5432149.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Tuta_absoluta_5432149.jpg",
+   "licence": "CC BY 3.0 us",
+   "author": "Marja van der Straten, NVWA Plant Protection Service, Bugwood.org"
+  },
+  "Bemisia tabaci y Trialeurodes vaporariorum": {
+   "title": "Bemisia tabaci",
+   "wiki": "https://es.wikipedia.org/wiki/Bemisia_tabaci",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Bemisia_tabaci_from_USDA_1.jpg/960px-Bemisia_tabaci_from_USDA_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Bemisia_tabaci_from_USDA_1.jpg",
+   "licence": "Public domain",
+   "author": "Stephen Ausmus"
+  }
+ },
+ "invasive": {
+  "Cenchrus clandestinus (Pennisetum clandestinum)": null,
+  "Eucalyptus globulus": {
+   "title": "Eucalyptus globulus",
+   "wiki": "https://es.wikipedia.org/wiki/Eucalyptus_globulus",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Starr_031214-0076_Eucalyptus_globulus.jpg/960px-Starr_031214-0076_Eucalyptus_globulus.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Starr_031214-0076_Eucalyptus_globulus.jpg",
+   "licence": "CC BY 3.0",
+   "author": "Forest &amp; Kim Starr"
+  },
+  "Lissachatina fulica": {
+   "title": "Lissachatina fulica",
+   "wiki": "https://es.wikipedia.org/wiki/Lissachatina_fulica",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Achatina_fulica_Thailand.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Achatina_fulica_Thailand.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Wikimedia Commons"
+  }
+ },
+ "places": {
+  "valle": null
+ },
+ "note": "Revisadas a mano: se quitaron dos fotos que mostraban otra especie (mildiu de la espinaca y Cenchrus echinatus)."
+}

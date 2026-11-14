@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Yatiri X: conocemos tu tierra, cultivamos un mejor futuro</title>
   <meta name="description" content="Yatiri X analiza tu terreno en Cochabamba con datos de la NASA y del municipio: suelo, clima, relieve, agua, riesgos, plagas y qué sembrar. Con Tiri, tu asistente agrícola.">
-  <meta name="theme-color" content="#5e8c3a">
+  <meta name="theme-color" content="#687870">
+  <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="css/styles.css">
+  <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.min.js" } }</script>
 </head>
 <body data-mode="medio">
   <header class="topbar">
-    <a class="logo" href="#inicio" data-go="home"><span class="logo__mark" aria-hidden="true">🌱</span><span>Yatiri X</span></a>
+    <a class="logo" href="#inicio" data-go="home"><img class="logo__mark" src="img/logo-mark.png" alt="" width="28" height="38"><img class="logo__word" src="img/logo-word.png" alt="Yatiri X" width="130" height="28"></a>
     <div class="topbar__tools">
       <div class="switch" role="group" aria-label="Idioma" data-i18n-aria="language">
         <button type="button" data-lang="es" aria-pressed="true">Español</button>
@@ -41,10 +43,22 @@
           <a class="btn btn--ghost" href="#como" data-i18n="ctaHow">Cómo funciona</a>
         </div>
       </div>
-      <figure class="hero__fact" id="hero-fact" aria-live="polite">
-        <p class="hero__fact-label" data-i18n="heroFactLabel">Ejemplo real, Distrito 9</p>
-        <p class="hero__fact-body">Calculando con datos de la NASA…</p>
-      </figure>
+      <div class="hero__side">
+        <img class="hero__logo" src="img/logo-full.png" alt="Logo de Yatiri X: una hoja con tres ondas de agua y tierra" width="240" height="266">
+        <figure class="hero__fact" id="hero-fact" aria-live="polite">
+          <p class="hero__fact-label" data-i18n="heroFactLabel">Ejemplo real, Distrito 9</p>
+          <p class="hero__fact-body">Calculando con datos de la NASA…</p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="band" id="modulos">
+      <h2 data-i18n="modulesTitle">Plataforma inteligente de análisis de terrenos agrícolas</h2>
+      <div class="modules" id="home-modules"></div>
+      <button class="module module--start" type="button" data-go="wizard">
+        <span class="module__icon" aria-hidden="true" data-icon="map"></span>
+        <span><b data-i18n="startTitle">Comenzar análisis</b><span class="module__sub" data-i18n="startSub">Conoce las condiciones de tu parcela agrícola.</span></span>
+      </button>
     </section>
 
     <section class="band" id="problema">
@@ -166,6 +180,7 @@
     <nav class="tabs" id="tabs" aria-label="Secciones del análisis"></nav>
     <div class="tab-panels">
       <section class="panel tab" data-tab="general"></section>
+      <section class="panel tab" data-tab="predicciones"></section>
       <section class="panel tab" data-tab="clima"></section>
       <section class="panel tab" data-tab="suelo"></section>
       <section class="panel tab" data-tab="relieve"></section>
@@ -203,7 +218,7 @@
 
   <footer class="foot">
     <p data-i18n="footer1">Yatiri X es una ayuda para decidir: no reemplaza al agricultor ni al técnico de la zona.</p>
-    <p>Clima: NASA POWER. Altitud y relieve: NASA SRTM. Imágenes: NASA SMAP, GPM IMERG y MODIS (GIBS). Municipio: Gobierno Autónomo Municipal de Cochabamba. Suelo: SoilGrids (ISRIC). Pronóstico: GFS Ensemble (NOAA) y Open-Meteo. Mapa base: © OpenStreetMap.</p>
+    <p>Clima: NASA POWER. Altitud y relieve: NASA SRTM (también vía teselas Terrarium de AWS Open Data). Imágenes: NASA SMAP, GPM IMERG y MODIS (GIBS); satélite: Esri World Imagery (Esri, Maxar, Earthstar Geographics); fotos: Wikimedia Commons, con su autor y licencia. Municipio: Gobierno Autónomo Municipal de Cochabamba. Suelo: SoilGrids (ISRIC). Pronóstico: GFS Ensemble (NOAA) y Open-Meteo. Mapa base: © OpenStreetMap.</p>
     <p data-i18n="footer2">Tus datos se guardan solo en este dispositivo.</p>
   </footer>
 

@@ -27,6 +27,14 @@ evapotranspiración media anual de 1.690 mm a 2.550 m y 1.322 mm a 3.400 m; inic
 | NASA POWER 1981-2025, semanas de cada mes | Probabilidad de mes seco, mes lluvioso y helada en los próximos 3 meses | Es frecuencia histórica, no un pronóstico de días |
 | GFS Ensemble 0,25° (NOAA) vía Open-Meteo, 31 escenarios, 16 días | Probabilidad diaria de lluvia y helada, y semanal frente a lo normal | No es dato de NASA; se cita aparte |
 
+## Agregado el 15 de noviembre
+
+| Fuente | Uso | Límites |
+| --- | --- | --- |
+| Teselas de elevación Terrarium (AWS Open Data, mosaico basado en NASA SRTM y otras fuentes), zoom 14 | Relieve en 3D del terreno, píxel de unos 9 m | Remuestreado: el SRTM original es de 30 m |
+| Esri World Imagery (Esri, Maxar, Earthstar Geographics) | Imagen satelital del mapa y del 3D | No es de NASA; la fecha de la imagen varía por zona |
+| Wikimedia Commons | Fotos de cultivos, plagas y especies invasoras, con autor y licencia | Ilustrativas: no son de la parcela |
+
 ## Fuentes que no son de NASA
 
 | Fuente | Uso |

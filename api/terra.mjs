@@ -10,6 +10,8 @@ import { assessPlot } from "../web/js/assess.js";
 
 const DEFAULT_MODEL = "claude-haiku-5-5"; // the model the team context names for short explanations; override with TERRA_MODEL
 const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta";
+// Verified on 2026-11-14 with the team's key. Older names (gemini-pro, gemini-1.5-flash, gemini-2.0-flash) return 404.
+const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
 
 /** A key pasted from a chat can carry look-alike letters from other alphabets; such a key can never work. */
 export const usableKey = (key) => Boolean(key) && /^[\x21-\x7E]+$/.test(key);
@@ -104,8 +106,9 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
         ph: plot.soil.ph && Math.round(plot.soil.ph * 10) / 10, textura: plot.soil.texture,
         carbono_organico_g_kg: plot.soil.soc_gkg && Math.round(plot.soil.soc_gkg), consejos: assessment.soilAdvice, fuente: plot.soil.source,
       } : "sin dato de suelo para este punto",
-      abono_por_cultivo: Object.fromEntries(ids.map((id) => [id, knowledge.fertility[id]]).filter(([, v]) => v)),
-      plagas_por_cultivo: Object.fromEntries(ids.map((id) => [id, (knowledge.pests[id] || []).map((p) => ({
+      cultivos_de_la_rotacion_recomendada: ids,
+      abono_por_cultivo: knowledge.fertility,
+      plagas_por_cultivo: Object.fromEntries(Object.keys(knowledge.pests).map((id) => [id, (knowledge.pests[id] || []).map((p) => ({
         nombre: p.name, cientifico: p.scientific, cuando: p.season, senales: p.signs, prevencion: p.prevention, casero: p.homemade,
       }))])),
       especies_invasoras: knowledge.invasive.map((x) => ({ nombre: x.name, riesgo: x.risk, que_hacer: x.action })),
@@ -239,9 +242,11 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
             ...history.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
             { role: "user", parts: [{ text: `DATOS DE LA PARCELA (JSON):\n${JSON.stringify(facts(ctx))}\n\nPREGUNTA DEL AGRICULTOR: ${question}` }] },
           ],
-          generationConfig: { maxOutputTokens: 2000 },
+          // room for the model's internal reasoning plus a short answer
+          generationConfig: { maxOutputTokens: 4000 },
         }),
       });
+      if (r.status === 404 && model !== FALLBACK_GEMINI_MODEL) { geminiModel = FALLBACK_GEMINI_MODEL; return gemini(question, ctx, history); }
       if (r.status === 401 || r.status === 403 || r.status === 404) { geminiDownUntil = Date.now() + 10 * 60 * 1000; return null; }
       if (!r.ok) return null;
       const data = await r.json();

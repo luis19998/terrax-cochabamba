@@ -50,6 +50,16 @@ const QU = {
   ask: "Tapuy",
   askPh: "Tapuyniykita qillqay",
   footer2: "Willakuyniykiqa kay aparatullapi waqaychakun.",
+  modulesTitle: "Chakra jallp'akunata qhawarinapaq yachayniyuq plataforma",
+  startTitle: "Qhawariyta qallariy",
+  startSub: "Chakraykiq imaynan kasqanta riqsiy.",
+  mod_ubicacion: "Jallp'a maypi kasqan",
+  mod_suelo: "Jallp'ata qhawariy",
+  mod_clima: "Paray ruphay, ñawpaqmanta willay",
+  mod_relieve: "Urqukuna pampakuna",
+  mod_agua: "Ch'aran, yaku",
+  mod_predicciones: "Ñawpaqmanta yachay",
+  tab_predicciones: "Ñawpaqmanta yachay",
   // tabs
   tab_general: "Imaynalla",
   tab_clima: "Paray ruphay",
@@ -67,7 +77,7 @@ const QU = {
 };
 
 const TAB_ES = {
-  tab_general: "Estado general", tab_clima: "Clima y pronóstico", tab_suelo: "Suelo", tab_relieve: "Relieve", tab_agua: "Agua",
+  tab_general: "Estado general", tab_predicciones: "Predicciones", tab_clima: "Clima y pronóstico", tab_suelo: "Suelo", tab_relieve: "Relieve", tab_agua: "Agua",
   tab_riesgos: "Riesgos", tab_cultivos: "Qué sembrar", tab_plagas: "Plagas y cuidados", tab_legal: "Legal", tab_ganancias: "Ganancias",
   tab_fuentes: "Fuentes",
   st1: "Ubicación", st2: "Cultivo y suelo", st3: "Agua", st4: "Prioridades", st5: "Analizar",
