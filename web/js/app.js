@@ -555,7 +555,7 @@ async function askTerra(question) {
     });
     const data = await r.json();
     if (!r.ok || !data.answer) throw new Error(data.error || "sin respuesta");
-    state.chat.push({ role: "assistant", content: data.answer, note: data.engine === "claude" ? "Respuesta redactada con IA (Claude) a partir de tus datos." : "Respuesta automática con los datos de tu parcela." });
+    state.chat.push({ role: "assistant", content: data.answer, note: data.engine === "rules" ? "Respuesta automática con los datos de tu parcela." : `Respuesta redactada con IA (${data.model || data.engine}) a partir de tus datos.` });
   } catch {
     state.chat.push({ role: "assistant", content: "No pude responder ahora. Revisa tu conexión e intenta de nuevo.", note: "" });
   }

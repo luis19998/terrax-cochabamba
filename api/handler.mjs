@@ -11,7 +11,7 @@
 //   GET/POST /api/whatsapp          WhatsApp Cloud API webhook (see whatsapp.mjs)
 import { explain, recommend } from "../web/js/engine.js";
 import { createPlotService } from "./plot.mjs";
-import { createTerra } from "./terra.mjs";
+import { createTerra, usableKey } from "./terra.mjs";
 import { createWhatsApp } from "./whatsapp.mjs";
 
 // 1 x 1 transparent PNG, sent when the municipal server does not answer so the map keeps working
@@ -122,7 +122,10 @@ export function createApi({ env, climate, crops, gamc, grid }) {
     if (path === "/api/health") {
       return json(200, {
         ok: true, climate: climate.meta.period, crops: crops.crops.length, gamc: Boolean(env.GAMC_API_KEY),
-        terra: env.ANTHROPIC_API_KEY ? "claude" : "rules", whatsapp: Boolean(env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_NUMBER_ID),
+        terra: usableKey(env.GEMINI_API_KEY) ? "gemini" : usableKey(env.ANTHROPIC_API_KEY) ? "claude" : "rules",
+        warnings: ["GEMINI_API_KEY", "ANTHROPIC_API_KEY"].filter((k) => env[k] && !usableKey(env[k]))
+          .map((k) => `${k} tiene caracteres que no son letras latinas, números o signos: vuelve a copiarla`),
+        whatsapp: Boolean(env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_NUMBER_ID),
       });
     }
     if (path === "/api/whatsapp") return whatsapp(request);

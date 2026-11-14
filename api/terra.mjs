@@ -1,10 +1,17 @@
 // Terra, the assistant of Terrax. Answers questions about one plot using only the evaluation computed by the
-// engine. With ANTHROPIC_API_KEY it writes the answer with Claude; without it (or if the model fails) it answers
-// from fixed rules, so the assistant is always available.
+// engine. The language model only writes the answer; the numbers always come from the engine.
+//   GEMINI_API_KEY      -> Google Gemini (REST API). GEMINI_MODEL picks the model; without it the newest
+//                          "flash" model the key can use is chosen automatically.
+//   ANTHROPIC_API_KEY   -> Claude, if there is no Gemini key.
+//   neither, or a model error -> fixed rules, so the assistant is always available.
 import { explain, recommend } from "../web/js/engine.js";
 import { assessPlot } from "../web/js/assess.js";
 
 const DEFAULT_MODEL = "claude-haiku-5-5"; // the model the team context names for short explanations; override with TERRA_MODEL
+const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta";
+
+/** A key pasted from a chat can carry look-alike letters from other alphabets; such a key can never work. */
+export const usableKey = (key) => Boolean(key) && /^[\x21-\x7E]+$/.test(key);
 
 const SYSTEM = `Eres Terra, la asistente agrícola de Terrax para el municipio de Cochabamba, Bolivia. Hablas con agricultores que leen en el teléfono.
 
@@ -147,7 +154,53 @@ export function createTerra({ env, climate, crops, plotService, gamcInfo, foreca
     return `Soy Terra. Tu parcela está en ${place(plot)}, a ${plot.altitude} m. ${top.length ? `Ojo con: ${top.join(", ")}.` : "No veo riesgos altos."} Pregúntame qué sembrar, cuánta agua hace falta, si va a helar o llover, cómo está el suelo o qué riesgos tiene tu tierra.`;
   }
 
+  let geminiModel = null;
+  async function pickGeminiModel() {
+    if (env.GEMINI_MODEL) return env.GEMINI_MODEL;
+    if (geminiModel) return geminiModel;
+    const r = await fetch(`${GEMINI_API}/models?pageSize=200`, {
+      headers: { "x-goog-api-key": env.GEMINI_API_KEY }, signal: AbortSignal.timeout(8000),
+    });
+    if (!r.ok) return null;
+    const { models = [] } = await r.json();
+    const usable = models
+      .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
+      .filter((m) => /flash/.test(m.name) && !/(lite|image|tts|audio|live|exp|preview|embed|thinking)/.test(m.name))
+      .sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
+    geminiModel = usable.length ? usable[0].name.replace(/^models\//, "") : null;
+    return geminiModel;
+  }
+
+  async function gemini(question, ctx, history) {
+    if (!usableKey(env.GEMINI_API_KEY)) return null;
+    try {
+      const model = await pickGeminiModel();
+      if (!model) return null;
+      const r = await fetch(`${GEMINI_API}/models/${encodeURIComponent(model)}:generateContent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
+        signal: AbortSignal.timeout(20000),
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM }] },
+          contents: [
+            ...history.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
+            { role: "user", parts: [{ text: `DATOS DE LA PARCELA (JSON):\n${JSON.stringify(facts(ctx))}\n\nPREGUNTA DEL AGRICULTOR: ${question}` }] },
+          ],
+          generationConfig: { maxOutputTokens: 2000 },
+        }),
+      });
+      if (!r.ok) return null;
+      const data = await r.json();
+      const parts = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
+      const text = parts.filter((p) => typeof p.text === "string" && !p.thought).map((p) => p.text).join("").trim();
+      return text ? { text, model } : null;
+    } catch {
+      return null; // any API problem falls back to the next option
+    }
+  }
+
   async function claude(question, ctx, history) {
+    if (!usableKey(env.ANTHROPIC_API_KEY)) return null;
     const client = await getClient();
     if (!client) return null;
     try {
@@ -163,7 +216,7 @@ export function createTerra({ env, climate, crops, plotService, gamcInfo, foreca
       });
       if (response.stop_reason === "refusal") return null;
       const text = response.content.filter((block) => block.type === "text").map((block) => block.text).join("").trim();
-      return text || null;
+      return text ? { text, model: env.TERRA_MODEL || DEFAULT_MODEL } : null;
     } catch {
       return null; // any API problem falls back to the rule-based answer
     }
@@ -184,11 +237,20 @@ export function createTerra({ env, climate, crops, plotService, gamcInfo, foreca
       .slice(-6).map((m) => ({ role: m.role, content: m.content.slice(0, 800) }));
     while (history.length && history[0].role !== "user") history.shift();
     if (history.length && history[history.length - 1].role === "user") history.pop();
-    const fromModel = question ? await claude(question, ctx, history) : null;
+    let fromModel = null;
+    let engine = "rules";
+    if (question) {
+      fromModel = await gemini(question, ctx, history);
+      if (fromModel) engine = "gemini";
+      else {
+        fromModel = await claude(question, ctx, history);
+        if (fromModel) engine = "claude";
+      }
+    }
     return {
-      answer: fromModel || (question ? rules(question, ctx) : summary(ctx)),
-      engine: fromModel ? "claude" : "rules",
-      model: fromModel ? env.TERRA_MODEL || DEFAULT_MODEL : null,
+      answer: fromModel ? fromModel.text : (question ? rules(question, ctx) : summary(ctx)),
+      engine,
+      model: fromModel ? fromModel.model : null,
     };
   }
 

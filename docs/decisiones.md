@@ -37,3 +37,5 @@ Este archivo solo crece por el final.
   persona, y el riesgo de helada del motor.
 - **SoilGrids lento.** El 14 de noviembre tardó entre 43 y más de 60 segundos por consulta. La web espera 8 segundos
   y sigue sin suelo. Pendiente: precalcular el suelo de una malla del municipio.
+- **Gemini como motor de Terra.** Si hay `GEMINI_API_KEY`, Terra redacta con Gemini (API REST de Google); si no, con
+  Claude; si no hay ninguna, por reglas. El modelo se elige solo (el `flash` más nuevo) salvo que se fije `GEMINI_MODEL`.
