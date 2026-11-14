@@ -1,0 +1,8 @@
+# Static site in web/ plus one function that serves /api/* (see netlify/functions/api.mjs).
+# Set GAMC_API_KEY in the site's environment variables to enable the municipal map layers.
+[build]
+  publish = "web"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

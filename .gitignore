@@ -1,0 +1,24 @@
+# Secrets and local config
+.env
+.env.*
+!.env.example
+
+# Raw downloads (re-creatable with the scripts in data/)
+data/raw/
+
+# Environments and dependencies
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+
+# Obsidian per-user window layout
+docs/.obsidian/workspace*.json
+
+# Logs and OS files
+*.log
+Thumbs.db
+.DS_Store
+
+# Local tooling
+.claude/

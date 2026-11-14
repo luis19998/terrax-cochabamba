@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terrax: qué sembrar y cómo cuidar tu tierra en Cochabamba</title>
+  <meta name="description" content="Terrax compara rotaciones de cultivos y revisa los riesgos de tu parcela en Cochabamba con 45 años de datos de la NASA. Pregúntale a Terra.">
+  <meta name="theme-color" content="#0b5d6e">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead__inner">
+      <p class="brand">Terrax <span class="brand__place">Cochabamba, versión beta</span></p>
+      <h1>¿Qué siembro después, y me alcanzará el agua?</h1>
+      <p class="masthead__lead">Marca tu parcela. Terrax compara tres rotaciones y revisa los riesgos de tu tierra con 45 años de clima medido por la NASA.</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel panel--map" aria-labelledby="h-place">
+      <h2 id="h-place"><span class="step">1</span> ¿Dónde está tu parcela?</h2>
+      <p class="hint">Toca el mapa o elige una zona.</p>
+      <div class="chips" id="presets" role="group" aria-label="Zonas de ejemplo"></div>
+      <div id="map" class="map" role="application" aria-label="Mapa del municipio de Cochabamba"></div>
+      <div class="chips chips--small" id="layer-toggles" role="group" aria-label="Capas del municipio"></div>
+      <div id="site" class="site" aria-live="polite">
+        <p class="site__empty">Todavía no elegiste una parcela.</p>
+      </div>
+    </section>
+
+    <div class="flow">
+      <section class="panel" aria-labelledby="h-farm">
+        <h2 id="h-farm"><span class="step">2</span> Cuéntanos de tu parcela</h2>
+
+        <fieldset class="field">
+          <legend>¿Qué sembraste la última campaña?</legend>
+          <div class="chips" id="last-crop"></div>
+        </fieldset>
+        <fieldset class="field">
+          <legend>¿Y la campaña anterior? <span class="optional">Si no recuerdas, déjalo así.</span></legend>
+          <div class="chips" id="previous-crop"></div>
+        </fieldset>
+        <fieldset class="field">
+          <legend>¿Tienes riego?</legend>
+          <div class="chips" id="irrigation"></div>
+        </fieldset>
+        <fieldset class="field">
+          <legend>¿Qué te importa más? <span class="optional">Puedes marcar varias.</span></legend>
+          <div class="chips" id="priorities"></div>
+        </fieldset>
+        <fieldset class="field" id="preferred-field" hidden>
+          <legend>¿Qué cultivos prefieres sembrar o vender?</legend>
+          <div class="chips" id="preferred"></div>
+        </fieldset>
+
+        <button class="cta" id="compare" type="button" disabled>Comparar rotaciones</button>
+        <p class="hint" id="compare-hint">Primero elige tu parcela en el mapa.</p>
+      </section>
+
+      <section class="panel" id="result" aria-labelledby="h-result" hidden>
+        <h2 id="h-result"><span class="step">3</span> Tres rotaciones para tu parcela</h2>
+        <p class="summary" id="summary"></p>
+        <div class="strategies" id="strategies"></div>
+
+        <div class="whatif">
+          <h3>¿Y si el clima cambia?</h3>
+          <label class="slider">
+            <span>Lluvia: <output id="rain-out">igual que siempre</output></span>
+            <input type="range" id="rain" min="-30" max="30" step="10" value="0">
+          </label>
+          <label class="slider">
+            <span>Temperatura: <output id="temp-out">igual que siempre</output></span>
+            <input type="range" id="temp" min="-1" max="3" step="0.5" value="0">
+          </label>
+        </div>
+      </section>
+
+      <section class="panel" id="terra" aria-labelledby="h-terra">
+        <h2 id="h-terra">Pregúntale a Terra</h2>
+        <p class="hint">Terra responde con los datos de tu parcela. También atiende por WhatsApp.</p>
+        <div class="chips chips--small" id="terra-suggestions"></div>
+        <div class="chat" id="terra-log" aria-live="polite"></div>
+        <form class="ask" id="terra-form">
+          <label class="sr-only" for="terra-input">Tu pregunta para Terra</label>
+          <input id="terra-input" type="text" autocomplete="off" maxlength="300" placeholder="Escribe tu pregunta">
+          <button type="submit">Preguntar</button>
+        </form>
+      </section>
+
+      <section class="panel" id="land" aria-labelledby="h-land" hidden>
+        <h2 id="h-land">Tu tierra: riesgos y cuidados</h2>
+        <div id="land-hazards"></div>
+        <div id="land-avoid"></div>
+        <div id="land-soil"></div>
+        <div id="land-now"></div>
+        <div id="land-money"></div>
+      </section>
+
+      <section class="panel" id="water" aria-labelledby="h-water" hidden>
+        <h2 id="h-water">Agua para el próximo cultivo</h2>
+        <div id="water-body"></div>
+        <h3>Los próximos días</h3>
+        <div id="forecast" aria-live="polite"><p class="hint">Consultando el pronóstico…</p></div>
+      </section>
+
+      <section class="panel" id="calendar" aria-labelledby="h-calendar" hidden>
+        <h2 id="h-calendar">Riesgo semana por semana</h2>
+        <p class="hint">Cada columna es una semana del año. Cuanto más oscuro, más veces pasó en 45 años.</p>
+        <div class="scroll" id="calendar-body"></div>
+        <ul class="legend" id="calendar-legend"></ul>
+      </section>
+
+      <section class="panel panel--quiet" aria-labelledby="h-how">
+        <h2 id="h-how">Cómo funciona</h2>
+        <div id="how"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <p>Esta herramienta ayuda a decidir. No reemplaza al agricultor ni al técnico de la zona.</p>
+    <p>Clima: NASA POWER. Altitud y pendiente: NASA SRTM. Capas municipales: Gobierno Autónomo Municipal de Cochabamba. Suelo: SoilGrids (ISRIC). Pronóstico: Open-Meteo. Mapa base: © OpenStreetMap.</p>
+  </footer>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

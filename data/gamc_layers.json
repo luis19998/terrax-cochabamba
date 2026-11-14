@@ -1,0 +1,11 @@
+{
+  "source": "GAMC geoservices portal, project 04 'Adapting Farms with NASA Data - Agrotecnologia y Gestion del Agua para Agricultores' (https://recursosgamc.cochabamba.bo/api-doc), read on 2026-11-14",
+  "protocol": "WMS 1.1.1 through the municipal proxy; read-only; GetMap, GetLegendGraphic (1.0.0) and GetFeatureInfo",
+  "note": "The API key is not stored here. It is read from GAMC_API_KEY in .env and added by the server-side proxy.",
+  "coverage_wgs84": { "min_lon": -66.275711, "min_lat": -17.525117, "max_lon": -66.072201, "max_lat": -17.326109 },
+  "layers": [
+    { "id": "periurbanos", "name": "Periurbanos", "style": "categorized", "service_id": "c52066a1-32fd-4925-81e0-c2dcb8f4238f" },
+    { "id": "drenaje", "name": "Drenaje e Influencia", "style": "simple", "service_id": "d4cea6e3-fc7f-482a-94ad-bd377df78886" },
+    { "id": "distritos", "name": "Limite Distritos", "style": "simple", "service_id": "7eb13092-bf0e-493b-aae6-03c43eedda2c" }
+  ]
+}

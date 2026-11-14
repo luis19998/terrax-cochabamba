@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "needs_validation": true,
+    "note": "Starting values. Cycle length and frost damage thresholds come from the team context file (general FAO ranges). Crop coefficients (Kc) are the initial, mid-season and end values of FAO Irrigation and Drainage Paper 56, Table 12, except quinoa (Garcia et al. 2003, Bolivian Altiplano). Soil pH ranges are approximate reference ranges of the kind listed in FAO ECOCROP. The data role must check every value against FAO-56, FAO ECOCROP and INIAF before the results are shown as validated.",
+    "stage_fractions": { "initial": 0.2, "development": 0.3, "mid": 0.3, "late": 0.2 },
+    "stage_fractions_note": "Generic split of the cycle into the four FAO-56 growth stages; FAO-56 Table 11 gives crop- and region-specific lengths."
+  },
+  "crops": [
+    { "id": "papa", "name": "Papa", "family": "Solanáceas", "cycle_days": 135, "frost_damage_c": -2, "kc": [0.5, 1.15, 0.75], "ph": [5.0, 6.5], "fixes_nitrogen": false, "forage": false, "group": "tuber" },
+    { "id": "maiz", "name": "Maíz", "family": "Gramíneas", "cycle_days": 160, "frost_damage_c": 0, "kc": [0.3, 1.2, 0.35], "ph": [5.5, 7.5], "fixes_nitrogen": false, "forage": true, "group": "cereal" },
+    { "id": "haba", "name": "Haba", "family": "Leguminosas", "cycle_days": 165, "frost_damage_c": -3, "kc": [0.5, 1.15, 1.1], "ph": [6.0, 7.5], "fixes_nitrogen": true, "forage": false, "group": "legume" },
+    { "id": "arveja", "name": "Arveja", "family": "Leguminosas", "cycle_days": 105, "frost_damage_c": -2, "kc": [0.5, 1.15, 1.1], "ph": [6.0, 7.5], "fixes_nitrogen": true, "forage": false, "group": "legume" },
+    { "id": "trigo", "name": "Trigo", "family": "Gramíneas", "cycle_days": 135, "frost_damage_c": -4, "kc": [0.3, 1.15, 0.3], "ph": [6.0, 7.5], "fixes_nitrogen": false, "forage": false, "group": "cereal" },
+    { "id": "cebada", "name": "Cebada", "family": "Gramíneas", "cycle_days": 115, "frost_damage_c": -4, "kc": [0.3, 1.15, 0.25], "ph": [6.0, 8.0], "fixes_nitrogen": false, "forage": true, "group": "cereal" },
+    { "id": "quinua", "name": "Quinua", "family": "Amarantáceas", "cycle_days": 165, "frost_damage_c": -4, "kc": [0.52, 1.0, 0.7], "ph": [6.0, 8.5], "fixes_nitrogen": false, "forage": false, "group": "grain" },
+    { "id": "alfalfa", "name": "Alfalfa", "family": "Leguminosas", "cycle_days": 364, "frost_damage_c": -5, "kc": [0.4, 0.95, 0.9], "ph": [6.5, 8.0], "fixes_nitrogen": true, "forage": true, "group": "legume", "perennial": true },
+    { "id": "cebolla", "name": "Cebolla", "family": "Amarilidáceas", "cycle_days": 150, "frost_damage_c": -2, "kc": [0.7, 1.05, 0.75], "ph": [6.0, 7.0], "fixes_nitrogen": false, "forage": false, "group": "vegetable" },
+    { "id": "tomate", "name": "Tomate", "family": "Solanáceas", "cycle_days": 120, "frost_damage_c": 1, "kc": [0.6, 1.15, 0.8], "ph": [5.5, 7.0], "fixes_nitrogen": false, "forage": false, "group": "vegetable" },
+    { "id": "descanso", "name": "Descanso o abono verde", "family": "Descanso", "cycle_days": 0, "frost_damage_c": null, "kc": null, "ph": null, "fixes_nitrogen": false, "forage": false, "group": "fallow" }
+  ]
+}
