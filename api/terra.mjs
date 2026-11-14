@@ -213,18 +213,10 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
 
   let geminiModel = null;
   let geminiDownUntil = 0; // after an auth or model error, skip Gemini for a while instead of failing on every question
+  // The model is fixed (GEMINI_MODEL or the verified default): picking the newest name automatically chose
+  // gemini-omni-1.2-flash on 2026-11-15, which did not answer plain text requests.
   async function pickGeminiModel() {
-    if (env.GEMINI_MODEL) return env.GEMINI_MODEL;
-    if (geminiModel) return geminiModel;
-    const r = await fetch(`${GEMINI_API}/models?pageSize=200`, { headers: { "x-goog-api-key": env.GEMINI_API_KEY }, signal: AbortSignal.timeout(8000) });
-    if (!r.ok) { geminiDownUntil = Date.now() + 10 * 60 * 1000; return null; }
-    const { models = [] } = await r.json();
-    const usable = models
-      .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
-      .filter((m) => /flash/.test(m.name) && !/(lite|image|tts|audio|live|exp|preview|embed|thinking)/.test(m.name))
-      .sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
-    geminiModel = usable.length ? usable[0].name.replace(/^models\//, "") : null;
-    return geminiModel;
+    return env.GEMINI_MODEL || geminiModel || FALLBACK_GEMINI_MODEL;
   }
 
   async function gemini(question, ctx, history) {
@@ -246,7 +238,7 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
           generationConfig: { maxOutputTokens: 4000 },
         }),
       });
-      if (r.status === 404 && model !== FALLBACK_GEMINI_MODEL) { geminiModel = FALLBACK_GEMINI_MODEL; return gemini(question, ctx, history); }
+      if ((r.status === 404 || r.status === 400) && model !== FALLBACK_GEMINI_MODEL) { geminiModel = FALLBACK_GEMINI_MODEL; return gemini(question, ctx, history); }
       if (r.status === 401 || r.status === 403 || r.status === 404) { geminiDownUntil = Date.now() + 10 * 60 * 1000; return null; }
       if (!r.ok) return null;
       const data = await r.json();
