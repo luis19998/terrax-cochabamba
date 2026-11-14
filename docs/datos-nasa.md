@@ -18,6 +18,15 @@ Resultados de control del proceso (`data/process_power.py`): lluvia media anual 
 evapotranspiración media anual de 1.690 mm a 2.550 m y 1.322 mm a 3.400 m; inicio de lluvias sin tendencia
 (Mann-Kendall, p = 0,586).
 
+## Agregado el 14 de noviembre, noche
+
+| Fuente | Uso | Límites |
+| --- | --- | --- |
+| NASA GIBS, capas `SMAP_L4_Analyzed_Root_Zone_Soil_Moisture`, `IMERG_Precipitation_Rate` y `MODIS_Terra_NDVI_8Day` (WMTS, fecha más reciente) | Imágenes en el mapa: humedad del suelo, lluvia reciente y verdor | Solo visuales: SMAP e IMERG tienen celdas de 9 a 10 km; no se leen valores por punto |
+| NASA POWER diario, últimos 45 días (`T2M_MIN`, `PRECTOTCORR`, `GWETROOT`) | Lluvia de los últimos 30 días y humedad del suelo frente a lo normal | Datos preliminares: los últimos días se corrigen después |
+| NASA POWER 1981-2025, semanas de cada mes | Probabilidad de mes seco, mes lluvioso y helada en los próximos 3 meses | Es frecuencia histórica, no un pronóstico de días |
+| GFS Ensemble 0,25° (NOAA) vía Open-Meteo, 31 escenarios, 16 días | Probabilidad diaria de lluvia y helada, y semanal frente a lo normal | No es dato de NASA; se cita aparte |
+
 ## Fuentes que no son de NASA
 
 | Fuente | Uso |

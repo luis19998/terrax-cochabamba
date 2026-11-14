@@ -4,6 +4,7 @@ import climate from "../../web/data/climate_weekly.json" with { type: "json" };
 import crops from "../../web/data/crops.json" with { type: "json" };
 import grid from "../../web/data/srtm_grid.json" with { type: "json" };
 import gamc from "../../data/gamc_layers.json" with { type: "json" };
+import knowledge from "../../web/data/knowledge.json" with { type: "json" };
 import { createApi } from "../../api/handler.mjs";
 
 const NAMES = [
@@ -12,7 +13,7 @@ const NAMES = [
 ];
 const env = Object.fromEntries(NAMES.map((name) => [name, process.env[name]]).filter(([, value]) => value));
 
-const api = createApi({ env, climate, crops, gamc, grid });
+const api = createApi({ env, climate, crops, gamc, grid, knowledge });
 
 export default (request) => api(request);
 

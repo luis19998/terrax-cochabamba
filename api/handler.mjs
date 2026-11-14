@@ -7,9 +7,12 @@
 //   GET  /api/gamc/info?lat=&lon=   district and peri-urban zone of a point (GAMC GetFeatureInfo)
 //   GET  /api/forecast?lat=&lon=    16-day forecast from Open-Meteo (not NASA; cited separately)
 //   GET  /api/plot?lat=&lon=        everything known about a point: altitude, slope, soil, recent weather, forecast
-//   POST /api/terra                 assistant: { question, lat, lon, history, irrigation, messages }
+//   GET  /api/outlook?lat=&lon=     probabilistic outlook: 16 days, 2 weeks and 3 months (see outlook.mjs)
+//   POST /api/tiri                  assistant: { question, lat, lon, history, irrigation, messages } (/api/terra too)
 //   GET/POST /api/whatsapp          WhatsApp Cloud API webhook (see whatsapp.mjs)
 import { explain, recommend } from "../web/js/engine.js";
+import { elevationFromGrid } from "../web/js/assess.js";
+import { createOutlook } from "./outlook.mjs";
 import { createPlotService } from "./plot.mjs";
 import { createTerra, usableKey } from "./terra.mjs";
 import { createWhatsApp } from "./whatsapp.mjs";
@@ -25,7 +28,7 @@ const json = (status, data, headers = {}) => new Response(JSON.stringify(data), 
   headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store", ...headers },
 });
 
-export function createApi({ env, climate, crops, gamc, grid }) {
+export function createApi({ env, climate, crops, gamc, grid, knowledge }) {
   const layerById = Object.fromEntries(gamc.layers.map((l) => [l.id, l]));
   const wmsUrl = env.GAMC_WMS_URL || "https://serviciosgamc.cochabamba.bo/api/gs/wms";
   const cache = new Map();
@@ -106,7 +109,8 @@ export function createApi({ env, climate, crops, gamc, grid }) {
   }
 
   const plotService = createPlotService({ climate, grid });
-  const terra = createTerra({ env, climate, crops, plotService, gamcInfo, forecast });
+  const outlook = createOutlook({ climate });
+  const terra = createTerra({ env, climate, crops, knowledge, plotService, gamcInfo, forecast, outlook });
   const whatsapp = createWhatsApp({ env, terra, crops });
 
   async function body(request, url) {
@@ -122,14 +126,21 @@ export function createApi({ env, climate, crops, gamc, grid }) {
     if (path === "/api/health") {
       return json(200, {
         ok: true, climate: climate.meta.period, crops: crops.crops.length, gamc: Boolean(env.GAMC_API_KEY),
-        terra: usableKey(env.GEMINI_API_KEY) ? "gemini" : usableKey(env.ANTHROPIC_API_KEY) ? "claude" : "rules",
+        tiri: await terra.status(),
         warnings: ["GEMINI_API_KEY", "ANTHROPIC_API_KEY"].filter((k) => env[k] && !usableKey(env[k]))
           .map((k) => `${k} tiene caracteres que no son letras latinas, números o signos: vuelve a copiarla`),
         whatsapp: Boolean(env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_NUMBER_ID),
       });
     }
     if (path === "/api/whatsapp") return whatsapp(request);
-    if (path === "/api/terra") return json(200, await terra.ask(await body(request, url)));
+    if (path === "/api/tiri" || path === "/api/terra") return json(200, await terra.ask(await body(request, url)));
+    if (path === "/api/outlook") {
+      const la = Number(url.searchParams.get("lat"));
+      const lo = Number(url.searchParams.get("lon"));
+      const altitude = Number.isFinite(la) && Number.isFinite(lo) ? elevationFromGrid(grid, la, lo) : null;
+      if (altitude === null) throw fail(400, "Faltan lat y lon dentro del municipio de Cochabamba");
+      return json(200, await outlook.outlook(la, lo, altitude));
+    }
     if (path === "/api/recommend") {
       const result = recommend(climate, crops, parseInput(await body(request, url)));
       return json(200, { ...result, explanation: explain(result) });

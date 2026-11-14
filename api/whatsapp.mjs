@@ -1,4 +1,5 @@
-// WhatsApp Cloud API webhook (Meta). Farmers talk to Terra from WhatsApp: they send their location and ask.
+// WhatsApp Cloud API webhook (Meta). Farmers talk to Tiri, the Yatiri X assistant, from WhatsApp:
+// they send their location and ask.
 //
 //   GET  /api/whatsapp   webhook verification (hub.challenge)
 //   POST /api/whatsapp   incoming messages; the reply is sent with the Graph API
@@ -69,7 +70,7 @@ export function createWhatsApp({ env, terra, crops }) {
     const mentioned = cropWords.filter((c) => plain(text).includes(c.word)).map((c) => c.id);
     if (mentioned.length && /sembr|plant|coseche|tenia|tengo|puse/.test(plain(text))) session.history = mentioned.slice(-2);
     if (session.lat === undefined) {
-      return "Hola, soy Terra, la asistente de Terrax. Envíame la ubicación de tu parcela (clip, Ubicación) o escribe Distrito 9 o Distrito 13, y te digo qué sembrar, cuánta agua hace falta y qué riesgos tiene tu tierra.";
+      return "🌱 ¡Hola! Soy Tiri, tu asistente agrícola de Yatiri X. Envíame la ubicación de tu terreno (clip, Ubicación) o escribe Distrito 9 o Distrito 13, y te digo qué sembrar, cuánta agua hace falta, qué plagas vigilar y qué riesgos tiene tu tierra.";
     }
     if (sessions.size > 2000) sessions.delete(sessions.keys().next().value);
     sessions.set(key, session);

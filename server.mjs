@@ -30,6 +30,7 @@ const crops = readJson("web", "data", "crops.json");
 const api = createApi({
   env: loadEnv(), climate, crops,
   gamc: readJson("data", "gamc_layers.json"), grid: readJson("web", "data", "srtm_grid.json"),
+  knowledge: readJson("web", "data", "knowledge.json"),
 });
 
 const MIME = {
