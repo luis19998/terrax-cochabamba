@@ -306,10 +306,7 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
 
   /** Which engine answers right now, for /api/health. */
   async function status() {
-    if (usableKey(env.GEMINI_API_KEY)) {
-      if (Date.now() >= geminiDownUntil) await pickGeminiModel().catch(() => null);
-      if (Date.now() >= geminiDownUntil && (geminiModel || env.GEMINI_MODEL)) return { engine: "gemini", model: geminiModel || env.GEMINI_MODEL };
-    }
+    if (usableKey(env.GEMINI_API_KEY) && Date.now() >= geminiDownUntil) return { engine: "gemini", model: await pickGeminiModel() };
     if (usableKey(env.ANTHROPIC_API_KEY)) return { engine: "claude", model: env.TERRA_MODEL || DEFAULT_MODEL };
     return { engine: "rules", note: usableKey(env.GEMINI_API_KEY) ? "Google rechazó GEMINI_API_KEY: revisa que sea una clave de la API de Gemini" : undefined };
   }
