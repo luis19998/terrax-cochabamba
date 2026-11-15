@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Yatiri X · NASA Space Apps 2026 Cochabamba</title>
+<style>
+  @font-face { font-family: "PJS"; font-weight: 400; src: url("../../web/vendor/fonts/plus-jakarta-sans/plus-jakarta-sans-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "PJS"; font-weight: 800; src: url("../../web/vendor/fonts/plus-jakarta-sans/plus-jakarta-sans-latin-800-normal.woff2") format("woff2"); }
+  @page { size: 1280px 720px; margin: 0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "PJS", "Segoe UI", sans-serif; color: #2b1d12; }
+  .s { width: 1280px; height: 720px; padding: 64px 80px; page-break-after: always; position: relative; overflow: hidden;
+       background: linear-gradient(180deg, #fff8e8 0%, #f4f7ea 60%, #e6f1d6 100%); }
+  .s::after { content: ""; position: absolute; left: -5%; right: -5%; bottom: -40px; height: 120px; border-radius: 50%; background: #a8cd86; }
+  .s.dark { background: #4a2f17; color: #fff; }
+  .s.dark::after { background: #6b4423; }
+  h1 { font-size: 76px; line-height: 1.05; margin: 0; font-weight: 800; color: #3f6a24; }
+  h2 { font-size: 46px; margin: 0 0 28px; font-weight: 800; color: #3f6a24; }
+  .dark h2, .dark h1 { color: #93c572; }
+  p, li { font-size: 27px; line-height: 1.4; margin: 0 0 12px; }
+  ul { margin: 0; padding-left: 30px; }
+  .tag { display: inline-block; background: #c06840; color: #fff; font-weight: 800; letter-spacing: .08em; font-size: 18px; padding: 8px 16px; border-radius: 999px; margin-bottom: 26px; }
+  .big { font-size: 64px; font-weight: 800; color: #c06840; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 48px; }
+  .card { background: rgba(255,255,255,.75); border-left: 8px solid #93c572; border-radius: 16px; padding: 18px 22px; }
+  .card b { display: block; font-size: 26px; color: #4a2f17; margin-bottom: 4px; }
+  .card span { font-size: 21px; color: #6b5a48; }
+  .foot { position: absolute; left: 80px; bottom: 26px; z-index: 2; font-size: 18px; color: #4a2f17; }
+  .dark .foot { color: #f3ebe1; }
+  .num { font-size: 22px; color: #6b5a48; }
+</style>
+</head>
+<body>
+
+<section class="s">
+  <span class="tag">NASA SPACE APPS 2026 · COCHABAMBA, BOLIVIA</span>
+  <h1>Yatiri X</h1>
+  <p style="font-size:34px;margin-top:18px;color:#687870"><b>We know your land, we grow a better future.</b><br>Conocemos tu tierra, cultivamos un mejor futuro.</p>
+  <p style="margin-top:34px">Decision support for small farmers: what to sow, when, and with how much water,<br>from 45 years of NASA data. In Spanish and Quechua.</p>
+  <p class="foot">Live demo: yatirix-cochabamba.netlify.app · Code: github.com/luis19998/yatirix-cochabamba</p>
+</section>
+
+<section class="s dark">
+  <h2>The problem</h2>
+  <ul>
+    <li>Cochabamba's valleys get about <b>480 mm of rain a year</b>, while crops and soil lose <b>more than three times that</b> to evaporation.</li>
+    <li>Rains arrive more irregularly: one frost or one overflowing canal can wipe out a year's harvest.</li>
+    <li>Sowing is decided by habit; repeating the same crop drains the soil and multiplies pests.</li>
+    <li>Peri-urban families (District 9, District 13, La Maica) lack tools in their language.</li>
+  </ul>
+  <p class="foot">Who is affected: farming families, irrigation associations and the municipality.</p>
+</section>
+
+<section class="s">
+  <h2>How it works</h2>
+  <div class="grid">
+    <div class="card"><b>1. Mark your plot</b><span>GPS, one tap, corner by corner or traced with a finger. Several plots, each with its colour.</span></div>
+    <div class="card"><b>2. Tell what you sowed</b><span>Several crops per season, or "Other": AI estimates its agronomic values.</span></div>
+    <div class="card"><b>3. Yatiri X analyses</b><span>Climate, frost, water balance (FAO-56), slope, soil and municipal zones.</span></div>
+    <div class="card"><b>4. Clear advice</b><span>Best 3-year rotation, sowing week, irrigation, risks, pests, PDF report.</span></div>
+  </div>
+  <p class="foot">Three reading levels (simple, medium, advanced) · Spanish and Quechua</p>
+</section>
+
+<section class="s">
+  <h2>NASA data at the core</h2>
+  <div class="grid">
+    <div class="card"><b>NASA POWER 1981–2025</b><span>Daily climate → frost odds, rain, FAO-56 evapotranspiration</span></div>
+    <div class="card"><b>NASA SRTM</b><span>Elevation and slope → temperature by altitude, erosion, 3D relief</span></div>
+    <div class="card"><b>SMAP · GPM IMERG · MODIS</b><span>Soil moisture, rainfall and greenness layers (NASA GIBS)</span></div>
+    <div class="card"><b>+ Local and partner data</b><span>Cochabamba municipality (GAMC) layers, NOAA GFS 31-member ensemble, SoilGrids, FAO</span></div>
+  </div>
+  <p class="foot">The numbers come from data and formulas, never from an AI model.</p>
+</section>
+
+<section class="s">
+  <h2>What farmers get</h2>
+  <ul>
+    <li><b>147 crops</b> evaluated for each plot: suitable, with care, or not advised, with the reason.</li>
+    <li><b>Probabilistic forecast:</b> "6 in 10 scenarios bring frost tonight" for days, weeks and months.</li>
+    <li><b>Risks and actions:</b> frost, drought, waterlogging, erosion — what to do and what not to do.</li>
+    <li><b>64 pests and diseases, 16 invasive species, 12 home remedies,</b> with real photos.</li>
+    <li><b>Tiri</b>, an AI assistant that answers in Spanish or Quechua using only the plot's data.</li>
+    <li>Plot comparison, 3D terrain, accounts, automatic alerts (n8n: email; WhatsApp ready).</li>
+  </ul>
+</section>
+
+<section class="s dark">
+  <h2>Impact</h2>
+  <p>Example computed live for District 9 (rain-fed potato every year):</p>
+  <p><span class="big">54 → 81</span> &nbsp;rotation score out of 100 when rotating instead of repeating potato</p>
+  <p><span class="big">≈ 2,900 m³</span> &nbsp;of irrigation water saved per hectare in three years with the water-saving rotation</p>
+  <ul style="margin-top:20px">
+    <li>Fewer frost losses by sowing outside cold weeks; less fertiliser by rotating with legumes.</li>
+    <li>Built for the municipality: works on the official GAMC layers of every district.</li>
+  </ul>
+</section>
+
+<section class="s">
+  <h2>Built with · AI disclosure</h2>
+  <p><b>Stack:</b> HTML/CSS/JavaScript, Leaflet, three.js, Node.js, Netlify, Supabase, n8n, Gemini API.</p>
+  <p><b>Super Intelligence use:</b> code and the agronomic knowledge base were written with Claude Code (Anthropic) and tested by the team; Gemini drafts Tiri's answers, estimates "Other" crops and machine-translates Quechua. No AI-generated images, video or audio; no NASA branding used. Details: docs/uso-de-ia.md</p>
+  <p><b>Next:</b> validate crop values with INIAF, pests with SENASAG, Quechua with native speakers; register the WhatsApp number.</p>
+  <p class="foot">yatirix-cochabamba.netlify.app · github.com/luis19998/yatirix-cochabamba</p>
+</section>
+
+</body>
+</html>
