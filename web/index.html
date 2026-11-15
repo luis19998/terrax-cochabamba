@@ -134,8 +134,8 @@
 
     <section class="panel step" data-step="2" aria-labelledby="h-step2" hidden>
       <h2 id="h-step2" data-i18n="step2Title">Tu cultivo y tu suelo</h2>
-      <fieldset class="field"><legend data-i18n="lastCrop">¿Qué sembraste la última campaña?</legend><div class="chips" id="last-crop"></div></fieldset>
-      <fieldset class="field"><legend data-i18n="prevCrop">¿Y la campaña anterior?</legend><div class="chips" id="previous-crop"></div></fieldset>
+      <fieldset class="field"><legend data-i18n="lastCrop">¿Qué sembraste la última campaña?</legend><p class="hint small">Puedes marcar varios. Si no está en la lista, usa «+ Otro».</p><div class="crop-picker" id="last-crop"></div></fieldset>
+      <fieldset class="field"><legend data-i18n="prevCrop">¿Y la campaña anterior?</legend><div class="crop-picker" id="previous-crop"></div></fieldset>
       <fieldset class="field"><legend data-i18n="soilType">¿Cómo es tu suelo?</legend><div class="chips" id="soil-type"></div></fieldset>
       <details class="field">
         <summary data-i18n="labTitle">Tengo resultados de laboratorio</summary>
@@ -158,7 +158,7 @@
       <h2 id="h-step4" data-i18n="step4Title">¿Qué te importa más?</h2>
       <p class="hint" data-i18n="step4Hint">Puedes marcar varias.</p>
       <div class="chips" id="priorities"></div>
-      <fieldset class="field" id="preferred-field" hidden><legend data-i18n="preferred">¿Qué cultivos prefieres sembrar o vender?</legend><div class="chips" id="preferred"></div></fieldset>
+      <fieldset class="field" id="preferred-field" hidden><legend data-i18n="preferred">¿Qué cultivos prefieres sembrar o vender?</legend><div class="crop-picker" id="preferred"></div></fieldset>
     </section>
 
     <section class="panel step" data-step="5" aria-labelledby="h-step5" hidden>
@@ -177,6 +177,7 @@
 
   <!-- ===================== RESULTADOS ===================== -->
   <main id="view-results" class="view" hidden>
+    <nav class="plot-switch" id="plot-switch" aria-label="Cambiar de terreno" hidden></nav>
     <section class="summary-card" id="summary-card" aria-live="polite"></section>
     <nav class="tabs" id="tabs" aria-label="Secciones del análisis"></nav>
     <div class="tab-panels">
@@ -187,6 +188,7 @@
       <section class="panel tab" data-tab="relieve"></section>
       <section class="panel tab" data-tab="agua"></section>
       <section class="panel tab" data-tab="riesgos"></section>
+      <section class="panel tab" data-tab="comparar"></section>
       <section class="panel tab" data-tab="cultivos"></section>
       <section class="panel tab" data-tab="catalogo"></section>
       <section class="panel tab" data-tab="plagas"></section>

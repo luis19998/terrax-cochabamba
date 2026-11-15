@@ -18,6 +18,10 @@ const CROPS = {
 // crops added later: the scientific name in crops.json is the first candidate
 const cropsJson = JSON.parse(readFileSync(join(root, "web/data/crops.json"), "utf8"));
 for (const c of cropsJson.crops) if (!CROPS[c.id] && c.scientific) CROPS[c.id] = [c.scientific, c.name.replace(/ \(.*\)/, "")];
+// titles that work better than the scientific name on Wikipedia
+const EXTRA = { repollo: ["Cabbage", "Repollo"], trebol: ["Trifolium repens", "White clover"], vainita_arbustiva: ["Snow pea"] };
+for (const [id, titles] of Object.entries(EXTRA)) CROPS[id] = [...titles, ...(CROPS[id] || [])];
+const PEST_TITLES = { "Acanthoscelides obtectus": ["Bean weevil", "Acanthoscelides"], "Eurysacca melanocampta": ["Eurysacca"] };
 const PLACES = { valle: ["Valle Alto (Bolivia)", "Cochabamba Valley", "Valle de Cochabamba", "Departamento de Cochabamba"] };
 
 const candidatesFor = (scientific) => {
@@ -95,7 +99,7 @@ async function fill(group, key, titles, label) {
 for (const [id, titles] of Object.entries(CROPS)) await fill("crops", id, titles, "cultivo");
 for (const list of Object.values(knowledge.pests)) for (const p of list) {
   if (out.pests[p.scientific] !== undefined) continue;
-  await fill("pests", p.scientific, /varias/.test(p.scientific) ? [] : candidatesFor(p.scientific), "plaga");
+  await fill("pests", p.scientific, /varias/.test(p.scientific) ? [] : [...(PEST_TITLES[p.scientific] || []), ...candidatesFor(p.scientific)], "plaga");
 }
 for (const x of knowledge.invasive) await fill("invasive", x.scientific, candidatesFor(x.scientific), "invasora");
 for (const [id, titles] of Object.entries(PLACES)) await fill("places", id, titles, "lugar");

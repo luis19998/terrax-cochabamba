@@ -30,6 +30,12 @@ and "Analyse my land". The results cover:
 - **Profit or loss** from the farmer's own yield, price and cost, weighted by frost risk;
 - **Sources** and the scoring rule.
 
+**87 crops** (Andean roots, grains, legumes, forage, vegetables, herbs, fruit trees and flowers), several crops per
+campaign, and **"Otro"** for anything else: Gemini estimates its cycle, water needs, frost and soil values so it is
+analysed like the rest. **59 pests and diseases**, 16 invasive species and 12 home remedies, in an organised catalogue
+with real photos. Several plots per person, each with its own colour on the map, a switcher between them and a
+comparison table.
+
 Three views (simple, medium, advanced): the simple view uses plain everyday words, not just less text. The whole
 site, including every computed result, can be switched to **Quechua** (Bolivia, Cochabamba). The plot can be marked
 with one tap, corner by corner or traced with a finger or the mouse, on a satellite, normal or relief map. Also: a
@@ -106,6 +112,7 @@ speakers review it.
 | `POST /api/tiri` | Assistant: `{ question, lat, lon, history }` |
 | `GET/POST /api/whatsapp` | WhatsApp Cloud API webhook |
 | `POST /api/translate` | Quechua for a list of texts (Gemini, cached) |
+| `POST /api/crop-profile` | Agronomic values of a crop that is not in the catalogue (Gemini, checked against ranges) |
 | `GET /api/n8n/alerts`, `/api/n8n/digest`, `POST /api/n8n/sent` | Messages for the n8n workflows to send (header `x-alerts-secret`) |
 
 ## Data and credits

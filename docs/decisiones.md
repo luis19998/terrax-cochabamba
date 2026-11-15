@@ -125,3 +125,23 @@ Este archivo solo crece por el final.
 - **WhatsApp con n8n.** Yatiri X decide qué decir y a quién; n8n decide cuándo y envía desde el número dedicado:
   avisos urgentes 3 veces al día, resumen semanal los lunes, aviso de prueba y vigilancia del servicio. Cada persona
   recibe su idioma. Probado en n8n local con una API de WhatsApp simulada.
+
+## 2026-11-15, catálogo amplio, varias parcelas y «Otro»
+
+- **87 cultivos** (51 nuevos): raíces andinas (isaño, yacón, racacha, camote), granos (centeno, triticale, sorgo,
+  cañahua), leguminosas (lenteja, garbanzo, maní, vainita, trébol), forrajes, hortalizas, aromáticas (quirquiña,
+  huacataya, muña…), frutales (durazno, manzano, vid, palto…) y flores (clavel, gladiolo). Ciclo y Kc de FAO-56,
+  pH y heladas de FAO ECOCROP. Frutales, aromáticas y flores van al catálogo pero no a la rotación de tres años.
+- **Calor mínimo.** Los cultivos de clima cálido llevan la temperatura media que necesitan en el ciclo (ECOCROP).
+  Antes el motor solo miraba la helada y recomendaba sandía a 2.600 m; ahora le baja el puntaje si el valle no llega
+  a ese calor, y el catálogo lo explica.
+- **Rendimiento.** Con 87 cultivos, la búsqueda de rotaciones combina solo los 22 de mejor clima para cada terreno
+  (más los que la persona prefiere o ya siembra): menos de medio segundo.
+- **Plagas ordenadas.** Biblioteca de 59 plagas y enfermedades con especie real, señales, prevención y remedio
+  casero, asignadas a cada cultivo. Vistas: mis cultivos, catálogo completo con filtros por tipo y cultivo, 16
+  especies invasoras (plantas y animales) y 12 remedios caseros. Lo que muestra cada ficha depende de la vista.
+- **Varios cultivos por campaña** y **«Otro».** Si algo no está en la lista, Gemini estima ciclo, Kc, helada, pH y
+  familia (`/api/crop-profile`); los valores se acotan a rangos razonables y la web los marca como estimados por IA.
+- **Varias parcelas.** Cada terreno tiene su color en el mapa y se ven todos juntos. En los resultados se cambia de
+  terreno arriba; lo único que muestra todos a la vez es la pestaña «Comparar» (tabla y mapa).
+- **Tiri más arriba** para que el logo de Netlify no lo tape, con otra altura en teléfonos.

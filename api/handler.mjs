@@ -4,6 +4,7 @@
 //   GET  /api/config                public browser settings (Supabase URL and publishable key, if set)
 //   GET  /api/health
 //   GET  /api/n8n/alerts|digest     messages to send now (header x-alerts-secret); POST /api/n8n/sent marks them
+//   POST /api/crop-profile          { name } -> agronomic values of a crop that is not in the catalogue (Gemini)
 //   POST /api/translate             { texts: [...] } -> { translations: { text: quechua } } (Gemini, cached)
 //   POST /api/recommend             body: { altitude, history, irrigation, priorities, preferred, scenario }
 //   GET  /api/gamc/wms?layer=       WMS proxy for the GAMC layers (the API key is added here, never in the browser)
@@ -20,6 +21,7 @@ import { markSent, pendingMessages, runAlerts } from "./alerts.mjs";
 import { createPlotService } from "./plot.mjs";
 import { createTerra, usableKey } from "./terra.mjs";
 import { createTranslator } from "./translate.mjs";
+import { createCropProfiler } from "./crop_profile.mjs";
 import { createWhatsApp } from "./whatsapp.mjs";
 
 // 1 x 1 transparent PNG, sent when the municipal server does not answer so the map keeps working
@@ -118,6 +120,7 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge, subscrib
   const terra = createTerra({ env, climate, crops, knowledge, plotService, gamcInfo, forecast, outlook });
   const whatsapp = createWhatsApp({ env, terra, crops, subscribers, sessionStore });
   const translator = createTranslator({ env, cache: translationStore });
+  const profiler = createCropProfiler({ env });
 
   async function body(request, url) {
     if (request.method !== "POST") return Object.fromEntries(url.searchParams);
@@ -186,6 +189,11 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge, subscrib
         return json(200, { ok: true, subscribers: (await subscribers.list()).length, sender: env.ALERTS_SENDER || "netlify", template: env.WHATSAPP_ALERT_TEMPLATE || null });
       }
       throw fail(404, "Ruta de n8n desconocida");
+    }
+    if (path === "/api/crop-profile") {
+      if (request.method !== "POST") throw fail(405, "Usa POST");
+      const out = await profiler.profile(await body(request, url));
+      return json(out.status, out.crop ? { crop: out.crop } : { error: out.error });
     }
     if (path === "/api/translate") {
       if (request.method !== "POST") throw fail(405, "Usa POST");

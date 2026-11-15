@@ -86,6 +86,17 @@ export const QU_CROPS = {
   "Pepino": "Pepino", "Remolacha (betarraga)": "Remolacha", "Frutilla": "Frutilla", "Lechuga": "Lechuga",
   "Espinaca": "Espinaca", "Acelga": "Acelga", "Rábano": "Rábano", "Nabo": "Nabo", "Cilantro": "Kulantru",
   "Descanso o abono verde": "Samarichiy (abono verde)",
+  "Isaño (mashua)": "Isañu", "Yacón": "Yakun", "Racacha (arracacha)": "Rakacha", "Camote": "Apichu", "Centeno": "Centeno",
+  "Triticale": "Triticale", "Sorgo": "Sorgo", "Cañahua": "Qañiwa", "Lenteja": "Lenteja", "Garbanzo": "Garbanzo", "Maní": "Inchik",
+  "Vainita (poroto verde)": "Vainita", "Trébol blanco": "Trébol", "Ryegrass (ballica)": "Ryegrass", "Festuca alta": "Festuca",
+  "Maíz forrajero (ensilaje)": "Q'iwa sara", "Pimentón (morrón)": "Pimentón", "Berenjena": "Berenjena", "Zapallito (zucchini)": "Zapallito",
+  "Sandía": "Sandía", "Melón": "Melón", "Puerro": "Puerro", "Cebollín (cebolla de verdeo)": "Cebollín", "Perejil": "Perejil",
+  "Rúcula": "Rúcula", "Col rizada (kale)": "Kale", "Col china (pak choi)": "Pak choi", "Arveja china": "Arveja china",
+  "Espárrago": "Espárrago", "Alcachofa": "Alcachofa", "Quirquiña": "Quirquiña", "Huacataya": "Wakatay", "Orégano": "Orégano",
+  "Manzanilla": "Manzanilla", "Hierbabuena": "Hierbabuena", "Muña": "Muña", "Durazno": "Durasnu", "Manzano": "Manzana",
+  "Peral": "Pera", "Ciruelo": "Ciruela", "Membrillo": "Membrillo", "Vid (uva)": "Uva", "Higuera": "Higo", "Nogal": "Nogal",
+  "Palto (palta)": "Palta", "Chirimoya": "Chirimuya", "Tuna": "Tuna", "Tumbo": "Tumbo", "Aguaymanto (capulí)": "Capulí",
+  "Clavel": "Clavel", "Gladiolo": "Gladiolo",
 };
 
 /** Texts that are already Quechua: the page translator leaves them as they are. */

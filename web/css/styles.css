@@ -298,7 +298,8 @@ body:not([data-mode="avanzado"]) .adv-only { display: none !important; }
 .calc label { display: grid; gap: 0.25rem; font-size: 0.9rem; font-weight: 600; }
 
 /* ---------- Tiri ---------- */
-.tiri { position: fixed; right: 1rem; bottom: 1rem; z-index: 1200; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; max-width: calc(100vw - 2rem); }
+/* raised so the Netlify badge in the bottom corner does not cover it */
+.tiri { position: fixed; right: 1rem; bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)); z-index: 1200; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; max-width: calc(100vw - 2rem); }
 .tiri__toggle { border: 0; border-radius: 999px; background: var(--pistachio); color: var(--coffee-deep); font-weight: 800; padding: 0 1.1rem; min-height: 52px; box-shadow: 0 4px 14px rgba(43, 29, 18, 0.25); cursor: pointer; order: 2; }
 .tiri__body { order: 1; width: min(420px, calc(100vw - 2rem)); max-height: min(70vh, 620px); display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem; box-shadow: 0 8px 28px rgba(43, 29, 18, 0.22); }
 .tiri__body h2 { font-size: 1.15rem; }
@@ -374,3 +375,38 @@ body.revealed .tab:not([hidden]) > * { animation: rise 0.45s ease-out both; }
 /* Quechua translation in progress */
 .qu-busy { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 2000; background: var(--sage); color: #fff; font-weight: 700; font-size: 0.85rem; padding: 0.45rem 0.9rem; border-radius: 999px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
 .qu-busy[hidden] { display: none; }
+
+@media (max-width: 640px) {
+  .tiri { right: 0.75rem; bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 1.5rem); }
+  .tiri__toggle { min-height: 48px; padding: 0 0.95rem; }
+  .tiri__body { max-height: min(62vh, 560px); }
+}
+
+/* several crops per campaign, "Otro" */
+.crop-picker { display: grid; gap: 0.5rem; }
+.chip__ai { font-size: 0.68rem; font-weight: 800; background: var(--sage); color: #fff; border-radius: 999px; padding: 0 0.35rem; margin-left: 0.2rem; }
+.chip--other { border-style: dashed; }
+.other-crop { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; padding: 0.6rem; border: 1px dashed var(--line); border-radius: 12px; }
+.other-crop input { flex: 1 1 14rem; min-width: 0; }
+.other-crop p { flex-basis: 100%; margin: 0; }
+.more-crops summary { font-weight: 600; color: var(--coffee); }
+.crop-search { width: 100%; margin: 0.45rem 0; }
+
+/* plots in colours */
+.plot-dot { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 50%; margin-right: 0.35rem; vertical-align: -0.05rem; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0, 0, 0, 0.15); }
+.saved__list li.is-current { font-weight: 700; }
+.plot-switch { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0 0 0.8rem; }
+.plot-switch__label { font-weight: 700; margin-right: 0.2rem; }
+.plot-chip { display: inline-flex; align-items: center; border: 1.5px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 0.35rem 0.8rem; min-height: 40px; font: inherit; font-weight: 600; cursor: pointer; }
+.plot-chip[aria-pressed="true"] { border-color: var(--coffee); background: var(--coffee); color: #fff; }
+.compare-map { height: 280px; }
+.table.compare th[scope="row"] { white-space: nowrap; }
+.table.compare tr.is-current { background: color-mix(in srgb, var(--pistachio) 22%, transparent); }
+.badge--none { background: #eee; color: #555; }
+
+/* pests: sections */
+.segmented { display: flex; flex-wrap: wrap; gap: 2px; background: var(--line); border-radius: 12px; padding: 3px; margin: 0.6rem 0 0.9rem; }
+.segmented button { flex: 1 1 auto; border: 0; background: transparent; font: inherit; font-weight: 600; padding: 0.5rem 0.7rem; border-radius: 10px; cursor: pointer; min-height: 40px; color: var(--ink); }
+.segmented button[aria-pressed="true"] { background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); color: var(--coffee); }
+.crop-care { border-top: 1px solid var(--line); padding-top: 0.8rem; margin-top: 0.8rem; }
+.pest-card { animation: rise 0.35s ease both; animation-delay: calc(var(--i, 0) * 25ms); }

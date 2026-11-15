@@ -5,6 +5,7 @@
 //                          "flash" model the key can use is chosen automatically.
 //   ANTHROPIC_API_KEY   -> Claude, if Gemini is not available.
 //   neither, or a model error -> fixed rules, so the assistant is always available.
+import { cleanCustomCrop } from "./crop_profile.mjs";
 import { explain, recommend } from "../web/js/engine.js";
 import { assessPlot } from "../web/js/assess.js";
 
@@ -69,14 +70,17 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
   async function evaluate(input, { fast = false } = {}) {
     const plot = await plotService.evaluate(input.lat, input.lon, { gamcInfo, forecast, fast });
     if (!plot) return null;
-    const result = recommend(climate, crops, {
+    // crops typed as "Otro" in the web travel with the question; they are re-checked here
+    const custom = (Array.isArray(input.customCrops) ? input.customCrops : []).slice(0, 6).map(cleanCustomCrop).filter(Boolean);
+    const cropsHere = custom.length ? { ...crops, crops: [...crops.crops, ...custom.filter((c) => !crops.crops.some((x) => x.id === c.id))] } : crops;
+    const result = recommend(climate, cropsHere, {
       altitude: plot.altitude, history: input.history || [], irrigation: Boolean(input.irrigation),
       priorities: input.priorities && input.priorities.length ? input.priorities : ["risk"], preferred: input.preferred || [],
     });
     const outlookData = outlook
       ? await Promise.race([outlook.outlook(input.lat, input.lon, plot.altitude).catch(() => null), new Promise((r) => { setTimeout(() => r(null), 7000); })])
       : null;
-    return { plot, result, assessment: assessPlot(plot, result, crops), outlook: outlookData };
+    return { plot, result, assessment: assessPlot(plot, result, cropsHere), outlook: outlookData };
   }
 
   function place(plot) {

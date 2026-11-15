@@ -125,12 +125,14 @@ export function evaluateCrop(climate, cropsMeta, crop, sowWeek, altitude, irriga
   const need = [];
   const rainTotal = [];
   const deficit = [];
+  const meanTemp = [];
   const weekly = kc.map(() => ({ etc: [], rain: [] }));
   for (let y = 0; y < years; y++) {
     let anyFrost = false;
     let etcSum = 0;
     let rainSum = 0;
     let covered = 0;
+    let tSum = 0;
     let complete = true;
     for (let k = 0; k < kc.length; k++) {
       const abs = sowWeek + k;
@@ -142,6 +144,8 @@ export function evaluateCrop(climate, cropsMeta, crop, sowWeek, altitude, irriga
       const et0 = et0Rows[yy][w];
       if (tmin === null || rain === null || et0 === null) { complete = false; break; }
       if (tmin + shift <= crop.frost_damage_c) anyFrost = true;
+      const tmean = climate.weekly.tmean[yy][w];
+      tSum += (tmean === null ? tmin + 8 : tmean) + shift;
       const etc = kc[k] * et0;
       const r = rain * factor;
       etcSum += etc;
@@ -156,10 +160,14 @@ export function evaluateCrop(climate, cropsMeta, crop, sowWeek, altitude, irriga
     need.push(etcSum);
     rainTotal.push(rainSum);
     deficit.push(Math.max(0, etcSum - covered));
+    meanTemp.push(tSum / kc.length);
   }
   const frostProb = mean(frost);
   const cover = median(coverage);
   const waterScore = irrigation ? 0.5 + 0.5 * cover : cover;
+  // warm-season crops: each degree below the mean temperature they need costs a fifth of the climate score
+  const cycleTemp = median(meanTemp);
+  const warmth = crop.min_mean_temp_c === undefined ? 1 : Math.max(0, Math.min(1, 1 - (crop.min_mean_temp_c - cycleTemp) / 5));
   return {
     sowWeek,
     weeks: kc.length,
@@ -169,7 +177,9 @@ export function evaluateCrop(climate, cropsMeta, crop, sowWeek, altitude, irriga
     cropWaterMm: median(need),
     rainMm: median(rainTotal),
     irrigationMm: median(deficit),
-    climateScore: 0.5 * (1 - frostProb) + 0.5 * waterScore,
+    climateScore: (0.5 * (1 - frostProb) + 0.5 * waterScore) * warmth,
+    meanTempC: Math.round(cycleTemp * 10) / 10,
+    warmth,
     weekly: weekly.map((x, k) => ({ week: (sowWeek + k) % WEEKS, kc: kc[k], etc: median(x.etc), rain: median(x.rain) })),
   };
 }
@@ -189,8 +199,14 @@ export function bestSowing(climate, cropsMeta, crop, altitude, irrigation, scena
   return best;
 }
 
-/** Score of planting `next` after `previous` (0-1). */
+/** Score of planting `next` after `previous` (0-1). `previous` can be several crops sown in the same campaign:
+ * then the worst case counts (repeating the family of any of them is a repeat). */
 export function transitionScore(previous, next) {
+  if (Array.isArray(previous)) {
+    if (!previous.length) return transitionScore(null, next);
+    if (previous.length === 1) return transitionScore(previous[0], next);
+    return previous.map((p) => transitionScore(p, next)).sort((a, b) => a.score - b.score)[0];
+  }
   if (!previous) return { score: 0.6, rule: "sin dato de la campaña anterior" };
   if (next.group === "fallow") return { score: 0.8, rule: "el descanso o abono verde deja recuperar el suelo" };
   if (previous.group === "fallow") return { score: 0.8, rule: "siembra después de un descanso" };
@@ -225,7 +241,8 @@ function scoreSequence(sequence, ctx) {
   const transitions = [];
   let previous = history.length ? history[history.length - 1] : null;
   for (const crop of sequence) {
-    transitions.push({ from: previous ? previous.id : null, to: crop.id, ...transitionScore(previous, crop) });
+    const from = Array.isArray(previous) ? previous.map((c) => c.id).join("+") : previous ? previous.id : null;
+    transitions.push({ from, to: crop.id, ...transitionScore(previous, crop) });
     previous = crop;
   }
   // 70 % how each crop follows the previous one, 30 % how many different families the three years have
@@ -314,7 +331,8 @@ function pack(kind, label, sequence, ctx) {
 
 /**
  * Main entry point.
- * input: { altitude, history: [cropId older..recent], irrigation: bool, priorities: [risk|water|soil|forage|preferred],
+ * input: { altitude, history: [campaign older..recent], irrigation: bool, priorities: [risk|water|soil|forage|preferred],
+ *          (each campaign is a crop id, or a list of ids when several crops were sown together)
  *          preferred: [cropId], scenario: { rainPct, tempC } }
  * Returns the site calendar and three strategies: the current rotation, the best one and a water-saving one.
  */
@@ -322,7 +340,10 @@ export function recommend(climate, cropsData, input) {
   const scenario = input.scenario || {};
   const irrigation = Boolean(input.irrigation);
   const byId = Object.fromEntries(cropsData.crops.map((c) => [c.id, c]));
-  const history = (input.history || []).map((id) => byId[id]).filter(Boolean);
+  // each campaign is a list of crops (several can be sown together); unknown ids are ignored
+  const history = (input.history || [])
+    .map((camp) => (Array.isArray(camp) ? camp : [camp]).map((id) => byId[id]).filter(Boolean))
+    .filter((camp) => camp.length);
   const priorities = input.priorities || [];
   const preferred = input.preferred || [];
 
@@ -335,7 +356,7 @@ export function recommend(climate, cropsData, input) {
   const ctx = { evals, history, priorities, preferred, maxIrrigation, irrigation, period };
 
   // Current rotation: keep sowing what the farmer has been sowing.
-  const pattern = history.length ? history : [byId.papa];
+  const pattern = history.length ? history.map((camp) => camp[0]) : [byId.papa];
   const current = [0, 1, 2].map((i) => pattern[(history.length + i) % pattern.length] || pattern[0]);
 
   // Every three-year sequence of main crops (short vegetables fit between them and are listed in the catalogue).
@@ -343,7 +364,14 @@ export function recommend(climate, cropsData, input) {
   const all = [];
   const crops = cropsData.crops;
   const minDays = cropsData.meta.main_crop_min_days || 0;
-  const mainCrops = crops.filter((c) => c.group === "fallow" || c.perennial || c.cycle_days >= minDays);
+  // fruit trees, aromatic herbs and flowers live in the catalogue, not in a three-year field rotation
+  const NOT_ROTATION = new Set(["tree", "herb", "flower"]);
+  const eligible = crops.filter((c) => !NOT_ROTATION.has(c.group) && (c.group === "fallow" || c.perennial || c.cycle_days >= minDays));
+  // to stay fast with a large catalogue, only the crops with the best climate for this plot are combined
+  // (plus the ones the farmer prefers or already sows)
+  const keep = new Set([...preferred, ...history.flat().map((c) => c.id)]);
+  const ranked = eligible.filter((c) => c.group !== "fallow").sort((a, b) => evals[b.id].climateScore - evals[a.id].climateScore);
+  const mainCrops = [...eligible.filter((c) => c.group === "fallow"), ...ranked.filter((c, i) => i < 22 || keep.has(c.id))];
   for (const a of mainCrops) for (const b of mainCrops) for (const c of mainCrops) {
     const seq = [a, b, c];
     if (seq.filter((x) => x.group === "fallow").length > 1) continue;
@@ -378,7 +406,7 @@ export function recommend(climate, cropsData, input) {
     calendar,
     crops: Object.fromEntries(crops.filter((c) => c.group !== "fallow").map((c) => {
       const e = evals[c.id];
-      return [c.id, { sowWeek: e.sowWeek, weeks: e.weeks, frostProb: e.frostProb, coverage: e.coverage, cropWaterMm: e.cropWaterMm, irrigationMm: e.irrigationMm, weekly: e.weekly }];
+      return [c.id, { sowWeek: e.sowWeek, weeks: e.weeks, frostProb: e.frostProb, coverage: e.coverage, cropWaterMm: e.cropWaterMm, irrigationMm: e.irrigationMm, climateScore: e.climateScore, meanTempC: e.meanTempC, warmth: e.warmth, weekly: e.weekly }];
     })),
     onset: climate.onset,
     sources: {

@@ -56,6 +56,7 @@ function simpleReason(reason) {
   if (/lluvia/.test(reason)) return "la lluvia no le alcanza";
   if (/ácido|alcalino|pH/.test(reason)) return "tu tierra no le sirve";
   if (/riego/.test(reason)) return "necesita mucha agua";
+  if (/calor/.test(reason)) return "aquí le falta calor";
   return reason;
 }
 const yearName = (y) => (y.group === "fallow" ? "dejar descansar la tierra" : y.name.toLowerCase());
@@ -108,7 +109,15 @@ const MODULES = [
   { id: "agua", tab: "agua", icon: "drop", label: "Humedad y agua" },
   { id: "predicciones", tab: "predicciones", icon: "chart", label: "Predicciones" },
 ];
-const TABS = ["general", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "cultivos", "catalogo", "plagas", "legal", "ganancias", "fuentes"];
+const TABS = ["general", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "comparar", "cultivos", "catalogo", "plagas", "legal", "ganancias", "fuentes"];
+// one colour per plot, so several plots can be told apart on the map and in the comparison table
+const PLOT_COLORS = ["#ff8a3d", "#3d7bff", "#e8457f", "#1fb58f", "#f2b21b", "#8e5cd9", "#18a2b8", "#d64545", "#7cb342", "#8d6e63"];
+// the crops most sown in the Cochabamba valleys are shown first; the rest are one tap away with a search box
+const COMMON_CROPS = ["papa", "maiz", "haba", "trigo", "cebada", "quinua", "arveja", "frijol", "cebolla", "tomate", "zanahoria", "lechuga", "alfalfa", "avena", "oca", "durazno"];
+const asList = (v) => (Array.isArray(v) ? v.filter(Boolean) : v ? [v] : []);
+const cropById = (id) => crops.crops.find((c) => c.id === id);
+const cropName = (id) => (cropById(id) || { name: id }).name;
+const plainText = (x) => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 const LOADING_STEPS = ["Leyendo 45 años de clima de la NASA", "Midiendo el relieve de tu terreno", "Consultando las capas del municipio", "Revisando el pronóstico por escenarios", "Comparando 35 cultivos y miles de rotaciones"];
 const LAYERS = [
   { id: "periurbanos", label: "Zonas periurbanas (GAMC)", on: true, kind: "gamc", opacity: 0.5 },
@@ -126,12 +135,13 @@ const PLANT_SVG = `<svg class="grow grow--small" viewBox="0 0 120 120" aria-hidd
 
 const state = {
   lang: "es", mode: "medio", step: 1, maxStep: 1, tab: "general",
-  site: null, polygon: null, areaHa: null, drawMode: "point", basemap: "hibrido", draft: [],
-  name: "", last: null, previous: null, soilType: null, labPh: null, labOm: null,
+  site: null, polygon: null, areaHa: null, drawMode: "point", basemap: "hibrido", draft: [], color: null,
+  name: "", last: [], previous: [], customCrops: [], pickers: {}, soilType: null, labPh: null, labOm: null,
   waterSource: null, irrigSystem: null, waterAvail: null, moisture: null,
   priorities: new Set(["risk"]), preferred: new Set(),
   scenario: { rainPct: 0, tempC: 0 }, selected: "best", period: "7", catType: "Todos", catOnlyApt: false, catSort: "aptitud",
   result: null, plot: null, soil: null, outlook: null, assessment: null,
+  pestView: "mis", pestKind: "todos", pestCrop: "", pestQuery: "", invKind: "todos",
   chat: [{ role: "assistant", content: TIRI_HELLO }], asking: false,
 };
 let climate;
@@ -156,7 +166,8 @@ function savePrefs() { const s = readStore(); s.prefs = { lang: state.lang, mode
 function inputsSnapshot() {
   return {
     name: state.name, site: state.site && { lat: state.site.lat, lon: state.site.lon, label: state.site.label },
-    polygon: state.polygon, areaHa: state.areaHa, last: state.last, previous: state.previous, soilType: state.soilType,
+    polygon: state.polygon, areaHa: state.areaHa, last: state.last, previous: state.previous, soilType: state.soilType, color: state.color,
+    customCrops: state.customCrops.filter((c) => [...state.last, ...state.previous, ...state.preferred].includes(c.id)),
     labPh: state.labPh, labOm: state.labOm, waterSource: state.waterSource, irrigSystem: state.irrigSystem,
     waterAvail: state.waterAvail, moisture: state.moisture, priorities: [...state.priorities], preferred: [...state.preferred],
   };
@@ -165,6 +176,7 @@ function saveParcel() {
   if (!state.site) return;
   const s = readStore();
   const id = state.parcelId || `p${Date.now()}`;
+  if (!state.color) state.color = nextColor(id);
   state.parcelId = id;
   const entry = { id, savedAt: new Date().toISOString(), ...inputsSnapshot() };
   s.parcels = [entry, ...s.parcels.filter((p) => p.id !== id)].slice(0, 30);
@@ -284,9 +296,42 @@ function bindAccount(box) {
   const sync = box.querySelector("#acc-sync");
   if (sync) sync.addEventListener("click", () => { account.msg = "Sincronizando…"; renderSaved(); syncFromCloud(); });
 }
-function loadParcel(p) {
+/** First colour not used by another saved plot. */
+function nextColor(exceptId) {
+  const used = new Set(readStore().parcels.filter((x) => x.id !== exceptId).map((x) => x.color));
+  return PLOT_COLORS.find((c) => !used.has(c)) || PLOT_COLORS[readStore().parcels.length % PLOT_COLORS.length];
+}
+/** Crops typed as "Otro" join the catalogue for this visit (and travel with the plot that uses them). */
+function addCustomCrops(list) {
+  for (const c of list || []) {
+    if (!c || !c.id || cropById(c.id)) continue;
+    const at = crops.crops.findIndex((x) => x.group === "fallow");
+    crops.crops.splice(at < 0 ? crops.crops.length : at, 0, c);
+    if (!state.customCrops.some((x) => x.id === c.id)) state.customCrops.push(c);
+  }
+  refreshTerms();
+}
+/** Start a new plot: everything empty and the next free colour. */
+function newParcel() {
   Object.assign(state, {
-    parcelId: p.id, name: p.name || "", polygon: p.polygon, areaHa: p.areaHa, last: p.last, previous: p.previous,
+    parcelId: null, name: "", site: null, polygon: null, areaHa: null, draft: [], last: [], previous: [], soilType: null, labPh: null, labOm: null,
+    waterSource: null, irrigSystem: null, waterAvail: null, moisture: null, priorities: new Set(["risk"]), preferred: new Set(),
+    result: null, plot: null, soil: null, outlook: null, assessment: null,
+  });
+  state.color = nextColor(null);
+  for (const id of ["plot-name", "lab-ph", "lab-om", "moisture"]) $(id).value = "";
+  if (marker) { marker.remove(); marker = null; }
+  setDrawMode("point");
+  renderSite();
+  renderForm();
+  drawSavedOnMap();
+  goStep(1);
+  $("wizard-msg").textContent = "Nuevo terreno: márcalo en el mapa. Tendrá otro color.";
+}
+function loadParcel(p) {
+  addCustomCrops(p.customCrops);
+  Object.assign(state, {
+    parcelId: p.id, name: p.name || "", polygon: p.polygon, areaHa: p.areaHa, last: asList(p.last), previous: asList(p.previous), color: p.color || null,
     soilType: p.soilType, labPh: p.labPh, labOm: p.labOm, waterSource: p.waterSource, irrigSystem: p.irrigSystem,
     waterAvail: p.waterAvail, moisture: p.moisture, priorities: new Set(p.priorities || ["risk"]), preferred: new Set(p.preferred || []),
   });
@@ -295,6 +340,7 @@ function loadParcel(p) {
   $("lab-om").value = state.labOm ?? "";
   $("moisture").value = state.moisture ?? "";
   drawShape();
+  drawSavedOnMap();
   if (p.site) { if (map) map.setView([p.site.lat, p.site.lon], 15); selectSite(p.site.lat, p.site.lon, p.site.label); }
   renderForm();
 }
@@ -334,11 +380,77 @@ function chips(container, items, { pressed, onClick, dot }) {
   }));
 }
 
+/** Several crops can be marked; "+ Otro" asks Gemini for the values of a crop that is not in the list. */
+function cropPicker(boxId, key, { allowNone = false } = {}) {
+  const box = $(boxId);
+  const selected = new Set(key === "preferred" ? [...state.preferred] : state[key]);
+  const ui = state.pickers[boxId] || (state.pickers[boxId] = { open: false, query: "", other: false, busy: false, msg: "", name: "" });
+  const all = crops.crops.filter((c) => c.group !== "fallow");
+  const chip = (c) => `<button type="button" class="chip" data-crop="${esc(c.id)}" aria-pressed="${selected.has(c.id)}"><span class="chip__dot" style="background:${cropColor(c.id) || "transparent"}"></span>${esc(c.name)}${c.custom ? ' <span class="chip__ai">IA</span>' : ""}</button>`;
+  const first = [...COMMON_CROPS.map(cropById).filter(Boolean), ...all.filter((c) => selected.has(c.id) && !COMMON_CROPS.includes(c.id))];
+  const q = plainText(ui.query);
+  const rest = all.filter((c) => !first.includes(c) && (!q || plainText(c.name).includes(q) || plainText(c.type).includes(q)));
+  box.innerHTML = `
+    <div class="chips">${allowNone ? `<button type="button" class="chip" data-none aria-pressed="${selected.size === 0}">No recuerdo</button>` : ""}${first.map(chip).join("")}
+      <button type="button" class="chip chip--other" data-other aria-expanded="${ui.other}">+ Otro</button></div>
+    ${ui.other ? `<div class="other-crop">
+        <input type="text" maxlength="40" value="${esc(ui.name)}" placeholder="Escribe qué sembraste" aria-label="Nombre del cultivo">
+        <button type="button" class="btn btn--small btn--primary" data-other-go${ui.busy ? " disabled" : ""}>${ui.busy ? "Analizando…" : "Analizar con IA"}</button>
+        <p class="hint small">Tiri estima con IA el ciclo, el agua, la helada y el suelo que pide, para analizarlo como los demás. Verifícalo con un técnico.</p>
+        ${ui.msg ? `<p class="hint small" role="status">${esc(ui.msg)}</p>` : ""}
+      </div>` : ""}
+    <details class="more-crops"${ui.open ? " open" : ""}><summary>Ver todos los cultivos (${all.length})</summary>
+      <input type="search" class="crop-search" value="${esc(ui.query)}" placeholder="Buscar un cultivo" aria-label="Buscar un cultivo">
+      <div class="chips chips--small">${rest.map(chip).join("") || '<p class="hint small">Ningún cultivo con ese nombre. Usa «+ Otro».</p>'}</div>
+    </details>`;
+  const set = (ids) => { if (key === "preferred") state.preferred = new Set(ids); else state[key] = ids; renderForm(); };
+  box.querySelectorAll("[data-crop]").forEach((b) => b.addEventListener("click", () => {
+    const id = b.dataset.crop;
+    set(selected.has(id) ? [...selected].filter((x) => x !== id) : [...selected, id]);
+  }));
+  const none = box.querySelector("[data-none]");
+  if (none) none.addEventListener("click", () => set([]));
+  box.querySelector("[data-other]").addEventListener("click", () => { ui.other = !ui.other; ui.msg = ""; renderForm(); const i = box.querySelector(".other-crop input"); if (i) i.focus(); });
+  const details = box.querySelector("details");
+  details.addEventListener("toggle", () => { ui.open = details.open; });
+  const search = box.querySelector(".crop-search");
+  search.addEventListener("input", () => {
+    ui.query = search.value;
+    const pos = search.selectionStart;
+    renderForm();
+    const again = $(boxId).querySelector(".crop-search");
+    again.focus();
+    again.setSelectionRange(pos, pos);
+  });
+  const go = box.querySelector("[data-other-go]");
+  if (go) {
+    const input = box.querySelector(".other-crop input");
+    input.addEventListener("input", () => { ui.name = input.value; });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); go.click(); } });
+    go.addEventListener("click", async () => {
+      ui.name = input.value.trim();
+      if (!ui.name) return;
+      ui.busy = true; ui.msg = ""; renderForm();
+      try {
+        const r = await fetch("/api/crop-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: ui.name }) });
+        const data = await r.json();
+        if (!r.ok || !data.crop) throw new Error(data.error || "No pude analizar ese cultivo ahora.");
+        addCustomCrops([data.crop]);
+        ui.other = false; ui.name = "";
+        ui.busy = false;
+        set([...new Set([...(key === "preferred" ? [...state.preferred] : state[key]), data.crop.id])]);
+        return;
+      } catch (error) {
+        ui.msg = error.message;
+      }
+      ui.busy = false;
+      renderForm();
+    });
+  }
+}
 function renderForm() {
-  const cropItems = crops.crops.filter((c) => c.group !== "fallow").map((c) => ({ id: c.id, label: c.name }));
-  const dot = (item) => cropColor(item.id) || "transparent";
-  chips($("last-crop"), cropItems, { dot, pressed: (c) => state.last === c.id, onClick: (c) => { state.last = c.id; renderForm(); } });
-  chips($("previous-crop"), [{ id: null, label: "No recuerdo" }, ...cropItems], { dot, pressed: (c) => state.previous === c.id, onClick: (c) => { state.previous = c.id; renderForm(); } });
+  cropPicker("last-crop", "last");
+  cropPicker("previous-crop", "previous", { allowNone: true });
   chips($("soil-type"), SOIL_TYPES, { pressed: (o) => state.soilType === o.id, onClick: (o) => { state.soilType = o.id; renderForm(); } });
   chips($("water-source"), WATER_SOURCES, { pressed: (o) => state.waterSource === o.id, onClick: (o) => { state.waterSource = o.id; if (o.id === "rain") state.irrigSystem = "none"; renderForm(); } });
   chips($("irrig-system"), IRRIG_SYSTEMS, { pressed: (o) => state.irrigSystem === o.id, onClick: (o) => { state.irrigSystem = o.id; renderForm(); } });
@@ -348,14 +460,14 @@ function renderForm() {
     onClick: (p) => { state.priorities.has(p.id) ? state.priorities.delete(p.id) : state.priorities.add(p.id); renderForm(); },
   });
   $("preferred-field").hidden = !state.priorities.has("preferred");
-  chips($("preferred"), cropItems, { dot, pressed: (c) => state.preferred.has(c.id), onClick: (c) => { state.preferred.has(c.id) ? state.preferred.delete(c.id) : state.preferred.add(c.id); renderForm(); } });
+  cropPicker("preferred", "preferred");
   renderStepper();
 }
 
 // ---------- Wizard ----------
 function stepValid(step) {
   if (step === 1) return state.site ? "" : "Marca tu terreno en el mapa, usa el GPS o busca tu comunidad.";
-  if (step === 2) return state.last ? "" : "Marca qué sembraste la última campaña.";
+  if (step === 2) return state.last.length ? "" : "Marca al menos un cultivo de la última campaña.";
   return "";
 }
 function renderStepper() {
@@ -391,11 +503,11 @@ function nextStep() {
 }
 function renderReview() {
   const label = (arr, id) => (arr.find((o) => o.id === id) || {}).label || "Sin dato";
-  const cropName = (id) => (id ? crops.crops.find((c) => c.id === id).name : "Sin dato");
+  const names = (ids) => (ids.length ? ids.map((id) => esc(cropName(id))).join(", ") : "Sin dato");
   const rows = [
     ["Terreno", `${esc(state.name || "Sin nombre")}${state.areaHa ? `, ${num(state.areaHa, 2)} ha` : ""}`],
     ["Ubicación", state.site ? `${state.site.lat.toFixed(4)}, ${state.site.lon.toFixed(4)} · ${num(state.site.altitude)} m` : "Sin dato"],
-    ["Última campaña", cropName(state.last)], ["Campaña anterior", cropName(state.previous)],
+    ["Última campaña", names(state.last)], ["Campaña anterior", names(state.previous)],
     ["Suelo", label(SOIL_TYPES, state.soilType) + (state.labPh ? ` · pH ${state.labPh}` : "")],
     ["Agua", `${label(WATER_SOURCES, state.waterSource)} · ${label(IRRIG_SYSTEMS, state.irrigSystem)} · ${label(WATER_AVAIL, state.waterAvail)}`],
     ["Prioridades", [...state.priorities].map((p) => label(PRIORITIES, p)).join(", ") || "Sin dato"],
@@ -461,6 +573,7 @@ function initMap() {
   });
   initFreehand(box);
   renderLayerToggles();
+  drawSavedOnMap();
   setDrawMode(state.drawMode || "point");
   if (state.site) selectSite(state.site.lat, state.site.lon, state.site.label);
 }
@@ -571,6 +684,30 @@ function renderMapTools() {
   on("draw-done", finishDrawing);
   on("draw-clear", () => { state.draft = []; state.polygon = null; state.areaHa = null; drawShape(); renderSite(); });
 }
+let savedLayer = null;
+/** Every saved plot on the map at the same time, each with its colour; tap one to open it. */
+function drawSavedOnMap() {
+  if (!map) return;
+  if (savedLayer) savedLayer.remove();
+  savedLayer = L.layerGroup().addTo(map);
+  for (const p of readStore().parcels) {
+    if (p.id === state.parcelId) continue;
+    const color = p.color || "#9e9e9e";
+    const opts = { color, weight: 2, fillColor: color, fillOpacity: 0.28, bubblingMouseEvents: false };
+    const layer = p.polygon && p.polygon.length >= 3 ? L.polygon(p.polygon, opts)
+      : p.site ? L.circleMarker([p.site.lat, p.site.lon], { ...opts, radius: 8, color: "#fff", fillOpacity: 1 }) : null;
+    if (!layer) continue;
+    layer.bindTooltip(esc(p.name || "Sin nombre"), { sticky: true });
+    layer.on("click", () => { if (state.drawMode === "point") loadParcel(p); });
+    layer.addTo(savedLayer);
+  }
+}
+function fitAllParcels() {
+  if (!map) return;
+  const pts = readStore().parcels.flatMap((p) => (p.polygon && p.polygon.length ? p.polygon : p.site ? [[p.site.lat, p.site.lon]] : []));
+  if (state.polygon) pts.push(...state.polygon);
+  if (pts.length) map.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 16 });
+}
 let handles = [];
 function drawShape() {
   const hint = $("map-hint");
@@ -585,7 +722,7 @@ function drawShape() {
   if (pts && pts.length) {
     shape = (drafting
       ? L.polyline(pts, { color: "#ff8a3d", weight: 3, dashArray: "6 6" })
-      : L.polygon(pts, { color: "#ff8a3d", weight: 3, fillColor: "#93c572", fillOpacity: 0.3 })).addTo(map);
+      : L.polygon(pts, { color: state.color || "#ff8a3d", weight: 3, fillColor: state.color || "#93c572", fillOpacity: 0.3 })).addTo(map);
     // corner handles: numbered while marking, draggable afterwards to fix the shape
     pts.forEach((p, i) => {
       const h = L.marker(p, {
@@ -628,7 +765,7 @@ async function selectSite(lat, lon, label) {
   state.site = { lat, lon, altitude, label, gamc: null };
   if (map) {
     if (marker) marker.remove();
-    marker = L.circleMarker([lat, lon], { radius: 8, color: "#fff", weight: 3, fillColor: "#6b4423", fillOpacity: 1 }).addTo(map);
+    marker = L.circleMarker([lat, lon], { radius: 8, color: "#fff", weight: 3, fillColor: state.color || "#6b4423", fillOpacity: 1 }).addTo(map);
   }
   renderSite();
   renderStepper();
@@ -693,8 +830,10 @@ function useGps() {
 function renderSaved() {
   const parcels = readStore().parcels;
   const box = $("saved");
-  box.innerHTML = `${parcels.length ? `<h3>Mis terrenos guardados</h3><ul class="saved__list">${parcels.map((p) => `<li><button type="button" class="link" data-load="${p.id}">${esc(p.name || "Sin nombre")}</button> <span class="hint">${new Date(p.savedAt).toLocaleDateString("es")}</span> <button type="button" class="link link--danger" data-del="${p.id}">Quitar</button></li>`).join("")}</ul>` : ""}
+  box.innerHTML = `${parcels.length ? `<h3>Mis terrenos guardados</h3><ul class="saved__list">${parcels.map((p) => `<li${p.id === state.parcelId ? ' class="is-current"' : ""}><span class="plot-dot" style="background:${esc(p.color || "#9e9e9e")}"></span><button type="button" class="link" data-load="${p.id}">${esc(p.name || "Sin nombre")}</button> <span class="hint">${new Date(p.savedAt).toLocaleDateString("es")}</span> <button type="button" class="link link--danger" data-del="${p.id}">Quitar</button></li>`).join("")}</ul>` : ""}
     <div class="saved__tools">
+      ${parcels.length ? '<button type="button" class="btn btn--small" id="new-parcel">+ Nuevo terreno</button>' : ""}
+      ${parcels.length > 1 ? '<button type="button" class="btn btn--small btn--ghost" id="fit-all">Ver todos en el mapa</button>' : ""}
       ${parcels.length ? '<button type="button" class="btn btn--small btn--ghost" id="export">Guardar copia en un archivo</button>' : ""}
       <label class="btn btn--small btn--ghost">Abrir una copia<input type="file" id="import" accept="application/json,.json" hidden></label>
     </div>
@@ -703,6 +842,11 @@ function renderSaved() {
   box.querySelectorAll("[data-load]").forEach((b) => b.addEventListener("click", () => loadParcel(parcels.find((p) => p.id === b.dataset.load))));
   box.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => deleteParcel(b.dataset.del)));
   bindAccount(box);
+  const np = $("new-parcel");
+  if (np) np.addEventListener("click", newParcel);
+  const fa = $("fit-all");
+  if (fa) fa.addEventListener("click", fitAllParcels);
+  drawSavedOnMap();
   const exp = $("export");
   if (exp) exp.addEventListener("click", () => download(`yatirix-mis-terrenos-${new Date().toISOString().slice(0, 10)}.json`, { app: "Yatiri X", version: 1, parcels: readStore().parcels }));
   $("import").addEventListener("change", async (e) => {
@@ -738,7 +882,9 @@ function openTiri() {
 }
 
 // ---------- Analysis ----------
-async function analyze() {
+// data already fetched for each plot in this visit, so switching between plots is instant
+const analysisCache = new Map();
+async function analyze(keepTab = null) {
   const btn = $("analyze");
   btn.disabled = true;
   btn.textContent = "Analizando tu terreno…";
@@ -753,6 +899,7 @@ async function analyze() {
   const [plot, soil, outlook] = await Promise.all([
     settle(loadJson(`/api/plot?${at}`, 20000)), settle(loadJson(`/api/soil?${at}`, 12000)), settle(loadJson(`/api/outlook?${at}`, 20000)),
   ]);
+  analysisCache.set(state.parcelId, { plot, soil, outlook, at: Date.now() });
   state.plot = plot || {};
   state.soil = soil && soil.soil ? soil.soil : null;
   state.outlook = outlook;
@@ -761,7 +908,7 @@ async function analyze() {
   btn.disabled = false;
   btn.textContent = t("analyze", state.lang);
   show("results");
-  setTab("general");
+  setTab(keepTab && TABS.includes(keepTab) ? keepTab : "general");
   document.body.classList.remove("revealed");
   requestAnimationFrame(() => document.body.classList.add("revealed"));
 }
@@ -797,9 +944,9 @@ function userSoil() {
 }
 
 function compute() {
-  if (!state.site || !state.last) return;
+  if (!state.site || !state.last.length) return;
   state.result = recommend(climate, crops, {
-    altitude: state.site.altitude, history: [state.previous, state.last].filter(Boolean), irrigation: irrigation(),
+    altitude: state.site.altitude, history: [state.previous, state.last].filter((l) => l.length), irrigation: irrigation(),
     priorities: [...state.priorities], preferred: [...state.preferred], scenario: state.scenario,
   });
   const p = state.plot || {};
@@ -830,7 +977,35 @@ function domainLevels() {
   };
 }
 
+/** Several plots: buttons to switch the whole analysis from one plot to another. */
+function renderPlotSwitch() {
+  const box = $("plot-switch");
+  const parcels = readStore().parcels;
+  if (parcels.length < 2) { box.innerHTML = ""; box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<span class="plot-switch__label">Tus terrenos:</span>${parcels.map((p) => `<button type="button" class="plot-chip" data-switch="${p.id}" aria-pressed="${p.id === state.parcelId}"><span class="plot-dot" style="background:${esc(p.color || "#9e9e9e")}"></span>${esc(p.name || "Sin nombre")}</button>`).join("")}`;
+  box.querySelectorAll("[data-switch]").forEach((b) => b.addEventListener("click", () => switchParcel(b.dataset.switch)));
+}
+async function switchParcel(id) {
+  if (id === state.parcelId) return;
+  const p = readStore().parcels.find((x) => x.id === id);
+  if (!p || !p.site) return;
+  const tab = state.tab;
+  loadParcel(p);
+  const cached = analysisCache.get(id);
+  if (cached) {
+    state.plot = cached.plot || {};
+    state.soil = cached.soil && cached.soil.soil ? cached.soil.soil : null;
+    state.outlook = cached.outlook;
+    compute();
+    setTab(tab);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    await analyze(tab);
+  }
+}
 function renderResults() {
+  renderPlotSwitch();
   const levels = domainLevels();
   const overall = Math.max(...Object.values(levels).filter((x) => x !== null));
   const word = (isSimple() ? { 1: "Tu terreno está bien", 2: "Tu terreno necesita cuidados", 3: "Tu terreno tiene peligro" } : { 1: "Buen estado", 2: "Necesita cuidados", 3: "En riesgo" })[overall];
@@ -845,7 +1020,7 @@ function renderResults() {
     <ul class="domains">${Object.entries(levels).map(([k, lv]) => `<li class="domain domain--${lv ? LEVEL[lv][0] : "none"}"><button type="button" data-tab-go="${k === "riesgos" ? "riesgos" : k}"><span aria-hidden="true">${icons[k]}</span><b>${names[k]}</b><span>${lv ? (isSimple() ? LEVEL_SIMPLE[lv] : LEVEL[lv][2]) : "Sin dato"}</span></button></li>`).join("")}</ul>`;
   $("summary-card").querySelectorAll("[data-tab-go]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tabGo)));
   renderTabs();
-  renderGeneral(); renderPredicciones(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderCultivos(); renderCatalogo(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
+  renderGeneral(); renderPredicciones(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderComparar(); renderCultivos(); renderCatalogo(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
 }
 
 // --- Do / don't ---
@@ -864,8 +1039,10 @@ function doDont() {
   if (!userSoil()) yes.push(sm ? "Antes de comprar abono, haz analizar tu tierra." : "Hacer un análisis de suelo en laboratorio antes de comprar abono.");
   yes.push(sm ? "Mira tus plantas cada semana para ver si hay plagas." : "Revisar el cultivo cada semana para detectar plagas a tiempo.");
   a.avoid.forEach((x) => no.push(sm ? `No siembres ${x.name.toLowerCase()}: ${simpleReason(x.reasons[0])}.` : `No sembrar ${x.name.toLowerCase()}: ${x.reasons[0]}.`));
-  const hist = [state.previous, state.last].filter(Boolean).map((id) => crops.crops.find((c) => c.id === id));
-  if (hist.length === 2 && hist[0].family === hist[1].family) no.push(sm ? `No siembres otra vez ${hist[1].name.toLowerCase()} ni plantas parecidas el próximo año: la tierra se cansa y vienen plagas.` : `No volver a sembrar ${hist[1].family.toLowerCase()} la próxima campaña: ya repetiste esa familia.`);
+  const prevFamilies = new Set(state.previous.map(cropById).filter(Boolean).map((c) => c.family));
+  const repeated = state.last.map(cropById).filter((c) => c && prevFamilies.has(c.family));
+  const hist = repeated.length ? [repeated[0], repeated[0]] : [];
+  if (hist.length === 2) no.push(sm ? `No siembres otra vez ${hist[1].name.toLowerCase()} ni plantas parecidas el próximo año: la tierra se cansa y vienen plagas.` : `No volver a sembrar ${hist[1].family.toLowerCase()} la próxima campaña: ya repetiste esa familia.`);
   if (a.hazards.some((h) => h.id === "erosion")) no.push(sm ? "No dejes la tierra pelada en época de lluvias ni ares de arriba hacia abajo." : "No dejar el suelo desnudo en la época de lluvias ni arar a favor de la pendiente.");
   if (g && g.drenaje && !g.drenaje.error) no.push(sm ? "No construyas ni siembres junto a torrenteras y canales." : "No construir, rellenar ni sembrar dentro de las franjas de torrenteras y canales.");
   no.push(sm ? "No uses venenos sin preguntar a un técnico." : "No aplicar agroquímicos sin la recomendación de un técnico.");
@@ -875,7 +1052,7 @@ function doDont() {
 }
 
 // --- Catalogue of every crop ---
-const CATALOG_TYPES = ["Todos", "Hortaliza", "Hortaliza de ciclo corto", "Grano", "Tubérculo", "Leguminosa", "Forraje", "Fruta"];
+const CATALOG_TYPES = ["Todos", "Hortaliza", "Hortaliza de ciclo corto", "Grano", "Tubérculo", "Leguminosa", "Forraje", "Fruta", "Frutal", "Aromática", "Flor"];
 function cropAptitude(c) {
   const r = state.result;
   const a = state.assessment;
@@ -885,8 +1062,10 @@ function cropAptitude(c) {
   const phOk = !s || s.ph === null || !c.ph ? null : s.ph >= c.ph[0] - 0.3 && s.ph <= c.ph[1] + 0.3;
   // with irrigation but limited water (some months or very little), a thirsty crop needs care
   const thirsty = irrigation() && state.waterAvail && state.waterAvail !== "year" && e.irrigationMm > (state.waterAvail === "scarce" ? 150 : 300);
-  const status = avoid ? 3 : (phOk === false || e.frostProb >= 0.2 || (!irrigation() && e.coverage < 0.5) || thirsty) ? 2 : 1;
+  const cold = e.warmth !== undefined && e.warmth < 0.85;
+  const status = avoid || (e.warmth !== undefined && e.warmth < 0.35) ? 3 : (phOk === false || e.frostProb >= 0.2 || (!irrigation() && e.coverage < 0.5) || thirsty || cold) ? 2 : 1;
   const reasons = avoid ? avoid.reasons : [
+    cold ? `le falta calor: el ciclo promedia ${num(e.meanTempC, 1)} °C y pide al menos ${num(c.min_mean_temp_c)} °C` : null,
     e.frostProb >= 0.2 ? `helada dañina en ${pct(e.frostProb)} de las campañas` : null,
     !irrigation() && e.coverage < 0.5 ? `la lluvia cubre solo ${pct(e.coverage)} del agua` : null,
     thirsty ? `necesita unos ${mm(e.irrigationMm)} de riego y tu agua es limitada` : null,
@@ -1051,7 +1230,7 @@ function moduleCards(active) {
 function renderTabs() {
   const secondary = TABS.filter((k) => !MODULES.some((m) => m.tab === k));
   $("tabs").innerHTML = `<div class="modules modules--nav">${moduleCards(state.tab)}</div>
-    <div class="subtabs">${secondary.map((k) => `<button type="button" class="tab-btn${k === "fuentes" ? " mid-up" : ""}" data-tab-btn="${k}" aria-pressed="${state.tab === k}">${t(`tab_${k}`, state.lang)}</button>`).join("")}</div>`;
+    <div class="subtabs">${secondary.filter((k) => k !== "comparar" || readStore().parcels.length > 1).map((k) => `<button type="button" class="tab-btn${k === "fuentes" ? " mid-up" : ""}" data-tab-btn="${k}" aria-pressed="${state.tab === k}">${t(`tab_${k}`, state.lang)}</button>`).join("")}</div>`;
   $("tabs").querySelectorAll("[data-module]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.module)));
   $("tabs").querySelectorAll("[data-tab-btn]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tabBtn)));
 }
@@ -1067,6 +1246,7 @@ function setTab(k) {
   document.querySelectorAll(".tab").forEach((s) => { s.hidden = s.dataset.tab !== k; });
   renderTabs();
   if (k === "general" && miniMap) setTimeout(() => miniMap.invalidateSize(), 50);
+  if (k === "comparar" && compareMap) setTimeout(() => compareMap.invalidateSize(), 50);
 }
 const panel = (k) => document.querySelector(`.tab[data-tab="${k}"]`);
 
@@ -1326,6 +1506,94 @@ function renderAgua() {
     ${source(`NASA POWER ${climate.meta.period.replace(" to ", " a ")}; necesidad del cultivo con evapotranspiración FAO-56 por coeficiente Kc.`)}`;
 }
 
+// --- Comparar (all plots at the same time) ---
+/** Engine and hazard rules for a saved plot, from its own answers and the data fetched for it. */
+function analyzeSnapshot(p, data) {
+  const altitude = elevationAt(p.site.lat, p.site.lon);
+  const irr = Boolean(p.waterSource && p.waterSource !== "rain" && p.irrigSystem && p.irrigSystem !== "none");
+  const result = recommend(climate, crops, {
+    altitude, history: [asList(p.previous), asList(p.last)].filter((l) => l.length), irrigation: irr,
+    priorities: p.priorities && p.priorities.length ? p.priorities : ["risk"], preferred: p.preferred || [],
+  });
+  const plot = (data && data.plot) || {};
+  const soil = data && data.soil && data.soil.soil ? { ...data.soil.soil } : null;
+  if (soil && p.labPh) soil.ph = p.labPh;
+  const assessment = assessPlot({ altitude, slope: plot.slope || null, soil, gamc: plot.gamc || null, forecast: plot.forecast || null, conditions: plot.conditions || null }, result, crops);
+  return { altitude, result, assessment, plot };
+}
+let compareToken = 0;
+async function renderComparar() {
+  const box = panel("comparar");
+  const parcels = readStore().parcels.filter((p) => p.site && asList(p.last).length);
+  if (parcels.length < 2) { box.innerHTML = '<h2>Comparar mis terrenos</h2><p class="hint">Guarda al menos dos terrenos (con su ubicación y lo que sembraste) para compararlos aquí.</p>'; return; }
+  const token = ++compareToken;
+  box.innerHTML = '<h2>Comparar mis terrenos</h2><p class="hint">Calculando cada terreno…</p>';
+  await Promise.all(parcels.map(async (p) => {
+    if (analysisCache.has(p.id)) return;
+    const at = `lat=${p.site.lat.toFixed(5)}&lon=${p.site.lon.toFixed(5)}`;
+    const plot = await loadJson(`/api/plot?${at}`, 20000).catch(() => null);
+    analysisCache.set(p.id, { plot, soil: null, outlook: null, at: Date.now() });
+  }));
+  if (token !== compareToken) return;
+  const sm = isSimple();
+  const word = (lv) => (lv ? (sm ? LEVEL_SIMPLE[lv] : LEVEL[lv][2]) : "Sin dato");
+  const cell = (lv) => `<span class="badge badge--${lv ? LEVEL[lv][0] : "none"}">${word(lv)}</span>`;
+  const rows = parcels.map((p) => {
+    const a = analyzeSnapshot(p, analysisCache.get(p.id));
+    const hz = Object.fromEntries(a.assessment.hazards.map((h) => [h.id, h.level]));
+    const best = a.result.strategies[1];
+    const current = a.result.strategies[0];
+    const first = best.years.find((y) => y.group !== "fallow");
+    const worst = a.assessment.hazards.slice().sort((x, y) => y.level - x.level)[0];
+    const slope = a.plot.slope ? a.plot.slope.percent : null;
+    const overall = Math.max(...a.assessment.hazards.map((h) => h.level));
+    return `<tr${p.id === state.parcelId ? ' class="is-current"' : ""}>
+      <th scope="row"><span class="plot-dot" style="background:${esc(p.color || "#9e9e9e")}"></span>${esc(p.name || "Sin nombre")}</th>
+      <td>${cell(overall)}</td>
+      <td>${first ? `${esc(first.name)}<span class="small"> · ${sm ? monthPart(first.sowWeek) : weekLabel(first.sowWeek)}</span>` : "Descanso"}</td>
+      <td>${worst && worst.level >= 2 ? esc(hz2(worst).title) : (sm ? "Nada grave" : "Sin riesgos altos")}</td>
+      <td class="mid-up">${p.areaHa ? `${num(p.areaHa, 2)} ha` : "—"}</td>
+      <td class="mid-up">${num(a.altitude)} m</td>
+      <td class="mid-up">${cell(Math.max(hz.frost || 1, hz.frost_now || 1))}</td>
+      <td class="mid-up">${cell(Math.max(hz.drought || 1, hz.waterlogging || 1))}</td>
+      <td class="mid-up">${slope === null ? "—" : sm ? "" : `${num(slope, 1)} %`}</td>
+      <td class="mid-up">${best.years.map((y) => esc(y.name)).join(" → ")}</td>
+      <td class="adv-only">${current.score} → ${best.score}</td>
+      <td class="adv-only">${mm(best.irrigationTotalMm)}</td>
+      <td><button type="button" class="link" data-switch="${p.id}">${p.id === state.parcelId ? "Viendo" : "Ver"}</button></td>
+    </tr>`;
+  }).join("");
+  box.innerHTML = `
+    <h2>Comparar mis terrenos</h2>
+    <p class="hint">${sm ? "Tus terrenos lado a lado. Toca «Ver» para abrir uno." : "Lo único que se ve de todos tus terrenos a la vez. Para ver el detalle de uno, elígelo arriba o toca «Ver»."}</p>
+    <div id="compare-map" class="mini-map compare-map" role="img" aria-label="Tus terrenos en el mapa"></div>
+    <div class="scroll"><table class="table compare">
+      <thead><tr><th>Terreno</th><th>Estado</th><th>${sm ? "Qué sembrar primero" : "Primera siembra recomendada"}</th><th>${sm ? "Qué cuidar" : "Riesgo principal"}</th>
+        <th class="mid-up">Superficie</th><th class="mid-up">Altitud</th><th class="mid-up">Helada</th><th class="mid-up">Agua</th><th class="mid-up">Pendiente</th>
+        <th class="mid-up">Rotación recomendada</th><th class="adv-only">Puntaje (actual → recomendado)</th><th class="adv-only">Riego en 3 años</th><th><span class="sr-only">Abrir</span></th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    ${source(`Cada terreno con sus propias respuestas. Clima: NASA POWER ${climate.meta.period.replace(" to ", " a ")}; relieve: NASA SRTM.`)}`;
+  box.querySelectorAll("[data-switch]").forEach((b) => b.addEventListener("click", () => switchParcel(b.dataset.switch)));
+  if (window.L) {
+    const m = L.map($("compare-map"), { scrollWheelZoom: false });
+    L.layerGroup(basemapLayers(state.basemap || "hibrido")).addTo(m);
+    const pts = [];
+    for (const p of parcels) {
+      const color = p.color || "#9e9e9e";
+      const layer = p.polygon && p.polygon.length >= 3 ? L.polygon(p.polygon, { color, weight: 3, fillColor: color, fillOpacity: 0.3 })
+        : L.circleMarker([p.site.lat, p.site.lon], { radius: 9, color: "#fff", weight: 2, fillColor: color, fillOpacity: 1 });
+      layer.bindTooltip(esc(p.name || "Sin nombre"), { permanent: parcels.length <= 6, direction: "top" }).addTo(m);
+      layer.on("click", () => switchParcel(p.id));
+      pts.push(...(p.polygon && p.polygon.length ? p.polygon : [[p.site.lat, p.site.lon]]));
+    }
+    m.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 16 });
+    if (state.tab !== "comparar") setTimeout(() => m.invalidateSize(), 0);
+    compareMap = m;
+  }
+}
+let compareMap = null;
+const hz2 = (h) => hz(h);
+
 // --- Riesgos ---
 function renderRiesgos() {
   const a = state.assessment;
@@ -1398,31 +1666,101 @@ function renderCultivos() {
   }));
 }
 
-// --- Plagas ---
+// --- Plagas, cuidados, especies invasoras y remedios ---
+const PEST_KINDS = [
+  ["todos", "Todos"], ["insecto", "Insectos y ácaros"], ["hongo", "Hongos y bacterias"], ["virus", "Virus"],
+  ["nematodo", "Nematodos"], ["molusco", "Caracoles y babosas"], ["fauna", "Aves y roedores"],
+];
+const kindOf = (type) => {
+  const t = plainText(type);
+  if (/insecto|acaro/.test(t)) return "insecto";
+  if (/hongo|oomiceto|bacteria/.test(t)) return "hongo";
+  if (/virus/.test(t)) return "virus";
+  if (/nematodo/.test(t)) return "nematodo";
+  if (/molusco/.test(t)) return "molusco";
+  if (/ave|roedor/.test(t)) return "fauna";
+  return "insecto";
+};
+/** One entry per species, with every crop it attacks. */
+function pestCatalog() {
+  const byName = new Map();
+  for (const [cropId, list] of Object.entries(knowledge.pests)) {
+    for (const p of list) {
+      const key = p.scientific || p.name;
+      if (!byName.has(key)) byName.set(key, { ...p, kind: kindOf(p.type), hosts: [] });
+      if (cropById(cropId)) byName.get(key).hosts.push(cropId);
+    }
+  }
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
+}
+function pestCard(p, i = 0) {
+  return `<article class="card pest-card" style="--i:${i}">
+    ${photo(images.pests[p.scientific], p.name)}
+    <p class="card__title">${esc(p.name)}</p>
+    <p class="adv-only small"><i>${esc(p.scientific)}</i> · ${esc(p.type)}</p>
+    <p class="mid-up small">${esc(p.season)}</p>
+    <p><b>Señales:</b> ${esc(p.signs)}</p>
+    <p class="mid-up"><b>Prevención:</b> ${esc(p.prevention)}</p>
+    <p><b>Casero:</b> ${esc(p.homemade)}</p>
+    ${p.hosts && p.hosts.length ? `<p class="adv-only small"><b>Ataca a:</b> ${esc(p.hosts.map(cropName).join(", "))}</p>` : ""}
+  </article>`;
+}
 function renderPlagas() {
-  const ids = [...new Set([state.last, ...state.result.strategies[1].years.filter((y) => y.group !== "fallow").map((y) => y.crop)].filter(Boolean))];
-  panel("plagas").innerHTML = `
-    <h2>Plagas, especies invasoras y cuidados</h2>
-    <p class="hint">${esc(knowledge.meta.status)}</p>
-    ${ids.map((id) => {
+  const views = [["mis", "Mis cultivos"], ["todo", "Catálogo completo"], ["invasoras", "Especies invasoras"], ["remedios", "Remedios caseros"]];
+  const mine = [...new Set([...state.last, ...state.result.strategies[1].years.filter((y) => y.group !== "fallow").map((y) => y.crop)])].filter((id) => cropById(id));
+  const all = pestCatalog();
+  let body = "";
+  if (state.pestView === "mis") {
+    body = mine.map((id) => {
+      const c = cropById(id);
       const pests = knowledge.pests[id] || [];
-      if (!pests.length) return "";
-      const cropName = crops.crops.find((c) => c.id === id).name;
-      return `<div class="crop-head">${photo(images.crops[id], cropName, "photo photo--round")}<h3>${esc(cropName)}</h3></div>
-        <div class="cards">${pests.map((p) => `<article class="card">
-          ${photo(images.pests[p.scientific], p.name)}
-          <p class="card__title">${esc(p.name)} <span class="adv-only small"><i>${esc(p.scientific)}</i></span></p>
-          <p class="small">${esc(p.type)} · ${esc(p.season)}</p>
-          <p><b>Señales:</b> ${esc(p.signs)}</p>
-          <p class="mid-up"><b>Prevención:</b> ${esc(p.prevention)}</p>
-          <p><b>Casero:</b> ${esc(p.homemade)}</p></article>`).join("")}</div>`;
-    }).join("")}
-    <h3>Repelentes y remedios caseros</h3>
-    <div class="cards">${knowledge.repellents.map((r) => `<article class="card"><p class="card__title">${esc(r.name)}</p><p class="small">Para ${esc(r.for)}</p><p class="mid-up">${esc(r.how)}</p><p class="small">${esc(r.care)}</p></article>`).join("")}</div>
-    ${notice(2, `<p>${esc(knowledge.meta.safety)}</p>`)}
-    <h3>Especies invasoras a vigilar</h3>
-    <div class="cards">${knowledge.invasive.map((x) => `<article class="card">${photo(images.invasive[x.scientific], x.name)}<p class="card__title">${esc(x.name)} <span class="adv-only small"><i>${esc(x.scientific)}</i></span></p><p class="small">Origen: ${esc(x.origin)}</p><p>${esc(x.risk)}</p><p><b>Qué hacer:</b> ${esc(x.action)}</p></article>`).join("")}</div>
+      return `<section class="crop-care">
+        <div class="crop-head">${photo(images.crops[id], c.name, "photo photo--round")}<div><h3>${esc(c.name)}</h3>
+          <p class="adv-only small"><i>${esc(c.scientific || "")}</i> · ${esc(c.family)}</p></div></div>
+        ${knowledge.fertility[id] ? `<p><b>Abono:</b> ${esc(knowledge.fertility[id])}</p>` : ""}
+        ${c.custom ? '<p class="hint small">Cultivo agregado con «Otro»: no tiene fichas de plagas propias. Pregúntale a Tiri.</p>' : ""}
+        ${pests.length ? `<div class="cards">${pests.map((p, i) => pestCard({ ...p, hosts: [] }, i)).join("")}</div>` : ""}
+      </section>`;
+    }).join("") || '<p class="hint">Marca qué siembras en el paso 2 para ver sus plagas y cuidados.</p>';
+  } else if (state.pestView === "todo") {
+    const q = plainText(state.pestQuery);
+    const list = all.filter((p) => (state.pestKind === "todos" || p.kind === state.pestKind)
+      && (!state.pestCrop || p.hosts.includes(state.pestCrop))
+      && (!q || plainText(`${p.name} ${p.scientific} ${p.signs}`).includes(q)));
+    const hostIds = [...new Set(all.flatMap((p) => p.hosts))].sort((a, b) => cropName(a).localeCompare(cropName(b), "es"));
+    body = `<div class="catalog-tools">
+        <div class="chips chips--small" role="group" aria-label="Tipo">${PEST_KINDS.map(([k, l]) => `<button type="button" class="chip" data-pest-kind="${k}" aria-pressed="${state.pestKind === k}">${esc(l)}</button>`).join("")}</div>
+        <div class="catalog-row">
+          <label class="sort">Cultivo <select id="pest-crop"><option value="">Todos</option>${hostIds.map((id) => `<option value="${esc(id)}"${state.pestCrop === id ? " selected" : ""}>${esc(cropName(id))}</option>`).join("")}</select></label>
+          <input type="search" id="pest-q" class="crop-search" value="${esc(state.pestQuery)}" placeholder="Buscar plaga o señal" aria-label="Buscar plaga o señal">
+        </div>
+      </div>
+      <p class="hint small">${list.length} de ${all.length} plagas y enfermedades.</p>
+      <div class="cards">${list.map((p, i) => pestCard(p, i)).join("") || '<p class="hint">Nada coincide con ese filtro.</p>'}</div>`;
+  } else if (state.pestView === "invasoras") {
+    const list = knowledge.invasive.filter((x) => state.invKind === "todos" || x.kind === state.invKind);
+    body = `<div class="chips chips--small" role="group" aria-label="Tipo">${[["todos", "Todas"], ["planta", "Plantas"], ["animal", "Animales"]].map(([k, l]) => `<button type="button" class="chip" data-inv-kind="${k}" aria-pressed="${state.invKind === k}">${esc(l)}</button>`).join("")}</div>
+      <div class="cards">${list.map((x, i) => `<article class="card" style="--i:${i}">${photo(images.invasive[x.scientific], x.name)}
+        <p class="card__title">${esc(x.name)}</p><p class="adv-only small"><i>${esc(x.scientific)}</i></p>
+        <p class="mid-up small">Origen: ${esc(x.origin)}</p><p>${esc(x.risk)}</p><p><b>Qué hacer:</b> ${esc(x.action)}</p></article>`).join("")}</div>`;
+  } else {
+    body = `<div class="cards">${knowledge.repellents.map((r, i) => `<article class="card" style="--i:${i}"><p class="card__title">${esc(r.name)}</p><p class="small">Para ${esc(r.for)}</p><p>${esc(r.how)}</p><p class="small"><b>Cuidado:</b> ${esc(r.care)}</p></article>`).join("")}</div>
+      ${notice(2, `<p>${esc(knowledge.meta.safety)}</p>`)}`;
+  }
+  panel("plagas").innerHTML = `
+    <h2>Plagas, cuidados y especies invasoras</h2>
+    <p class="hint mid-up">${esc(knowledge.meta.status)}</p>
+    <div class="segmented" role="group" aria-label="Sección">${views.map(([k, l]) => `<button type="button" data-pest-view="${k}" aria-pressed="${state.pestView === k}">${esc(l)}</button>`).join("")}</div>
+    ${body}
     <p class="source adv-only">Fuentes de referencia: ${esc(knowledge.meta.sources.join("; "))}.</p>`;
+  const p = panel("plagas");
+  p.querySelectorAll("[data-pest-view]").forEach((b) => b.addEventListener("click", () => { state.pestView = b.dataset.pestView; renderPlagas(); }));
+  p.querySelectorAll("[data-pest-kind]").forEach((b) => b.addEventListener("click", () => { state.pestKind = b.dataset.pestKind; renderPlagas(); }));
+  p.querySelectorAll("[data-inv-kind]").forEach((b) => b.addEventListener("click", () => { state.invKind = b.dataset.invKind; renderPlagas(); }));
+  const sel = $("pest-crop");
+  if (sel) sel.addEventListener("change", () => { state.pestCrop = sel.value; renderPlagas(); });
+  const q = $("pest-q");
+  if (q) q.addEventListener("input", () => { state.pestQuery = q.value; const pos = q.selectionStart; renderPlagas(); const again = $("pest-q"); again.focus(); again.setSelectionRange(pos, pos); });
 }
 
 // --- Legal ---
@@ -1530,7 +1868,8 @@ async function askTiri(question) {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         question: text, lat: state.site ? state.site.lat : null, lon: state.site ? state.site.lon : null,
-        history: [state.previous, state.last].filter(Boolean), irrigation: irrigation(), priorities: [...state.priorities], messages: history.slice(-6),
+        history: [state.previous, state.last].filter((l) => l.length), irrigation: irrigation(), priorities: [...state.priorities], messages: history.slice(-6),
+        customCrops: state.customCrops,
         lang: state.lang, mode: state.mode,
       }),
     });
@@ -1559,6 +1898,18 @@ function renderHeroFact() {
 }
 
 // ---------- Start ----------
+/** Crop names and months are swapped like numbers when translating (maíz -> sara), custom crops included. */
+function refreshTerms() {
+  const terms = { ...QU_CROPS };
+  for (const c of crops.crops) {
+    const short = c.name.replace(/\s*\(.*\)$/, "");
+    if (!terms[c.name]) terms[c.name] = c.name;
+    if (short !== c.name && !terms[short]) terms[short] = terms[c.name];
+  }
+  // month names too (Quechua in Cochabamba uses the Spanish ones): one translation for every date
+  for (const m of [...MONTHS, ...MONTHS_LONG]) terms[m] = m;
+  setTerms(terms);
+}
 function setMode(mode) {
   state.mode = mode;
   document.body.dataset.mode = mode;
@@ -1585,11 +1936,8 @@ async function start() {
     return;
   }
   // crop names (and their short forms, "Frijol" for "Frijol (poroto)") are swapped like numbers when translating
-  const cropTerms = { ...QU_CROPS };
-  for (const c of crops.crops) { const short = c.name.replace(/\s*\(.*\)$/, ""); if (QU_CROPS[c.name] && short !== c.name) cropTerms[short] = QU_CROPS[c.name]; }
-  // month names too (Quechua in Cochabamba uses the Spanish ones): one translation for every date
-  for (const m of [...MONTHS, ...MONTHS_LONG]) cropTerms[m] = m;
-  setTerms(cropTerms);
+  refreshTerms();
+
   try { images = await loadJson("data/images.json", 8000); } catch { /* photos are optional */ }
   try {
     const sprite = await (await fetch("img/icons.svg")).text();
