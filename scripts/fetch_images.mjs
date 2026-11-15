@@ -11,10 +11,13 @@ const knowledge = JSON.parse(readFileSync(join(root, "web/data/knowledge.json"),
 const UA = { "User-Agent": "YatiriX-hackathon-prototype/0.3 (NASA Space Apps 2026 Cochabamba)" };
 
 const CROPS = {
-  papa: ["Solanum tuberosum", "Papa"], maiz: ["Zea mays", "Maíz"], haba: ["Vicia faba", "Haba"], arveja: ["Pisum sativum", "Guisante"],
+  papa: ["Solanum tuberosum", "Papa"], maiz: ["Zea mays", "MaÃ­z"], haba: ["Vicia faba", "Haba"], arveja: ["Pisum sativum", "Guisante"],
   trigo: ["Triticum aestivum", "Triticum"], cebada: ["Hordeum vulgare", "Cebada"], quinua: ["Chenopodium quinoa", "Quinua"],
   alfalfa: ["Medicago sativa", "Alfalfa"], cebolla: ["Allium cepa", "Cebolla"], tomate: ["Solanum lycopersicum", "Tomate"],
 };
+// crops added later: the scientific name in crops.json is the first candidate
+const cropsJson = JSON.parse(readFileSync(join(root, "web/data/crops.json"), "utf8"));
+for (const c of cropsJson.crops) if (!CROPS[c.id] && c.scientific) CROPS[c.id] = [c.scientific, c.name.replace(/ \(.*\)/, "")];
 const PLACES = { valle: ["Valle Alto (Bolivia)", "Cochabamba Valley", "Valle de Cochabamba", "Departamento de Cochabamba"] };
 
 const candidatesFor = (scientific) => {
@@ -27,7 +30,7 @@ const sleep = (ms) => new Promise((r) => { setTimeout(r, ms); });
 /** fetch with a pause between calls and retries when Wikimedia asks to slow down (429) */
 async function politeFetch(url) {
   for (let attempt = 0; attempt < 4; attempt++) {
-    await sleep(600 + attempt * 2500);
+    await sleep(1200 + attempt * 4000);
     const r = await fetch(url, { headers: UA });
     if (r.status !== 429 && r.status < 500) return r;
   }
@@ -58,7 +61,7 @@ async function licence(imageUrl) {
   return {
     thumb: info.thumburl || info.url,
     file_page: info.descriptionurl,
-    licence: strip(meta.LicenseShortName && meta.LicenseShortName.value) || "ver la página del archivo",
+    licence: strip(meta.LicenseShortName && meta.LicenseShortName.value) || "ver la pÃ¡gina del archivo",
     author: strip(meta.Artist && meta.Artist.value).slice(0, 120) || "Wikimedia Commons",
   };
 }
@@ -78,12 +81,15 @@ async function find(titles) {
 }
 
 const file = join(root, "web/data/images.json");
+// photos checked by hand and removed because they showed another species
+const REMOVED = new Set(["Peronospora variabilis", "Cenchrus clandestinus (Pennisetum clandestinum)", "Uromyces appendiculatus", "Colletotrichum lupini", "Podosphaera xanthii", "Puccinia spp."]);
 let previous = {};
 try { previous = JSON.parse(readFileSync(file, "utf8")); } catch { /* first run */ }
 const out = { source: "Wikipedia y Wikimedia Commons; cada imagen con su autor y licencia", generated: new Date().toISOString().slice(0, 10), crops: {}, pests: {}, invasive: {}, places: {} };
 async function fill(group, key, titles, label) {
   const known = previous[group] && previous[group][key];
-  out[group][key] = known || (titles.length ? await find(titles) : null);
+  // keep earlier photos; never bring back the ones removed by hand; retry the ones that failed before
+  out[group][key] = known || (REMOVED.has(key) || !titles.length ? null : await find(titles));
   console.log(label, key, out[group][key] ? out[group][key].licence : "sin imagen");
 }
 for (const [id, titles] of Object.entries(CROPS)) await fill("crops", id, titles, "cultivo");

@@ -22,3 +22,6 @@ Thumbs.db
 
 # Local tooling
 .claude/
+
+# Local WhatsApp subscriptions and chat state (personal data)
+data/local/

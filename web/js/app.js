@@ -30,7 +30,13 @@ const dayLabel = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString("es", {
 const CROP_COLORS = {
   papa: "#8a5a2b", maiz: "#e0a100", haba: "#2f7d4a", arveja: "#7fb069", trigo: "#c98b2b", cebada: "#d9b86c",
   quinua: "#b0457a", alfalfa: "#1f6f78", cebolla: "#8e6bbf", tomate: "#c8452f", descanso: "#a89f91",
+  oca: "#d9634c", papalisa: "#e3b23c", avena: "#bfa36a", amaranto: "#9e2a5e", frijol: "#6b3e26", tarwi: "#5b7fb5",
+  vicia: "#4c8f6b", ajo: "#c9c2d6", locoto: "#d1352b", aji: "#e8772e", zanahoria: "#f08c2c", apio: "#8db55a",
+  repollo: "#6fae7a", coliflor: "#e8dfc6", brocoli: "#2f6b3a", zapallo: "#e59a2f", pepino: "#3f8f4f", remolacha: "#8b1e3f",
+  frutilla: "#e0394f", lechuga: "#9cc95e", espinaca: "#2e7d4f", acelga: "#5aa469", rabano: "#d64570", nabo: "#c7b8e0",
+  cilantro: "#6dbb63",
 };
+const cropColor = (id) => CROP_COLORS[id] || "#8a8a8a";
 // Points checked against the GAMC layers on 2026-11-14.
 const EXAMPLE = { label: "Distrito 9", lat: -17.4629, lon: -66.1867 };
 const SOIL_TYPES = [
@@ -51,27 +57,19 @@ const PRIORITIES = [
   { id: "risk", label: "Menos riesgo" }, { id: "water", label: "Ahorrar agua" }, { id: "soil", label: "Cuidar el suelo" },
   { id: "forage", label: "Forraje para el ganado" }, { id: "preferred", label: "Mis cultivos preferidos" },
 ];
-// Line icons (24 x 24, stroke = currentColor)
-const ICON_PATHS = {
-  pin: '<path d="M12 21s-6-5.6-6-11a6 6 0 1 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',
-  sprout: '<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 14c0-3-2.4-5-6-5 0 3 2.4 5 6 5z"/>',
-  cloud: '<circle cx="8" cy="7" r="2.5"/><path d="M8 2.5v1M3.5 7h1M4.8 3.8l.7.7M11.2 3.8l-.7.7"/><path d="M7 19h10a4 4 0 0 0 0-8 5 5 0 0 0-9.6 1.5A3.3 3.3 0 0 0 7 19z"/>',
-  mountain: '<path d="M3 20l6.5-11 4 6.5 2.5-4L21 20z"/>',
-  drop: '<path d="M12 3s-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>',
-  chart: '<path d="M4 20V14M9 20v-6M14 20v-9M19 20V8"/><path d="M4 10l5-3 5 2 6-5"/>',
-  map: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
-};
-const icon = (name) => `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[name] || ""}</svg>`;
+// Shaded icons from img/icons.svg (inlined at start so their gradients and shadows work everywhere)
+const icon = (name, size = 32) => `<svg class="ico" width="${size}" height="${size}" aria-hidden="true" focusable="false"><use href="#i-${name}"></use></svg>`;
 // The six modules of the AgroVision layout, in its order; each opens one section of the results.
 const MODULES = [
   { id: "ubicacion", tab: "general", icon: "pin", label: "Ubicación del terreno" },
-  { id: "suelo", tab: "suelo", icon: "sprout", label: "Análisis del suelo" },
-  { id: "clima", tab: "clima", icon: "cloud", label: "Clima y pronóstico" },
+  { id: "suelo", tab: "suelo", icon: "soil", label: "Análisis del suelo" },
+  { id: "clima", tab: "clima", icon: "suncloud", label: "Clima y pronóstico" },
   { id: "relieve", tab: "relieve", icon: "mountain", label: "Relieve y topografía" },
   { id: "agua", tab: "agua", icon: "drop", label: "Humedad y agua" },
   { id: "predicciones", tab: "predicciones", icon: "chart", label: "Predicciones" },
 ];
-const TABS = ["general", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "cultivos", "plagas", "legal", "ganancias", "fuentes"];
+const TABS = ["general", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "cultivos", "catalogo", "plagas", "legal", "ganancias", "fuentes"];
+const LOADING_STEPS = ["Leyendo 45 años de clima de la NASA", "Midiendo el relieve de tu terreno", "Consultando las capas del municipio", "Revisando el pronóstico por escenarios", "Comparando 35 cultivos y miles de rotaciones"];
 const LAYERS = [
   { id: "satelite", label: "Vista satélite", on: true, kind: "base", opacity: 1 },
   { id: "periurbanos", label: "Zonas periurbanas (GAMC)", on: true, kind: "gamc", opacity: 0.5 },
@@ -82,8 +80,10 @@ const LAYERS = [
   { id: "MODIS_Terra_NDVI_8Day", label: "Verdor de la vegetación (NASA MODIS)", on: false, kind: "gibs", zoom: 9, opacity: 0.6 },
 ];
 const TIRI_SUGGESTIONS = ["¿Qué siembro?", "¿Va a llover esta semana?", "¿Qué abono le pongo?", "¿Qué plagas debo vigilar?", "¿Qué riesgos tiene mi tierra?", "¿Tiene dueño mi terreno?"];
-const TIRI_HELLO = "🌱 ¡Hola! Soy TIRI, tu asistente agrícola inteligente. Puedo ayudarte con cultivos, suelo, humedad, clima, relieve, riesgos y predicciones de tu parcela. Solo te oriento en temas agrícolas de Yatiri X.";
+const TIRI_HELLO = "¡Hola! Soy TIRI, tu asistente agrícola inteligente. Puedo ayudarte con cultivos, suelo, humedad, clima, relieve, riesgos y predicciones de tu parcela. Solo te oriento en temas agrícolas de Yatiri X.";
 const STORE = "yatirix.v1";
+// Small growing plant used while Tiri thinks (the full-screen loader has its own copy in index.html)
+const PLANT_SVG = `<svg class="grow grow--small" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="102" rx="34" ry="7" fill="#8a5a2b" opacity=".85"/><path class="grow__stem" pathLength="1" d="M60 100C60 86 58 72 60 52" fill="none" stroke="#4f7d2c" stroke-width="5" stroke-linecap="round"/><path class="grow__leaf grow__leaf--l" d="M60 80C47 79 39 70 37 61c11 0 20 7 23 19z" fill="url(#g-leaf)"/><path class="grow__leaf grow__leaf--r" d="M60 66c13-1 21-10 23-19-11 0-20 7-23 19z" fill="url(#g-leaf)"/><circle class="grow__bud" cx="60" cy="50" r="6" fill="#c06840"/></svg>`;
 
 const state = {
   lang: "es", mode: "medio", step: 1, maxStep: 1, tab: "general",
@@ -91,7 +91,7 @@ const state = {
   name: "", last: null, previous: null, soilType: null, labPh: null, labOm: null,
   waterSource: null, irrigSystem: null, waterAvail: null, moisture: null,
   priorities: new Set(["risk"]), preferred: new Set(),
-  scenario: { rainPct: 0, tempC: 0 }, selected: "best", period: "7",
+  scenario: { rainPct: 0, tempC: 0 }, selected: "best", period: "7", catType: "Todos", catOnlyApt: false, catSort: "aptitud",
   result: null, plot: null, soil: null, outlook: null, assessment: null,
   chat: [{ role: "assistant", content: TIRI_HELLO }], asking: false,
 };
@@ -182,7 +182,7 @@ function chips(container, items, { pressed, onClick, dot }) {
 
 function renderForm() {
   const cropItems = crops.crops.filter((c) => c.group !== "fallow").map((c) => ({ id: c.id, label: c.name }));
-  const dot = (item) => CROP_COLORS[item.id] || "transparent";
+  const dot = (item) => cropColor(item.id) || "transparent";
   chips($("last-crop"), cropItems, { dot, pressed: (c) => state.last === c.id, onClick: (c) => { state.last = c.id; renderForm(); } });
   chips($("previous-crop"), [{ id: null, label: "No recuerdo" }, ...cropItems], { dot, pressed: (c) => state.previous === c.id, onClick: (c) => { state.previous = c.id; renderForm(); } });
   chips($("soil-type"), SOIL_TYPES, { pressed: (o) => state.soilType === o.id, onClick: (o) => { state.soilType = o.id; renderForm(); } });
@@ -388,10 +388,45 @@ function useGps() {
 function renderSaved() {
   const parcels = readStore().parcels;
   const box = $("saved");
-  if (!parcels.length) { box.innerHTML = ""; return; }
-  box.innerHTML = `<h3>Mis terrenos guardados</h3><ul class="saved__list">${parcels.map((p) => `<li><button type="button" class="link" data-load="${p.id}">${esc(p.name || "Sin nombre")}</button> <span class="hint">${new Date(p.savedAt).toLocaleDateString("es")}</span> <button type="button" class="link link--danger" data-del="${p.id}">Quitar</button></li>`).join("")}</ul>`;
+  box.innerHTML = `${parcels.length ? `<h3>Mis terrenos guardados</h3><ul class="saved__list">${parcels.map((p) => `<li><button type="button" class="link" data-load="${p.id}">${esc(p.name || "Sin nombre")}</button> <span class="hint">${new Date(p.savedAt).toLocaleDateString("es")}</span> <button type="button" class="link link--danger" data-del="${p.id}">Quitar</button></li>`).join("")}</ul>` : ""}
+    <div class="saved__tools">
+      ${parcels.length ? '<button type="button" class="btn btn--small btn--ghost" id="export">Guardar copia en un archivo</button>' : ""}
+      <label class="btn btn--small btn--ghost">Abrir una copia<input type="file" id="import" accept="application/json,.json" hidden></label>
+    </div>
+    <p class="hint small">Tus terrenos se guardan solo en este teléfono o computadora. Con «Guardar copia» los pasas a otro equipo.</p>`;
   box.querySelectorAll("[data-load]").forEach((b) => b.addEventListener("click", () => loadParcel(parcels.find((p) => p.id === b.dataset.load))));
   box.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => { const s = readStore(); s.parcels = s.parcels.filter((p) => p.id !== b.dataset.del); writeStore(s); renderSaved(); }));
+  const exp = $("export");
+  if (exp) exp.addEventListener("click", () => download(`yatirix-mis-terrenos-${new Date().toISOString().slice(0, 10)}.json`, { app: "Yatiri X", version: 1, parcels: readStore().parcels }));
+  $("import").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      const incoming = (Array.isArray(data.parcels) ? data.parcels : []).filter((p) => p && p.id && p.site && Number.isFinite(p.site.lat) && Number.isFinite(p.site.lon));
+      if (!incoming.length) throw new Error();
+      const s = readStore();
+      const ids = new Set(incoming.map((p) => p.id));
+      s.parcels = [...incoming, ...s.parcels.filter((p) => !ids.has(p.id))].slice(0, 30);
+      writeStore(s);
+      renderSaved();
+      $("wizard-msg").textContent = `Se abrieron ${incoming.length} terrenos.`;
+    } catch {
+      $("wizard-msg").textContent = "Ese archivo no es una copia de Yatiri X.";
+    }
+  });
+}
+function download(name, data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function openTiri() {
+  $("tiri-body").hidden = false;
+  $("tiri-toggle").setAttribute("aria-expanded", "true");
 }
 
 // ---------- Analysis ----------
@@ -399,6 +434,7 @@ async function analyze() {
   const btn = $("analyze");
   btn.disabled = true;
   btn.textContent = "Analizando tu terreno…";
+  const stopLoader = showLoader();
   state.name = $("plot-name").value.trim();
   state.labPh = Number($("lab-ph").value) || null;
   state.labOm = Number($("lab-om").value) || null;
@@ -413,10 +449,30 @@ async function analyze() {
   state.soil = soil && soil.soil ? soil.soil : null;
   state.outlook = outlook;
   compute();
+  await stopLoader();
   btn.disabled = false;
   btn.textContent = t("analyze", state.lang);
   show("results");
   setTab("general");
+  document.body.classList.remove("revealed");
+  requestAnimationFrame(() => document.body.classList.add("revealed"));
+}
+
+/** Growing-plant screen while the analysis runs. Returns a function that hides it (after one full growth). */
+function showLoader() {
+  const box = $("loader");
+  const msg = $("loader-msg");
+  const started = Date.now();
+  let k = 0;
+  msg.textContent = LOADING_STEPS[0];
+  box.hidden = false;
+  const timer = setInterval(() => { k = (k + 1) % LOADING_STEPS.length; msg.textContent = LOADING_STEPS[k]; }, 1400);
+  return async () => {
+    const wait = Math.max(0, 1600 - (Date.now() - started)); // let the plant finish growing at least once
+    await new Promise((r) => { setTimeout(r, wait); });
+    clearInterval(timer);
+    box.hidden = true;
+  };
 }
 
 function userSoil() {
@@ -447,8 +503,8 @@ function compute() {
 }
 
 // ---------- Results ----------
-const LEVEL = { 3: ["alert", "!", "Alto"], 2: ["warn", "!", "Medio"], 1: ["ok", "✓", "Bajo"] };
-const notice = (level, html) => `<div class="notice notice--${LEVEL[level][0]}"><span class="notice__icon" aria-hidden="true">${LEVEL[level][1]}</span><div>${html}</div></div>`;
+const LEVEL = { 3: ["alert", "alert", "Alto"], 2: ["warn", "alert", "Medio"], 1: ["ok", "check", "Bajo"] };
+const notice = (level, html) => `<div class="notice notice--${LEVEL[level][0]}">${icon(LEVEL[level][1], 28)}<div>${html}</div></div>`;
 const source = (text) => `<p class="source">${esc(text)}</p>`;
 
 function domainLevels() {
@@ -471,7 +527,7 @@ function renderResults() {
   const overall = Math.max(...Object.values(levels).filter((x) => x !== null));
   const word = { 1: "Buen estado", 2: "Necesita cuidados", 3: "En riesgo" }[overall];
   const d = gamcDistrict((state.plot && state.plot.gamc) || state.site.gamc);
-  const icons = { clima: "☁", suelo: "▤", relieve: "⛰", agua: "💧", riesgos: "⚠" };
+  const icons = { clima: icon("suncloud", 34), suelo: icon("soil", 34), relieve: icon("mountain", 34), agua: icon("drop", 34), riesgos: icon("alert", 34) };
   const names = { clima: "Clima", suelo: "Suelo", relieve: "Relieve", agua: "Agua", riesgos: "Riesgos" };
   $("summary-card").innerHTML = `
     <div class="summary-card__head">
@@ -481,7 +537,125 @@ function renderResults() {
     <ul class="domains">${Object.entries(levels).map(([k, lv]) => `<li class="domain domain--${lv ? LEVEL[lv][0] : "none"}"><button type="button" data-tab-go="${k === "riesgos" ? "riesgos" : k}"><span aria-hidden="true">${icons[k]}</span><b>${names[k]}</b><span>${lv ? LEVEL[lv][2] : "Sin dato"}</span></button></li>`).join("")}</ul>`;
   $("summary-card").querySelectorAll("[data-tab-go]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tabGo)));
   renderTabs();
-  renderGeneral(); renderPredicciones(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderCultivos(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
+  renderGeneral(); renderPredicciones(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderCultivos(); renderCatalogo(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
+}
+
+// --- Do / don't ---
+function doDont() {
+  const r = state.result;
+  const a = state.assessment;
+  const best = r.strategies[1];
+  const first = best.years.find((y) => y.group !== "fallow");
+  const g = (state.plot && state.plot.gamc) || state.site.gamc;
+  const yes = [];
+  const no = [];
+  if (first) yes.push(`Sembrar ${first.name.toLowerCase()} hacia el ${weekLabel(first.sowWeek)}, que es la fecha con menos riesgo para tu terreno.`);
+  a.hazards.filter((h) => h.level >= 2).forEach((h) => yes.push(h.action));
+  if (best.years.some((y) => y.group === "legume")) yes.push("Incluir una leguminosa en la rotación: devuelve nitrógeno al suelo.");
+  if (!userSoil()) yes.push("Hacer un análisis de suelo en laboratorio antes de comprar abono.");
+  yes.push("Revisar el cultivo cada semana para detectar plagas a tiempo.");
+  a.avoid.forEach((x) => no.push(`No sembrar ${x.name.toLowerCase()}: ${x.reasons[0]}.`));
+  const hist = [state.previous, state.last].filter(Boolean).map((id) => crops.crops.find((c) => c.id === id));
+  if (hist.length === 2 && hist[0].family === hist[1].family) no.push(`No volver a sembrar ${hist[1].family.toLowerCase()} la próxima campaña: ya repetiste esa familia.`);
+  if (a.hazards.some((h) => h.id === "erosion")) no.push("No dejar el suelo desnudo en la época de lluvias ni arar a favor de la pendiente.");
+  if (g && g.drenaje && !g.drenaje.error) no.push("No construir, rellenar ni sembrar dentro de las franjas de torrenteras y canales.");
+  no.push("No aplicar agroquímicos sin la recomendación de un técnico.");
+  no.push("No quemar los rastrojos: se pierde materia orgánica y humedad del suelo.");
+  return { yes: [...new Set(yes)].slice(0, 6), no: [...new Set(no)].slice(0, 6) };
+}
+
+// --- Catalogue of every crop ---
+const CATALOG_TYPES = ["Todos", "Hortaliza", "Hortaliza de ciclo corto", "Grano", "Tubérculo", "Leguminosa", "Forraje", "Fruta"];
+function cropAptitude(c) {
+  const r = state.result;
+  const a = state.assessment;
+  const s = userSoil();
+  const e = r.crops[c.id];
+  const avoid = a.avoid.find((x) => x.crop === c.id);
+  const phOk = !s || s.ph === null || !c.ph ? null : s.ph >= c.ph[0] - 0.3 && s.ph <= c.ph[1] + 0.3;
+  // with irrigation but limited water (some months or very little), a thirsty crop needs care
+  const thirsty = irrigation() && state.waterAvail && state.waterAvail !== "year" && e.irrigationMm > (state.waterAvail === "scarce" ? 150 : 300);
+  const status = avoid ? 3 : (phOk === false || e.frostProb >= 0.2 || (!irrigation() && e.coverage < 0.5) || thirsty) ? 2 : 1;
+  const reasons = avoid ? avoid.reasons : [
+    e.frostProb >= 0.2 ? `helada dañina en ${pct(e.frostProb)} de las campañas` : null,
+    !irrigation() && e.coverage < 0.5 ? `la lluvia cubre solo ${pct(e.coverage)} del agua` : null,
+    thirsty ? `necesita unos ${mm(e.irrigationMm)} de riego y tu agua es limitada` : null,
+    phOk === false ? "el pH del suelo está fuera de su rango" : null,
+  ].filter(Boolean);
+  return { c, e, status, reasons };
+}
+function seasonStrip(e) {
+  const cal = state.result.calendar.weeks;
+  const inCycle = new Set();
+  for (let k = 0; k < e.weeks; k++) inCycle.add((e.sowWeek + k) % WEEKS);
+  let s = "";
+  for (let w = 0; w < WEEKS; w++) {
+    const x = w * 5;
+    s += `<rect x="${x}" y="2" width="4" height="12" rx="1" fill="${w === e.sowWeek ? "#c06840" : inCycle.has(w) ? "#5e8c3a" : "#e7dcc8"}"/>`;
+    if (cal[w].pFrost >= 0.2) s += `<rect x="${x}" y="16" width="4" height="3" fill="#3d6fb6"/>`;
+  }
+  return `<svg class="strip" viewBox="0 0 260 20" role="img" aria-label="Ciclo del cultivo en el año: siembra hacia el ${weekLabel(e.sowWeek)}">${s}</svg>`;
+}
+function renderCatalogo() {
+  const list = crops.crops.filter((c) => c.group !== "fallow").map(cropAptitude)
+    .filter((x) => state.catType === "Todos" || x.c.type === state.catType)
+    .filter((x) => !state.catOnlyApt || x.status === 1);
+  const sorters = {
+    aptitud: (a, b) => a.status - b.status || b.e.climateScore - a.e.climateScore,
+    agua: (a, b) => a.e.irrigationMm - b.e.irrigationMm,
+    helada: (a, b) => a.e.frostProb - b.e.frostProb,
+    nombre: (a, b) => a.c.name.localeCompare(b.c.name, "es"),
+  };
+  list.sort(sorters[state.catSort]);
+  const label = { 1: "Apto", 2: "Con cuidados", 3: "No conviene" };
+  const counts = [1, 2, 3].map((lv) => crops.crops.filter((c) => c.group !== "fallow").map(cropAptitude).filter((x) => x.status === lv).length);
+  panel("catalogo").innerHTML = `
+    <h2>Todas las siembras posibles</h2>
+    <p class="lead">${crops.crops.length - 1} cultivos evaluados para tu terreno: <b>${counts[0]} aptos</b>, ${counts[1]} con cuidados y ${counts[2]} que no convienen.</p>
+    <div class="catalog-tools">
+      <div class="chips chips--small" role="group" aria-label="Tipo de cultivo">${CATALOG_TYPES.map((tp) => `<button type="button" class="chip" data-cat-type="${esc(tp)}" aria-pressed="${state.catType === tp}">${esc(tp)}</button>`).join("")}</div>
+      <div class="catalog-row">
+        <label class="toggle"><input type="checkbox" id="cat-apt" ${state.catOnlyApt ? "checked" : ""}> Solo los aptos</label>
+        <label class="sort">Ordenar por
+          <select id="cat-sort">${[["aptitud", "Mejor para mi terreno"], ["agua", "Menos agua de riego"], ["helada", "Menos riesgo de helada"], ["nombre", "Nombre"]].map(([v, l]) => `<option value="${v}" ${state.catSort === v ? "selected" : ""}>${l}</option>`).join("")}</select>
+        </label>
+      </div>
+    </div>
+    <div class="catalog">${list.map((x, i) => `
+      <details class="crop-card crop-card--${LEVEL[x.status][0]}" style="--i:${i}">
+        <summary>
+          ${images.crops[x.c.id] ? `<img src="${esc(images.crops[x.c.id].thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="crop-card__ph">${icon("leaf", 40)}</span>`}
+          <span class="crop-card__body">
+            <b>${esc(x.c.name)}</b>
+            <span class="small">${esc(x.c.type)} · ${esc(x.c.family)}</span>
+            <span class="badge badge--${LEVEL[x.status][0]}">${label[x.status]}</span>
+          </span>
+        </summary>
+        <div class="crop-card__more">
+          ${seasonStrip(x.e)}
+          <p class="small">Siembra hacia el <b>${weekLabel(x.e.sowWeek)}</b> · ${x.c.perennial ? "cultivo de varios años" : `${x.c.cycle_days} días`}. Azul: semanas con helada frecuente.</p>
+          <div class="mini-facts">
+            <span><b>${mm(x.e.cropWaterMm)}</b> de agua</span>
+            <span><b>${pct(x.e.coverage)}</b> la cubre la lluvia</span>
+            <span><b>${pct(x.e.frostProb)}</b> helada dañina</span>
+          </div>
+          ${x.reasons.length ? `<p class="small"><b>Ojo:</b> ${esc(x.reasons.join("; "))}.</p>` : ""}
+          ${knowledge.fertility[x.c.id] ? `<p class="small"><b>Abono:</b> ${esc(knowledge.fertility[x.c.id])}</p>` : ""}
+          ${(knowledge.pests[x.c.id] || []).length ? `<p class="small"><b>Vigilar:</b> ${esc(knowledge.pests[x.c.id].map((p) => p.name.toLowerCase()).join(", "))}.</p>` : ""}
+          ${x.c.type === "Hortaliza de ciclo corto" ? '<p class="small">Ciclo corto: se puede sembrar entre dos cultivos principales.</p>' : ""}
+          <button type="button" class="link" data-ask="${esc(x.c.name)}">Preguntarle a Tiri por ${esc(x.c.name.toLowerCase())}</button>
+          ${images.crops[x.c.id] ? `<p class="source">Foto: ${esc(images.crops[x.c.id].author)}, ${esc(images.crops[x.c.id].licence)}, Wikimedia Commons</p>` : ""}
+        </div>
+      </details>`).join("") || '<p class="hint">Ningún cultivo cumple ese filtro.</p>'}</div>
+    ${source(`Cada cultivo con su mejor fecha de siembra para tu terreno, NASA POWER ${climate.meta.period.replace(" to ", " a ")}; datos de cultivo FAO-56, por validar con INIAF.`)}`;
+  const p = panel("catalogo");
+  p.querySelectorAll("[data-cat-type]").forEach((b) => b.addEventListener("click", () => { state.catType = b.dataset.catType; renderCatalogo(); }));
+  $("cat-apt").addEventListener("change", (e) => { state.catOnlyApt = e.target.checked; renderCatalogo(); });
+  $("cat-sort").addEventListener("change", (e) => { state.catSort = e.target.value; renderCatalogo(); });
+  p.querySelectorAll("[data-ask]").forEach((b) => b.addEventListener("click", () => {
+    openTiri();
+    askTiri(`¿Me conviene sembrar ${b.dataset.ask.toLowerCase()} en mi terreno? ¿Cuándo y qué cuidados necesita?`);
+  }));
 }
 
 /** A real photo with its credit line, or nothing if there is none. */
@@ -515,9 +689,16 @@ function renderPredicciones() {
   const frostDays = next7 ? next7.filter((d) => d.pFrost >= 0.3).length : null;
   const heavy = next7 ? Math.max(...next7.map((d) => d.pHeavyRain)) : null;
   const best = r.strategies[1];
+  const waText = `ALERTAS ${state.site.lat.toFixed(5)},${state.site.lon.toFixed(5)}`;
   panel("predicciones").innerHTML = `
     <h2>Predicciones</h2>
     <p class="hint">Probabilidades a partir de los escenarios del pronóstico y de 45 años de datos de la NASA. Se actualizan cada vez que abres el análisis.</p>
+    ${state.waNumber ? `<div class="wa-box">
+      ${icon("chat", 44)}
+      <div><b>Recibe avisos de helada y lluvia fuerte en tu WhatsApp</b>
+      <p class="small">Cada tarde revisamos el pronóstico de este terreno y te escribimos solo si hay riesgo. Guardamos tu número y la ubicación aproximada del terreno solo para esos avisos; escribe BAJA para borrarlos.</p>
+      <a class="btn btn--primary btn--small" href="https://wa.me/${esc(state.waNumber)}?text=${encodeURIComponent(waText)}" target="_blank" rel="noopener">Activar avisos por WhatsApp</a></div>
+    </div>` : ""}
     ${next7 ? `<div class="facts">
       <div class="fact"><b>${rainyDays} de 7</b><span>días con lluvia probable esta semana</span></div>
       <div class="fact"><b>${frostDays} de 7</b><span>días con riesgo de helada</span></div>
@@ -545,7 +726,7 @@ function renderPredicciones() {
 
 function moduleCards(active) {
   return MODULES.map((m) => `<button type="button" class="module" data-module="${m.tab}" aria-pressed="${active === m.tab}">
-      <span class="module__icon">${icon(m.icon)}</span><b>${esc(t(`mod_${m.id}`, state.lang) === `mod_${m.id}` ? m.label : t(`mod_${m.id}`, state.lang))}</b></button>`).join("");
+      <span class="module__icon">${icon(m.icon, 46)}</span><b>${esc(t(`mod_${m.id}`, state.lang) === `mod_${m.id}` ? m.label : t(`mod_${m.id}`, state.lang))}</b></button>`).join("");
 }
 function renderTabs() {
   const secondary = TABS.filter((k) => !MODULES.some((m) => m.tab === k));
@@ -574,10 +755,15 @@ function renderGeneral() {
   const a = state.assessment;
   const best = r.strategies[1];
   const actions = a.hazards.filter((h) => h.level >= 2).slice(0, 3);
+  const dd = doDont();
   panel("general").innerHTML = `
     <h2>Lo más importante</h2>
     <p class="lead">${esc(explain(r).join(" "))}</p>
     ${actions.length ? `<h3>Qué hacer primero</h3>${actions.map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.action)}</p>`)).join("")}` : notice(1, "<p>No hay riesgos altos con los datos disponibles.</p>")}
+    <div class="dodont">
+      <section class="dodont__col dodont__col--yes"><h3>${icon("check", 26)} Sí hacer</h3><ul>${dd.yes.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
+      <section class="dodont__col dodont__col--no"><h3>${icon("cross", 26)} No hacer</h3><ul>${dd.no.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
+    </div>
     <div class="general-grid">
       <div>${wheel(best)}<p class="center"><b>${esc(best.label)}</b><br>${best.years.map((y) => esc(y.name)).join(" → ")}</p></div>
       <div class="mid-up">
@@ -608,7 +794,7 @@ function renderClima() {
       body = `<div class="scroll"><div class="days">${days.map((d) => `
         <div class="day">
           <p class="day__date">${esc(dayLabel(d.date))}</p>
-          <p class="day__icon" aria-hidden="true">${d.pRain >= 0.6 ? "🌧" : d.pRain >= 0.3 ? "🌦" : "☀"}</p>
+          <p class="day__icon">${icon(d.pFrost >= 0.3 ? "frost" : d.pRain >= 0.6 ? "rain" : d.pRain >= 0.3 ? "suncloud" : "sun", 40)}</p>
           <p class="day__prob" title="Probabilidad de lluvia de 1 mm o más"><b>${pct(d.pRain)}</b><span>lluvia</span></p>
           <p class="mid-up">${num(d.rainMedian, 1)} mm</p>
           <p class="adv-only small">${num(d.rainP10, 1)} a ${num(d.rainP90, 1)} mm</p>
@@ -836,13 +1022,13 @@ function wheel(strategy) {
     const y = strategy.years[i];
     s += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#e7dcc8" stroke-width="${width}"/>`;
     if (y.group === "fallow") s += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${CROP_COLORS.descanso}" stroke-width="${width - 7}" stroke-dasharray="3 7"/>`;
-    else if (y.weeks >= WEEKS) s += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${CROP_COLORS[y.crop]}" stroke-width="${width}"/>`;
+    else if (y.weeks >= WEEKS) s += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${cropColor(y.crop)}" stroke-width="${width}"/>`;
     else {
       const a0 = angle(y.sowWeek);
       const sweep = (y.weeks / WEEKS) * 2 * Math.PI;
       const [x0, y0] = point(r, a0);
       const [x1, y1] = point(r, a0 + sweep);
-      s += `<path d="M${x0} ${y0} A${r} ${r} 0 ${sweep > Math.PI ? 1 : 0} 1 ${x1} ${y1}" fill="none" stroke="${CROP_COLORS[y.crop]}" stroke-width="${width}"/>`;
+      s += `<path d="M${x0} ${y0} A${r} ${r} 0 ${sweep > Math.PI ? 1 : 0} 1 ${x1} ${y1}" fill="none" stroke="${cropColor(y.crop)}" stroke-width="${width}"/>`;
     }
   });
   for (let m = 0; m < 12; m++) {
@@ -868,7 +1054,7 @@ function renderCultivos() {
         <p class="strategy__name">${s.years.map((y) => esc(y.name)).join(", ")}</p>
         <div class="strategy__photos mid-up">${[...new Set(s.years.map((y) => y.crop))].map((id) => (images.crops[id] ? `<img src="${esc(images.crops[id].thumb)}" alt="${esc(crops.crops.find((c) => c.id === id).name)}" title="Foto: ${esc(images.crops[id].author)}, ${esc(images.crops[id].licence)} (Wikimedia Commons)" loading="lazy" referrerpolicy="no-referrer">` : "")).join("")}</div>
         ${wheel(s)}
-        <ul class="years">${s.years.map((y) => `<li><span class="swatch" style="background:${CROP_COLORS[y.crop]}"></span><span>Año ${y.year}: <b>${esc(y.name)}</b></span><span class="when">${y.group === "fallow" ? "El suelo descansa o lleva abono verde." : `Siembra hacia el ${weekLabel(y.sowWeek)}. Riego: ${mm(y.irrigationMm)}.`}</span></li>`).join("")}</ul>
+        <ul class="years">${s.years.map((y) => `<li><span class="swatch" style="background:${cropColor(y.crop)}"></span><span>Año ${y.year}: <b>${esc(y.name)}</b></span><span class="when">${y.group === "fallow" ? "El suelo descansa o lleva abono verde." : `Siembra hacia el ${weekLabel(y.sowWeek)}. Riego: ${mm(y.irrigationMm)}.`}</span></li>`).join("")}</ul>
         <div class="bars mid-up">${Object.entries(SCORE_LABELS).map(([k, [l, max]]) => `<div class="bar"><span>${l}</span><span class="bar__track"><span class="bar__fill" style="width:${Math.round((s.parts[k] / max) * 100)}%"></span></span><span class="bar__value">${num(s.parts[k])}/${max}</span></div>`).join("")}</div>
         <details class="mid-up"><summary>Por qué y qué revisar</summary>
           <h4>Por qué</h4>${list(s.why.map(esc))}
@@ -1001,7 +1187,7 @@ function renderTiri() {
   chips($("tiri-suggestions"), TIRI_SUGGESTIONS.map((label) => ({ label })), { pressed: () => false, onClick: (s) => askTiri(s.label) });
   const log = $("tiri-log");
   log.innerHTML = state.chat.map((m) => `<div class="bubble bubble--${m.role}"><p>${esc(m.content)}</p>${m.note ? `<p class="source">${esc(m.note)}</p>` : ""}</div>`).join("")
-    + (state.asking ? '<div class="bubble bubble--assistant"><p>Tiri está revisando tu terreno…</p></div>' : "");
+    + (state.asking ? `<div class="bubble bubble--assistant bubble--thinking">${PLANT_SVG}<p>Tiri está revisando tu terreno…</p></div>` : "");
   log.scrollTop = log.scrollHeight;
 }
 async function askTiri(question) {
@@ -1063,6 +1249,23 @@ async function start() {
     return;
   }
   try { images = await loadJson("data/images.json", 8000); } catch { /* photos are optional */ }
+  try {
+    const sprite = await (await fetch("img/icons.svg")).text();
+    const holder = document.createElement("div");
+    holder.className = "sprite";
+    holder.setAttribute("aria-hidden", "true");
+    holder.innerHTML = sprite;
+    document.body.prepend(holder);
+  } catch { /* icons fall back to empty boxes */ }
+  loadJson("/api/health", 20000).then((h) => {
+    if (h.whatsapp_number) {
+      state.waNumber = h.whatsapp_number;
+      if (state.result) renderPredicciones();
+      const a = $("tiri-wa");
+      a.href = `https://wa.me/${h.whatsapp_number}?text=${encodeURIComponent("Hola Tiri")}`;
+      a.hidden = false;
+    }
+  }).catch(() => {});
   const prefs = readStore().prefs || {};
   setMode(prefs.mode || "medio");
   setLang(prefs.lang || "es");
@@ -1090,14 +1293,8 @@ async function start() {
     setTab(state.tab);
   });
   $("edit").addEventListener("click", () => { show("wizard"); goStep(1); });
-  $("json").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify({ inputs: inputsSnapshot(), result: state.result, assessment: state.assessment, plot: state.plot, soil: state.soil, outlook: state.outlook }, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `yatirix-${(state.name || "terreno").replace(/\W+/g, "-")}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
+  $("json").addEventListener("click", () => download(`yatirix-${(state.name || "terreno").replace(/\W+/g, "-")}.json`,
+    { inputs: inputsSnapshot(), result: state.result, assessment: state.assessment, plot: state.plot, soil: state.soil, outlook: state.outlook }));
   $("tiri-toggle").addEventListener("click", () => {
     const body = $("tiri-body");
     body.hidden = !body.hidden;

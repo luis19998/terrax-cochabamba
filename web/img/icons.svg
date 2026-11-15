@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="g-sun" cx="40%" cy="35%" r="65%"><stop offset="0" stop-color="#fff3b0"/><stop offset="0.55" stop-color="#f6c24a"/><stop offset="1" stop-color="#e08a1e"/></radialGradient>
+    <linearGradient id="g-cloud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#c9d6dd"/></linearGradient>
+    <linearGradient id="g-cloud-dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3eaee"/><stop offset="1" stop-color="#8fa3ae"/></linearGradient>
+    <linearGradient id="g-water" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fd3ec"/><stop offset="1" stop-color="#1f6f8b"/></linearGradient>
+    <linearGradient id="g-leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9de8f"/><stop offset="1" stop-color="#4f7d2c"/></linearGradient>
+    <linearGradient id="g-soil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a87a52"/><stop offset="1" stop-color="#5e3d22"/></linearGradient>
+    <linearGradient id="g-mount-l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fb2a7"/><stop offset="1" stop-color="#687870"/></linearGradient>
+    <linearGradient id="g-mount-r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8279"/><stop offset="1" stop-color="#46544d"/></linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd66b"/><stop offset="1" stop-color="#e0901c"/></linearGradient>
+    <linearGradient id="g-terra" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e59a6f"/><stop offset="1" stop-color="#a9502b"/></linearGradient>
+    <linearGradient id="g-frost" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfe7ff"/><stop offset="1" stop-color="#3d6fb6"/></linearGradient>
+    <filter id="f-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.4" flood-color="#2b1d12" flood-opacity="0.28"/></filter>
+  </defs>
+
+  <symbol id="i-sun" viewBox="0 0 48 48">
+    <g filter="url(#f-shadow)"><g stroke="#e9a531" stroke-width="3" stroke-linecap="round"><path d="M24 4v5M24 39v5M4 24h5M39 24h5M9.9 9.9l3.5 3.5M34.6 34.6l3.5 3.5M9.9 38.1l3.5-3.5M34.6 13.4l3.5-3.5"/></g>
+    <circle cx="24" cy="24" r="10" fill="url(#g-sun)"/></g>
+  </symbol>
+  <symbol id="i-cloud" viewBox="0 0 48 48">
+    <path filter="url(#f-shadow)" fill="url(#g-cloud)" stroke="#9fb1bb" stroke-width="1" d="M14 38h22a8 8 0 0 0 1.4-15.9A11 11 0 0 0 16.2 20 9 9 0 0 0 14 38z"/>
+  </symbol>
+  <symbol id="i-suncloud" viewBox="0 0 48 48">
+    <g filter="url(#f-shadow)"><g stroke="#e9a531" stroke-width="2.6" stroke-linecap="round"><path d="M18 3v4M5 16h4M8.5 6.5l2.8 2.8M27.5 6.5l-2.8 2.8"/></g><circle cx="18" cy="16" r="8" fill="url(#g-sun)"/></g>
+    <path filter="url(#f-shadow)" fill="url(#g-cloud)" stroke="#9fb1bb" stroke-width="1" d="M16 41h20a7 7 0 0 0 1.2-13.9A9.6 9.6 0 0 0 18.6 25 7.8 7.8 0 0 0 16 41z"/>
+  </symbol>
+  <symbol id="i-rain" viewBox="0 0 48 48">
+    <path filter="url(#f-shadow)" fill="url(#g-cloud-dark)" stroke="#7d909a" stroke-width="1" d="M13 30h23a7.5 7.5 0 0 0 1.3-14.9A10.5 10.5 0 0 0 16.3 13 8.5 8.5 0 0 0 13 30z"/>
+    <g fill="url(#g-water)" filter="url(#f-shadow)"><path d="M16 35l-2 5a2.1 2.1 0 0 0 4 1z"/><path d="M25 35l-2 5a2.1 2.1 0 0 0 4 1z"/><path d="M34 35l-2 5a2.1 2.1 0 0 0 4 1z"/></g>
+  </symbol>
+  <symbol id="i-drop" viewBox="0 0 48 48">
+    <path filter="url(#f-shadow)" fill="url(#g-water)" d="M24 5s-13 14.4-13 24a13 13 0 0 0 26 0C37 19.4 24 5 24 5z"/>
+    <path fill="#fff" fill-opacity="0.55" d="M18.5 28.5a1.6 1.6 0 0 1 3.1.6 4.9 4.9 0 0 0 3.6 5.2 1.6 1.6 0 1 1-.8 3.1 8.1 8.1 0 0 1-5.9-8.9z"/>
+  </symbol>
+  <symbol id="i-mountain" viewBox="0 0 48 48">
+    <g filter="url(#f-shadow)"><path fill="url(#g-mount-l)" d="M4 40l15-25 8 13.5L31 22l13 18z"/><path fill="url(#g-mount-r)" d="M19 15l8 13.5-4.5 11.5H44L31 22l-4 6.5z" opacity="0.85"/><path fill="#fff" d="M19 15l3.6 6.1-2.1-1.3-2.3 2-1.9-1z"/></g>
+  </symbol>
+  <symbol id="i-soil" viewBox="0 0 48 48">
+    <g filter="url(#f-shadow)"><rect x="5" y="26" width="38" height="16" rx="4" fill="url(#g-soil)"/><path d="M5 32h38M5 37h38" stroke="#4a2f17" stroke-opacity="0.35" stroke-width="1.4"/>
+    <path d="M24 27V15" stroke="#4f7d2c" stroke-width="2.6" stroke-linecap="round"/><path fill="url(#g-leaf)" d="M24 18c0-6 4.5-9.5 11-9.5 0 6-4.5 9.5-11 9.5z"/><path fill="url(#g-leaf)" d="M24 21c0-4.8-3.6-7.6-8.8-7.6 0 4.8 3.6 7.6 8.8 7.6z"/></g>
+  </symbol>
+  <symbol id="i-pin" viewBox="0 0 48 48">
+    <ellipse cx="24" cy="43" rx="9" ry="2.5" fill="#2b1d12" opacity="0.18"/>
+    <path filter="url(#f-shadow)" fill="url(#g-terra)" d="M24 4a13 13 0 0 0-13 13c0 9.8 13 25 13 25s13-15.2 13-25A13 13 0 0 0 24 4z"/><circle cx="24" cy="17" r="5" fill="#fff"/>
+  </symbol>
+  <symbol id="i-chart" viewBox="0 0 48 48">
+    <g filter="url(#f-shadow)"><rect x="6" y="28" width="7" height="13" rx="2" fill="url(#g-leaf)"/><rect x="16.5" y="21" width="7" height="20" rx="2" fill="url(#g-leaf)"/><rect x="27" y="24" width="7" height="17" rx="2" fill="url(#g-water)"/><rect x="37.5" y="13" width="7" height="28" rx="2" fill="url(#g-terra)"/></g>
+    <path d="M7 21l10-7 10 4 13-11" fill="none" stroke="#4a2f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-alert" viewBox="0 0 48 48">
+    <path filter="url(#f-shadow)" fill="url(#g-amber)" d="M21.3 6.5a3.1 3.1 0 0 1 5.4 0l17 30.2A3.1 3.1 0 0 1 41 41.3H7a3.1 3.1 0 0 1-2.7-4.6z"/>
+    <path d="M24 17v11" stroke="#5a3a07" stroke-width="3.4" stroke-linecap="round"/><circle cx="24" cy="34" r="2.1" fill="#5a3a07"/>
+  </symbol>
+  <symbol id="i-frost" viewBox="0 0 48 48">
+    <g filter="url(#f-shadow)" stroke="url(#g-frost)" stroke-width="3.2" stroke-linecap="round"><path d="M24 5v38M7.5 14.5l33 19M7.5 33.5l33-19"/><path d="M19 8l5 4 5-4M19 40l5-4 5 4M6 21l6 0-2-5M42 27l-6 0 2 5M6 27l6 0-2 5M42 21l-6 0 2-5"/></g>
+  </symbol>
+  <symbol id="i-leaf" viewBox="0 0 48 48">
+    <path filter="url(#f-shadow)" fill="url(#g-leaf)" d="M9 39C9 19 22 8 41 7c0 20-11 33-32 32z"/><path d="M10 38C18 28 25 21 34 14" stroke="#fff" stroke-opacity="0.7" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </symbol>
+  <symbol id="i-map" viewBox="0 0 48 48">
+    <g filter="url(#f-shadow)"><path fill="#e8efe1" stroke="#687870" stroke-width="1.5" d="M5 11l12-4 14 4 12-4v30l-12 4-14-4-12 4z"/><path d="M17 7v30M31 11v30" stroke="#687870" stroke-width="1.5"/>
+    <path fill="url(#g-terra)" d="M24 13a5 5 0 0 0-5 5c0 3.8 5 9.5 5 9.5s5-5.7 5-9.5a5 5 0 0 0-5-5z"/><circle cx="24" cy="18" r="1.8" fill="#fff"/></g>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 48 48">
+    <circle filter="url(#f-shadow)" cx="24" cy="24" r="18" fill="url(#g-leaf)"/><path d="M15.5 24.5l6 6 11-12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-cross" viewBox="0 0 48 48">
+    <circle filter="url(#f-shadow)" cx="24" cy="24" r="18" fill="url(#g-terra)"/><path d="M17 17l14 14M31 17L17 31" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-chat" viewBox="0 0 48 48">
+    <path filter="url(#f-shadow)" fill="url(#g-leaf)" d="M8 10h32a4 4 0 0 1 4 4v17a4 4 0 0 1-4 4H22l-9 7v-7H8a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4z"/><circle cx="16" cy="22.5" r="2.4" fill="#fff"/><circle cx="24" cy="22.5" r="2.4" fill="#fff"/><circle cx="32" cy="22.5" r="2.4" fill="#fff"/>
+  </symbol>
+</svg>

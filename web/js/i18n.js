@@ -77,7 +77,7 @@ const QU = {
 };
 
 const TAB_ES = {
-  tab_general: "Estado general", tab_predicciones: "Predicciones", tab_clima: "Clima y pronóstico", tab_suelo: "Suelo", tab_relieve: "Relieve", tab_agua: "Agua",
+  tab_general: "Estado general", tab_predicciones: "Predicciones", tab_catalogo: "Todas las siembras", tab_clima: "Clima y pronóstico", tab_suelo: "Suelo", tab_relieve: "Relieve", tab_agua: "Agua",
   tab_riesgos: "Riesgos", tab_cultivos: "Qué sembrar", tab_plagas: "Plagas y cuidados", tab_legal: "Legal", tab_ganancias: "Ganancias",
   tab_fuentes: "Fuentes",
   st1: "Ubicación", st2: "Cultivo y suelo", st3: "Agua", st4: "Prioridades", st5: "Analizar",

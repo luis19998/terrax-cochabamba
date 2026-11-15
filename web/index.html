@@ -187,6 +187,7 @@
       <section class="panel tab" data-tab="agua"></section>
       <section class="panel tab" data-tab="riesgos"></section>
       <section class="panel tab" data-tab="cultivos"></section>
+      <section class="panel tab" data-tab="catalogo"></section>
       <section class="panel tab" data-tab="plagas"></section>
       <section class="panel tab" data-tab="legal"></section>
       <section class="panel tab" data-tab="ganancias"></section>
@@ -199,6 +200,14 @@
     </div>
   </main>
 
+  <div class="loader" id="loader" hidden role="status" aria-live="polite">
+    <div class="loader__card">
+      <svg class="grow" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="102" rx="34" ry="7" fill="#8a5a2b" opacity=".85"/><path class="grow__stem" pathLength="1" d="M60 100C60 86 58 72 60 52" fill="none" stroke="#4f7d2c" stroke-width="5" stroke-linecap="round"/><path class="grow__leaf grow__leaf--l" d="M60 80C47 79 39 70 37 61c11 0 20 7 23 19z" fill="url(#g-leaf)"/><path class="grow__leaf grow__leaf--r" d="M60 66c13-1 21-10 23-19-11 0-20 7-23 19z" fill="url(#g-leaf)"/><circle class="grow__bud" cx="60" cy="50" r="6" fill="#c06840"/></svg>
+      <p class="loader__title">Analizando tu terreno</p>
+      <p class="loader__msg" id="loader-msg"></p>
+    </div>
+  </div>
+
   <!-- ===================== TIRI ===================== -->
   <aside class="tiri no-print" id="tiri" aria-labelledby="h-tiri">
     <button class="tiri__toggle" type="button" id="tiri-toggle" aria-expanded="false" aria-controls="tiri-body">
@@ -206,6 +215,7 @@
     </button>
     <div class="tiri__body" id="tiri-body" hidden>
       <h2 id="h-tiri">Tiri</h2>
+      <a class="btn btn--small" id="tiri-wa" hidden target="_blank" rel="noopener">Hablar con Tiri por WhatsApp</a>
       <div class="chat" id="tiri-log" aria-live="polite"></div>
       <div class="chips chips--small" id="tiri-suggestions"></div>
       <form class="ask" id="tiri-form">

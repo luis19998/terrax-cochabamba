@@ -1,6 +1,6 @@
 {
  "source": "Wikipedia y Wikimedia Commons; cada imagen con su autor y licencia",
- "generated": "2026-11-14",
+ "generated": "2026-11-15",
  "crops": {
   "papa": {
    "title": "Solanum tuberosum",
@@ -81,6 +81,199 @@
    "file_page": "https://commons.wikimedia.org/wiki/File:Bright_red_tomato_and_cross_section02.jpg",
    "licence": "GFDL 1.2",
    "author": "fir0002 flagstaffotos [at] gmail.com Canon 20D + Sigma 150mm f/2.8"
+  },
+  "oca": {
+   "title": "Oxalis tuberosa",
+   "wiki": "https://es.wikipedia.org/wiki/Oxalis_tuberosa",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/9/94/Oca.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Oca.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "fr:Utilisateur:Jonathaneo"
+  },
+  "papalisa": {
+   "title": "Ullucus tuberosus",
+   "wiki": "https://es.wikipedia.org/wiki/Ullucus_tuberosus",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Bolsa_de_papalisa%2C_Tarija.jpg/960px-Bolsa_de_papalisa%2C_Tarija.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Bolsa_de_papalisa,_Tarija.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Freesia Alba"
+  },
+  "avena": {
+   "title": "Avena sativa",
+   "wiki": "https://es.wikipedia.org/wiki/Avena_sativa",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Illustration_Avena_sativa0.jpg/960px-Illustration_Avena_sativa0.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Illustration_Avena_sativa0.jpg",
+   "licence": "Public domain",
+   "author": "Wikimedia Commons"
+  },
+  "amaranto": {
+   "title": "Amaranthus caudatus",
+   "wiki": "https://es.wikipedia.org/wiki/Amaranthus_caudatus",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Amaranthus_caudatus1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Amaranthus_caudatus1.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Kurt Stüber [1]"
+  },
+  "frijol": {
+   "title": "Phaseolus vulgaris",
+   "wiki": "https://es.wikipedia.org/wiki/Phaseolus_vulgaris",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Snijboon_peulen_Phaseolus_vulgaris.jpg/960px-Snijboon_peulen_Phaseolus_vulgaris.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Snijboon_peulen_Phaseolus_vulgaris.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Rasbak"
+  },
+  "tarwi": {
+   "title": "Lupinus mutabilis",
+   "wiki": "https://en.wikipedia.org/wiki/Lupinus_mutabilis",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Peruvian_Field_Lupines.jpg/960px-Peruvian_Field_Lupines.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Peruvian_Field_Lupines.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "D. Gordon E. Robertson"
+  },
+  "vicia": {
+   "title": "Vicia sativa",
+   "wiki": "https://es.wikipedia.org/wiki/Vicia_sativa",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/7/70/Vicia_sativa.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Vicia_sativa.JPG",
+   "licence": "CC BY-SA 2.5",
+   "author": "Wikimedia Commons"
+  },
+  "ajo": {
+   "title": "Allium sativum",
+   "wiki": "https://es.wikipedia.org/wiki/Allium_sativum",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/3/39/Allium_sativum_Woodwill_1793.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Allium_sativum_Woodwill_1793.jpg",
+   "licence": "Public domain",
+   "author": "Wikimedia Commons"
+  },
+  "locoto": {
+   "title": "Capsicum pubescens",
+   "wiki": "https://es.wikipedia.org/wiki/Capsicum_pubescens",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/b/b1/01_rocoto_perupair.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:01_rocoto_perupair.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "The original uploader was JoeCarrasco at English Wikipedia."
+  },
+  "aji": {
+   "title": "Capsicum baccatum",
+   "wiki": "https://es.wikipedia.org/wiki/Capsicum_baccatum",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Pimiento_campanilla.jpg/960px-Pimiento_campanilla.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Pimiento_campanilla.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Retama"
+  },
+  "zanahoria": {
+   "title": "Daucus carota subsp. sativus",
+   "wiki": "https://es.wikipedia.org/wiki/Daucus_carota_subsp._sativus",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Bunches_of_carrots.jpg/960px-Bunches_of_carrots.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Bunches_of_carrots.jpg",
+   "licence": "CC BY 2.0",
+   "author": "Robert Couse-Baker"
+  },
+  "apio": {
+   "title": "Apium graveolens",
+   "wiki": "https://es.wikipedia.org/wiki/Apium_graveolens",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Illustration_Apium_graveolens0.jpg/960px-Illustration_Apium_graveolens0.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Illustration_Apium_graveolens0.jpg",
+   "licence": "Public domain",
+   "author": "Wikimedia Commons"
+  },
+  "repollo": null,
+  "coliflor": {
+   "title": "Brassica oleracea var. botrytis (coliflor)",
+   "wiki": "https://es.wikipedia.org/wiki/Brassica_oleracea_var._botrytis_(coliflor)",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Bloemkool.jpg/960px-Bloemkool.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Bloemkool.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Rasbak"
+  },
+  "brocoli": {
+   "title": "Brassica oleracea var. italica",
+   "wiki": "https://es.wikipedia.org/wiki/Brassica_oleracea_var._italica",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Broccoli_bunches.jpg/960px-Broccoli_bunches.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Broccoli_bunches.jpg",
+   "licence": "GFDL 1.2",
+   "author": "fir0002 flagstaffotos [at] gmail.com Canon 20D + Tamron 28-75mm f/2.8"
+  },
+  "zapallo": {
+   "title": "Cucurbita maxima",
+   "wiki": "https://es.wikipedia.org/wiki/Cucurbita_maxima",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Rouge_vif_d%27%C3%89tampes-Cucurbita_maxima-01.jpg/960px-Rouge_vif_d%27%C3%89tampes-Cucurbita_maxima-01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Rouge_vif_d%27%C3%89tampes-Cucurbita_maxima-01.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Wikimedia Commons"
+  },
+  "pepino": {
+   "title": "Cucumis sativus",
+   "wiki": "https://es.wikipedia.org/wiki/Cucumis_sativus",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Cucumis_sativus_0002.JPG/960px-Cucumis_sativus_0002.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Cucumis_sativus_0002.JPG",
+   "licence": "CC BY-SA 3.0",
+   "author": "H. Zell"
+  },
+  "remolacha": {
+   "title": "Beta vulgaris",
+   "wiki": "https://es.wikipedia.org/wiki/Beta_vulgaris",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Beta_vulgaris_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-167.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Beta_vulgaris_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-167.jpg",
+   "licence": "Public domain",
+   "author": "Walther Otto Müller"
+  },
+  "frutilla": {
+   "title": "Fragaria × ananassa",
+   "wiki": "https://es.wikipedia.org/wiki/Fragaria_%C3%97_ananassa",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Strawberries.JPG/960px-Strawberries.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Strawberries.JPG",
+   "licence": "CC BY-SA 2.0",
+   "author": "Wikimedia Commons"
+  },
+  "lechuga": {
+   "title": "Lactuca sativa",
+   "wiki": "https://es.wikipedia.org/wiki/Lactuca_sativa",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Romaine_lettuce.jpg/960px-Romaine_lettuce.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Romaine_lettuce.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Rainer Zenz"
+  },
+  "espinaca": {
+   "title": "Spinacia oleracea",
+   "wiki": "https://es.wikipedia.org/wiki/Spinacia_oleracea",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Illustration_Spinacia_oleracea0.jpg/960px-Illustration_Spinacia_oleracea0.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Illustration_Spinacia_oleracea0.jpg",
+   "licence": "Public domain",
+   "author": "Otto Wilhelm Thomé"
+  },
+  "acelga": {
+   "title": "Beta vulgaris var. cicla",
+   "wiki": "https://es.wikipedia.org/wiki/Beta_vulgaris_var._cicla",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/b/be/Swiss_Chard.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Swiss_Chard.jpg",
+   "licence": "Public domain",
+   "author": "Wikimedia Commons"
+  },
+  "rabano": {
+   "title": "Raphanus sativus",
+   "wiki": "https://es.wikipedia.org/wiki/Raphanus_sativus",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/2/28/26_Raphanus_sativus_L.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:26_Raphanus_sativus_L.jpg",
+   "licence": "Public domain",
+   "author": "Amédée Masclef"
+  },
+  "nabo": {
+   "title": "Brassica rapa",
+   "wiki": "https://es.wikipedia.org/wiki/Brassica_rapa",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Brassica_rapa_plant.jpg/960px-Brassica_rapa_plant.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Brassica_rapa_plant.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "TeunSpaans"
+  },
+  "cilantro": {
+   "title": "Coriandrum sativum",
+   "wiki": "https://es.wikipedia.org/wiki/Coriandrum_sativum",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/1/13/Coriandrum_sativum_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-193.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Coriandrum_sativum_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-193.jpg",
+   "licence": "Public domain",
+   "author": "Franz Eugen Köhler, Köhler's Medizinal-Pflanzen"
   }
  },
  "pests": {
@@ -132,7 +325,14 @@
    "licence": "CC BY 2.5",
    "author": "Eric SYLVESTRE"
   },
-  "Botrytis fabae": null,
+  "Botrytis fabae": {
+   "title": "Botrytis fabae",
+   "wiki": "https://en.wikipedia.org/wiki/Botrytis_fabae",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Tuinboon_Chocoladevlekkenziekte.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Tuinboon_Chocoladevlekkenziekte.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Rasbak"
+  },
   "Aphis fabae": {
    "title": "Aphis fabae",
    "wiki": "https://es.wikipedia.org/wiki/Aphis_fabae",
@@ -208,6 +408,42 @@
    "file_page": "https://commons.wikimedia.org/wiki/File:Bemisia_tabaci_from_USDA_1.jpg",
    "licence": "Public domain",
    "author": "Stephen Ausmus"
+  },
+  "Acanthoscelides obtectus": null,
+  "Uromyces appendiculatus": null,
+  "Colletotrichum lupini": null,
+  "Plutella xylostella": {
+   "title": "Plutella xylostella",
+   "wiki": "https://es.wikipedia.org/wiki/Plutella_xylostella",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Plutella.xylostella.7383.jpg/960px-Plutella.xylostella.7383.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Plutella.xylostella.7383.jpg",
+   "licence": "CC BY-SA 2.5",
+   "author": "Please report references to olei@despammed.com."
+  },
+  "Brevicoryne brassicae": {
+   "title": "Brevicoryne",
+   "wiki": "https://en.wikipedia.org/wiki/Brevicoryne",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/0/00/Melige_koolluis_op_boerenkool_%28Brevicoryne_brassicae_on_curley_kale%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Melige_koolluis_op_boerenkool_(Brevicoryne_brassicae_on_curley_kale).jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Rasbak"
+  },
+  "Podosphaera xanthii": null,
+  "Tetranychus urticae": {
+   "title": "Tetranychus urticae",
+   "wiki": "https://es.wikipedia.org/wiki/Tetranychus_urticae",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Tetranychus-urticae.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Tetranychus-urticae.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "J. Holopainen"
+  },
+  "Botrytis cinerea": {
+   "title": "Botrytis cinerea",
+   "wiki": "https://en.wikipedia.org/wiki/Botrytis_cinerea",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Aardbei_Lambada_vruchtrot_Botrytis_cinerea.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file_page": "https://commons.wikimedia.org/wiki/File:Aardbei_Lambada_vruchtrot_Botrytis_cinerea.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Rasbak"
   }
  },
  "invasive": {
@@ -232,5 +468,5 @@
  "places": {
   "valle": null
  },
- "note": "Revisadas a mano: se quitaron dos fotos que mostraban otra especie (mildiu de la espinaca y Cenchrus echinatus)."
+ "note": "Revisadas a mano: se quitaron fotos que mostraban otra especie u otra planta hospedera."
 }

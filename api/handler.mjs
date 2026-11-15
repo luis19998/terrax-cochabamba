@@ -13,6 +13,7 @@
 import { explain, recommend } from "../web/js/engine.js";
 import { elevationFromGrid } from "../web/js/assess.js";
 import { createOutlook } from "./outlook.mjs";
+import { runAlerts } from "./alerts.mjs";
 import { createPlotService } from "./plot.mjs";
 import { createTerra, usableKey } from "./terra.mjs";
 import { createWhatsApp } from "./whatsapp.mjs";
@@ -28,7 +29,7 @@ const json = (status, data, headers = {}) => new Response(JSON.stringify(data), 
   headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store", ...headers },
 });
 
-export function createApi({ env, climate, crops, gamc, grid, knowledge }) {
+export function createApi({ env, climate, crops, gamc, grid, knowledge, subscribers, sessionStore }) {
   const layerById = Object.fromEntries(gamc.layers.map((l) => [l.id, l]));
   const wmsUrl = env.GAMC_WMS_URL || "https://serviciosgamc.cochabamba.bo/api/gs/wms";
   const cache = new Map();
@@ -111,7 +112,7 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge }) {
   const plotService = createPlotService({ climate, grid });
   const outlook = createOutlook({ climate });
   const terra = createTerra({ env, climate, crops, knowledge, plotService, gamcInfo, forecast, outlook });
-  const whatsapp = createWhatsApp({ env, terra, crops });
+  const whatsapp = createWhatsApp({ env, terra, crops, subscribers, sessionStore });
 
   async function body(request, url) {
     if (request.method !== "POST") return Object.fromEntries(url.searchParams);
@@ -141,9 +142,24 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge }) {
         warnings: ["GEMINI_API_KEY", "ANTHROPIC_API_KEY"].filter((k) => env[k] && !usableKey(env[k]))
           .map((k) => `${k} tiene caracteres que no son letras latinas, números o signos: vuelve a copiarla`),
         whatsapp: Boolean(env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_NUMBER_ID),
+        whatsapp_number: env.WHATSAPP_PUBLIC_NUMBER ? env.WHATSAPP_PUBLIC_NUMBER.replace(/\D/g, "") : null,
+        alerts: {
+          store: subscribers ? subscribers.kind : "sin almacenamiento",
+          subscribers: subscribers ? await subscribers.list().then((l) => l.length, () => null) : 0,
+          template: Boolean(env.WHATSAPP_ALERT_TEMPLATE),
+          manual_trigger: Boolean(env.ALERTS_SECRET),
+        },
       });
     }
     if (path === "/api/whatsapp") return whatsapp(request);
+    if (path === "/api/alerts/run") {
+      // manual run for the demo ("simular aviso"); needs the secret in the x-alerts-secret header
+      if (request.method !== "POST") throw fail(405, "Usa POST");
+      if (!env.ALERTS_SECRET || request.headers.get("x-alerts-secret") !== env.ALERTS_SECRET) throw fail(403, "Clave de avisos incorrecta");
+      if (!subscribers) throw fail(503, "Sin almacenamiento de suscriptores");
+      const opts = await body(request, url);
+      return json(200, await runAlerts({ env, subscribers, outlook, grid, simulate: Boolean(opts.simulate) }));
+    }
     if (path === "/api/tiri" || path === "/api/terra") return json(200, await terra.ask(await body(request, url)));
     const terrainTile = path.match(/^\/api\/terrain\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})\.png$/);
     if (terrainTile) {

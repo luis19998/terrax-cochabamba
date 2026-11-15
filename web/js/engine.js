@@ -177,11 +177,15 @@ export function evaluateCrop(climate, cropsMeta, crop, sowWeek, altitude, irriga
 /** Best sowing week of a crop for this site: the week with the highest climate score. */
 export function bestSowing(climate, cropsMeta, crop, altitude, irrigation, scenario = {}) {
   if (crop.group === "fallow") return evaluateCrop(climate, cropsMeta, crop, 0, altitude, irrigation, scenario);
+  // coarse pass every 3 weeks, then the two neighbours of the best one (same result in practice, a third of the work)
   let best = null;
-  for (let w = 0; w < WEEKS; w++) {
-    const e = evaluateCrop(climate, cropsMeta, crop, w, altitude, irrigation, scenario);
+  const tryWeek = (w) => {
+    const e = evaluateCrop(climate, cropsMeta, crop, ((w % WEEKS) + WEEKS) % WEEKS, altitude, irrigation, scenario);
     if (!best || e.climateScore > best.climateScore + 1e-9) best = e;
-  }
+  };
+  for (let w = 0; w < WEEKS; w += 3) tryWeek(w);
+  const coarse = best.sowWeek;
+  for (const d of [-2, -1, 1, 2]) tryWeek(coarse + d);
   return best;
 }
 
@@ -334,10 +338,13 @@ export function recommend(climate, cropsData, input) {
   const pattern = history.length ? history : [byId.papa];
   const current = [0, 1, 2].map((i) => pattern[(history.length + i) % pattern.length] || pattern[0]);
 
-  // Every three-year sequence. Fallow is allowed once; a perennial crop is not started and then abandoned.
+  // Every three-year sequence of main crops (short vegetables fit between them and are listed in the catalogue).
+  // Fallow is allowed once.
   const all = [];
   const crops = cropsData.crops;
-  for (const a of crops) for (const b of crops) for (const c of crops) {
+  const minDays = cropsData.meta.main_crop_min_days || 0;
+  const mainCrops = crops.filter((c) => c.group === "fallow" || c.perennial || c.cycle_days >= minDays);
+  for (const a of mainCrops) for (const b of mainCrops) for (const c of mainCrops) {
     const seq = [a, b, c];
     if (seq.filter((x) => x.group === "fallow").length > 1) continue;
     all.push({ seq, scored: scoreSequence(seq, ctx) });

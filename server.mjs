@@ -7,6 +7,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createApi } from "./api/handler.mjs";
+import { fileSubscribers } from "./api/subscribers.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const webRoot = join(root, "web");
@@ -31,6 +32,8 @@ const api = createApi({
   env: loadEnv(), climate, crops,
   gamc: readJson("data", "gamc_layers.json"), grid: readJson("web", "data", "srtm_grid.json"),
   knowledge: readJson("web", "data", "knowledge.json"),
+  subscribers: fileSubscribers(join(root, "data", "local", "subscribers.json")),
+  sessionStore: fileSubscribers(join(root, "data", "local", "wa-sessions.json")),
 });
 
 const MIME = {

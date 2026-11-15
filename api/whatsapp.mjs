@@ -21,8 +21,15 @@ const PRESETS = [
 const hex = (buffer) => [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
 const plain = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
-export function createWhatsApp({ env, terra, crops }) {
-  const sessions = new Map();
+export function createWhatsApp({ env, terra, crops, subscribers, sessionStore }) {
+  // Conversations must survive between serverless calls, so the plot of each chat is kept in a small store
+  // (keyed by a hash of the number, without the number itself). Memory is the fallback.
+  const memory = new Map();
+  const sessions = {
+    async get(key) { try { return (sessionStore && (await sessionStore.get(key))) || memory.get(key) || null; } catch { return memory.get(key) || null; } },
+    async set(key, value) { memory.set(key, value); if (memory.size > 2000) memory.delete(memory.keys().next().value); try { if (sessionStore) await sessionStore.set(key, value); } catch { /* memory is enough */ } },
+    async delete(key) { memory.delete(key); try { if (sessionStore) await sessionStore.delete(key); } catch { /* ignore */ } },
+  };
   const configured = Boolean(env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_NUMBER_ID);
   const cropWords = crops.crops.filter((c) => c.group !== "fallow").map((c) => ({ id: c.id, word: plain(c.name) }));
   const json = (status, data) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
@@ -49,32 +56,55 @@ export function createWhatsApp({ env, terra, crops }) {
     return r.ok;
   }
 
+  async function subscribe(key, phone, session) {
+    if (!subscribers) return "Los avisos todavía no están activados en este servidor.";
+    await subscribers.set(key, {
+      key, phone, lat: session.lat, lon: session.lon, crops: session.history || [], place: session.place || "Cochabamba",
+      since: new Date().toISOString(), lastAlert: null,
+    });
+    return `Listo: te avisaré por aquí si el pronóstico trae riesgo de helada o de lluvia fuerte para tu terreno (${session.place || "ubicación guardada"}). Para eso guardamos tu número y la ubicación aproximada del terreno, solo para estos avisos. Escribe BAJA cuando quieras dejar de recibirlos y borrar tus datos.`;
+  }
+
   async function reply(message) {
     const key = await sessionKey(message.from);
-    const session = sessions.get(key) || { history: [] };
+    const session = (await sessions.get(key)) || { history: [] };
     if (message.type === "location" && message.location) {
       session.lat = Number(message.location.latitude);
       session.lon = Number(message.location.longitude);
-      sessions.set(key, session);
+      session.place = "tu ubicación";
+      await sessions.set(key, session);
+      if (session.wantsAlerts) { session.wantsAlerts = false; await sessions.set(key, session); return subscribe(key, message.from, session); }
       const { answer } = await terra.ask({ lat: session.lat, lon: session.lon, history: session.history, fast: true });
-      return `${answer} Para afinar, dime qué sembraste la última campaña (por ejemplo: papa). Escribe BAJA para que olvide tu parcela.`;
+      return `${answer} Dime qué sembraste la última campaña (por ejemplo: sembré papa) para afinar. Escribe ALERTAS para recibir avisos de helada y lluvia fuerte, o BAJA para que olvide tus datos.`;
     }
-    if (message.type !== "text" || !message.text) return "Por ahora entiendo mensajes de texto y ubicaciones. Envíame la ubicación de tu parcela con el clip.";
+    if (message.type !== "text" || !message.text) return "Por ahora entiendo mensajes de texto y ubicaciones. Envíame la ubicación de tu terreno con el clip.";
     const text = String(message.text.body || "").trim();
-    if (/^baja$/i.test(text)) {
-      sessions.delete(key);
-      return "Listo: olvidé tu parcela. Si quieres volver, envíame tu ubicación.";
+    if (/^baja\b/i.test(text)) {
+      await sessions.delete(key);
+      if (subscribers) await subscribers.delete(key).catch(() => {});
+      return "Listo: borré tu terreno y tu suscripción a los avisos. Si quieres volver, envíame tu ubicación.";
     }
+    // coordinates sent from the web page, e.g. "ALERTAS -17.4629,-66.1867"
+    const coords = text.match(/(-?\d{1,2}\.\d{2,})\s*,\s*(-?\d{2,3}\.\d{2,})/);
+    if (coords) { session.lat = Number(coords[1]); session.lon = Number(coords[2]); session.place = "el terreno que marcaste en la web"; }
     const preset = PRESETS.find((p) => p.pattern.test(text));
-    if (preset) { session.lat = preset.lat; session.lon = preset.lon; }
+    if (preset) { session.lat = preset.lat; session.lon = preset.lon; session.place = preset.label; }
     const mentioned = cropWords.filter((c) => plain(text).includes(c.word)).map((c) => c.id);
     if (mentioned.length && /sembr|plant|coseche|tenia|tengo|puse/.test(plain(text))) session.history = mentioned.slice(-2);
-    if (session.lat === undefined) {
-      return "🌱 ¡Hola! Soy Tiri, tu asistente agrícola de Yatiri X. Envíame la ubicación de tu terreno (clip, Ubicación) o escribe Distrito 9 o Distrito 13, y te digo qué sembrar, cuánta agua hace falta, qué plagas vigilar y qué riesgos tiene tu tierra.";
+    if (/^alertas?\b/i.test(text)) {
+      if (session.lat === undefined) {
+        session.wantsAlerts = true;
+        await sessions.set(key, session);
+        return "Para enviarte avisos necesito la ubicación de tu terreno: mándala con el clip (Ubicación) y quedas suscrito.";
+      }
+      await sessions.set(key, session);
+      return subscribe(key, message.from, session);
     }
-    if (sessions.size > 2000) sessions.delete(sessions.keys().next().value);
-    sessions.set(key, session);
-    const { answer } = await terra.ask({ question: preset && text.length < 16 ? "" : text, lat: session.lat, lon: session.lon, history: session.history, fast: true });
+    if (session.lat === undefined) {
+      return "¡Hola! Soy Tiri, tu asistente agrícola de Yatiri X. Envíame la ubicación de tu terreno (clip, Ubicación) o escribe Distrito 9 o Distrito 13, y te digo qué sembrar, cuánta agua hace falta, qué plagas vigilar y qué riesgos tiene tu tierra. Escribe ALERTAS para recibir avisos de helada y lluvia fuerte.";
+    }
+    await sessions.set(key, session);
+    const { answer } = await terra.ask({ question: (preset || coords) && text.length < 40 ? "" : text, lat: session.lat, lon: session.lon, history: session.history, fast: true });
     return answer;
   }
 

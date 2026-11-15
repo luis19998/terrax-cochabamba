@@ -76,3 +76,17 @@ Este archivo solo crece por el final.
 - **Relieve en 3D.** Elevación de las teselas Terrarium de AWS Open Data (basadas en SRTM, píxel de unos 9 m) con la
   imagen satelital encima, en 2,3 km alrededor del terreno, con three.js. Las teselas pasan por `/api/terrain` porque
   el origen no permite leerlas desde el navegador. Se carga solo al pulsar «Ver el relieve en 3D».
+
+## 2026-11-15, mañana
+
+- **35 cultivos.** Se agregaron tubérculos andinos, granos, leguminosas, hortalizas y frutilla. Las rotaciones de tres
+  años usan solo cultivos de 90 días o más (y perennes o descanso); las hortalizas de ciclo corto aparecen en el
+  catálogo «Todas las siembras» para intercalar.
+- **Aptitud con agua limitada.** Con riego pero agua solo algunos meses o escasa, un cultivo que pide mucho riego pasa
+  a «con cuidados».
+- **Qué hacer y qué no.** Lista por terreno armada con los riesgos, los cultivos que no convienen y buenas prácticas.
+- **Íconos propios con sombreado** en lugar de emojis, y una planta que crece mientras se analiza.
+- **Datos del usuario.** Siguen solo en el dispositivo, con copia en archivo para pasarlos a otro equipo. Cuentas en
+  la nube: propuesta de Supabase (acceso por correo o teléfono y tabla protegida por usuario), pendiente de aprobación.
+- **Avisos por WhatsApp con el número boliviano del equipo.** ALERTAS suscribe, BAJA borra. Suscripciones en Netlify
+  Blobs. Envío diario a las 18:00 de Bolivia con una plantilla aprobada por Meta. Pasos en `docs/infra/whatsapp.md`.
