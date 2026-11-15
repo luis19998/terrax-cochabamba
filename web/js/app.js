@@ -2,6 +2,7 @@
 import { WEEKS, explain, recommend } from "./engine.js";
 import { assessPlot, elevationFromGrid } from "./assess.js";
 import { applyLanguage, t } from "./i18n.js";
+import * as cloud from "./cloud.js";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -105,6 +106,8 @@ let miniMap;
 let terrainView;
 let marker;
 let shape;
+// cloud copy of the plots: config from /api/config, user once signed in
+const account = { config: null, user: null, email: "", sent: false, busy: false, msg: "" };
 
 // ---------- Storage (this device only) ----------
 function readStore() {
@@ -126,9 +129,122 @@ function saveParcel() {
   const id = state.parcelId || `p${Date.now()}`;
   state.parcelId = id;
   const entry = { id, savedAt: new Date().toISOString(), ...inputsSnapshot() };
-  s.parcels = [entry, ...s.parcels.filter((p) => p.id !== id)].slice(0, 12);
+  s.parcels = [entry, ...s.parcels.filter((p) => p.id !== id)].slice(0, 30);
   writeStore(s);
   renderSaved();
+  if (account.user) cloud.push([entry]).catch(() => { account.msg = "No se pudo guardar en la nube; quedó en este equipo."; renderSaved(); });
+}
+function deleteParcel(id) {
+  const s = readStore();
+  s.parcels = s.parcels.filter((p) => p.id !== id);
+  writeStore(s);
+  if (state.parcelId === id) state.parcelId = null;
+  renderSaved();
+  if (account.user) cloud.remove(id).catch(() => { account.msg = "No se pudo quitar de la nube. Inténtalo de nuevo."; renderSaved(); });
+}
+
+// ---------- Account (optional): the same plots on any phone or computer ----------
+async function syncFromCloud() {
+  try {
+    const remote = await cloud.pull();
+    const s = readStore();
+    const remoteById = new Map(remote.map((p) => [p.id, p]));
+    // plots that are only here, or newer here than in the cloud, go up
+    const toPush = s.parcels.filter((p) => !remoteById.has(p.id) || new Date(p.savedAt || 0) > new Date(remoteById.get(p.id).savedAt || 0));
+    s.parcels = cloud.merge(s.parcels, remote).slice(0, 30);
+    writeStore(s);
+    await cloud.push(toPush);
+    account.msg = `Sincronizado: ${s.parcels.length} terreno${s.parcels.length === 1 ? "" : "s"} en tu cuenta.`;
+  } catch {
+    account.msg = "No se pudo leer tu cuenta ahora. Tus terrenos siguen en este equipo.";
+  }
+  renderSaved();
+}
+async function startAccount() {
+  if (!account.config) return;
+  try {
+    await cloud.connect(account.config);
+  } catch (error) {
+    account.msg = error.message;
+    renderSaved();
+    return;
+  }
+  if (!account.listening) {
+    account.listening = true;
+    cloud.onAuthChange((user, event) => {
+      const was = account.user && account.user.id;
+      account.user = user;
+      if (user && user.id !== was) { account.sent = false; account.msg = "Sincronizando…"; syncFromCloud(); }
+      if (!user && event === "SIGNED_OUT") account.msg = "Sesión cerrada. Los terrenos siguen en este equipo.";
+      renderSaved();
+    });
+  }
+  if (/access_token=|error_description=/.test(location.hash)) {
+    if (/error_description=/.test(location.hash)) account.msg = "El enlace venció o ya se usó. Pide uno nuevo.";
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  renderSaved();
+}
+function accountHtml() {
+  if (!account.config) return "";
+  const msg = account.msg ? `<p class="hint small" role="status">${esc(account.msg)}</p>` : "";
+  if (account.user) {
+    return `<div class="account account--in">
+      <p class="account__who">${icon("check", 18)} Cuenta: <strong>${esc(account.user.email)}</strong>. Tus terrenos también se guardan en la nube y los ves en cualquier equipo.</p>
+      <div class="saved__tools"><button type="button" class="btn btn--small btn--ghost" id="acc-sync">Sincronizar</button><button type="button" class="btn btn--small btn--ghost" id="acc-out">Cerrar sesión</button></div>
+      ${msg}
+    </div>`;
+  }
+  const form = account.sent
+    ? `<form id="acc-code" class="account__row">
+        <p class="small">Te enviamos un enlace a <strong>${esc(account.email)}</strong>. Ábrelo en este equipo. Si el correo trae un código de 6 dígitos, escríbelo aquí:</p>
+        <input id="acc-token" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456" aria-label="Código del correo">
+        <button class="btn btn--small" type="submit"${account.busy ? " disabled" : ""}>Entrar</button>
+        <button class="link" type="button" id="acc-again">Usar otro correo</button>
+      </form>`
+    : `<form id="acc-form" class="account__row">
+        <input id="acc-email" type="email" autocomplete="email" required placeholder="tu@correo.com" aria-label="Correo electrónico" value="${esc(account.email)}">
+        <button class="btn btn--small" type="submit"${account.busy ? " disabled" : ""}>${account.busy ? "Enviando…" : "Enviarme el enlace"}</button>
+      </form>`;
+  return `<details class="account"${account.sent || account.msg ? " open" : ""}>
+    <summary>Guardar mis terrenos en una cuenta (opcional)</summary>
+    <p class="hint small">Con tu correo ves tus terrenos en cualquier teléfono o computadora. Solo tú puedes verlos. No hay contraseña: te llega un enlace.</p>
+    ${form}
+    ${msg}
+  </details>`;
+}
+function bindAccount(box) {
+  const form = box.querySelector("#acc-form");
+  if (form) form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    account.email = $("acc-email").value.trim();
+    account.busy = true; account.msg = ""; renderSaved();
+    try {
+      await startAccount();
+      await cloud.sendLink(account.email);
+      account.sent = true;
+    } catch (error) {
+      account.msg = /rate|limit|seconds/i.test((error && error.message) || "")
+        ? "Se enviaron muchos correos seguidos. Espera un rato y vuelve a intentar."
+        : "No se pudo enviar el correo. Revisa la dirección e inténtalo de nuevo.";
+    }
+    account.busy = false; renderSaved();
+  });
+  const code = box.querySelector("#acc-code");
+  if (code) code.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const token = $("acc-token").value.replace(/\D/g, "");
+    if (!token) return;
+    account.busy = true; renderSaved();
+    try { await cloud.verifyCode(account.email, token); account.msg = ""; } catch { account.msg = "Ese código no sirve o ya venció. Usa el enlace del correo o pide otro."; }
+    account.busy = false; renderSaved();
+  });
+  const again = box.querySelector("#acc-again");
+  if (again) again.addEventListener("click", () => { account.sent = false; account.msg = ""; renderSaved(); });
+  const out = box.querySelector("#acc-out");
+  if (out) out.addEventListener("click", () => cloud.signOut());
+  const sync = box.querySelector("#acc-sync");
+  if (sync) sync.addEventListener("click", () => { account.msg = "Sincronizando…"; renderSaved(); syncFromCloud(); });
 }
 function loadParcel(p) {
   Object.assign(state, {
@@ -393,9 +509,11 @@ function renderSaved() {
       ${parcels.length ? '<button type="button" class="btn btn--small btn--ghost" id="export">Guardar copia en un archivo</button>' : ""}
       <label class="btn btn--small btn--ghost">Abrir una copia<input type="file" id="import" accept="application/json,.json" hidden></label>
     </div>
-    <p class="hint small">Tus terrenos se guardan solo en este teléfono o computadora. Con «Guardar copia» los pasas a otro equipo.</p>`;
+    <p class="hint small">${account.user ? "También queda una copia en este equipo. Si el equipo es compartido, quita los terrenos antes de cerrar sesión." : "Tus terrenos se guardan en este teléfono o computadora. Con «Guardar copia» los pasas a otro equipo."}</p>
+    ${accountHtml()}`;
   box.querySelectorAll("[data-load]").forEach((b) => b.addEventListener("click", () => loadParcel(parcels.find((p) => p.id === b.dataset.load))));
-  box.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => { const s = readStore(); s.parcels = s.parcels.filter((p) => p.id !== b.dataset.del); writeStore(s); renderSaved(); }));
+  box.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => deleteParcel(b.dataset.del)));
+  bindAccount(box);
   const exp = $("export");
   if (exp) exp.addEventListener("click", () => download(`yatirix-mis-terrenos-${new Date().toISOString().slice(0, 10)}.json`, { app: "Yatiri X", version: 1, parcels: readStore().parcels }));
   $("import").addEventListener("change", async (e) => {
@@ -410,6 +528,7 @@ function renderSaved() {
       s.parcels = [...incoming, ...s.parcels.filter((p) => !ids.has(p.id))].slice(0, 30);
       writeStore(s);
       renderSaved();
+      if (account.user) cloud.push(incoming).catch(() => {});
       $("wizard-msg").textContent = `Se abrieron ${incoming.length} terrenos.`;
     } catch {
       $("wizard-msg").textContent = "Ese archivo no es una copia de Yatiri X.";
@@ -1257,6 +1376,11 @@ async function start() {
     holder.innerHTML = sprite;
     document.body.prepend(holder);
   } catch { /* icons fall back to empty boxes */ }
+  loadJson("/api/config", 8000).then((c) => {
+    if (!c.cloud) return;
+    account.config = c.cloud;
+    if (cloud.hasPendingSession()) startAccount(); else renderSaved();
+  }).catch(() => {});
   loadJson("/api/health", 20000).then((h) => {
     if (h.whatsapp_number) {
       state.waNumber = h.whatsapp_number;

@@ -25,3 +25,4 @@ Thumbs.db
 
 # Local WhatsApp subscriptions and chat state (personal data)
 data/local/
+.netlify/

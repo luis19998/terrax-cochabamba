@@ -48,6 +48,19 @@ node server.mjs             # http://localhost:4173
 Everything works without keys except the municipal map layers (`GAMC_API_KEY`). Tiri answers from fixed rules unless
 `GEMINI_API_KEY` or `ANTHROPIC_API_KEY` is set.
 
+## Accounts (optional)
+
+Saved plots stay on the device. With `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` set, people can also sign in with an
+e-mail link and see their plots on any device. The table and its row level security are in
+`supabase/migrations/`. In the Supabase dashboard, under Authentication → URL Configuration:
+
+- Site URL: `https://yatirix-cochabamba.netlify.app`
+- Redirect URLs: `https://yatirix-cochabamba.netlify.app/**` and `http://localhost:4173/**`
+
+Supabase's built-in e-mail sender allows only a few messages per hour. For more people, set up your own SMTP under
+Authentication → Emails. To let people type a 6-digit code instead of opening the link, add `{{ .Token }}` to the
+Magic Link e-mail template.
+
 ## Rebuild the data
 
 Requires Python 3.12 with pandas, numpy, requests and pymannkendall.

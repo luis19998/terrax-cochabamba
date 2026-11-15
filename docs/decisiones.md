@@ -90,3 +90,18 @@ Este archivo solo crece por el final.
   la nube: propuesta de Supabase (acceso por correo o teléfono y tabla protegida por usuario), pendiente de aprobación.
 - **Avisos por WhatsApp con el número boliviano del equipo.** ALERTAS suscribe, BAJA borra. Suscripciones en Netlify
   Blobs. Envío diario a las 18:00 de Bolivia con una plantilla aprobada por Meta. Pasos en `docs/infra/whatsapp.md`.
+
+## 2026-11-14, cuentas en la nube
+
+- **Cuentas con Supabase (aprobado por el líder).** Proyecto `yatirix` en São Paulo, plan gratuito. Acceso por correo
+  con enlace, sin contraseña. Es opcional: sin cuenta, los terrenos siguen solo en el dispositivo.
+- **Tabla `parcels` con seguridad por fila.** Cada persona lee y cambia solo sus filas; quien no inició sesión no ve
+  nada. Probado con dos usuarios de prueba dentro de una transacción que se deshizo. Migración en
+  `supabase/migrations/`.
+- **Sincronización.** Al entrar se juntan los terrenos del equipo y de la cuenta; si un terreno está en los dos, gana
+  el guardado más reciente. Guardar y quitar se hacen en los dos lados.
+- **Llave pública fuera del repositorio.** La URL y la llave publicable llegan por `/api/config` desde las variables de
+  Netlify (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`). Esa llave está hecha para el navegador; los datos los protege
+  la seguridad por fila.
+- **Pendiente en el panel de Supabase:** Site URL y direcciones de retorno del enlace, y el límite de correos del
+  servicio gratuito (pocos por hora). Ver `README.md`.

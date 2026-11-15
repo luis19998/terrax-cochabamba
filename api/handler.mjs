@@ -1,6 +1,7 @@
 // API of the planner as one function: (Request) => Response. Used by the local server (server.mjs) and by the
 // hosted function (netlify/functions/api.mjs), so both behave the same.
 //
+//   GET  /api/config                public browser settings (Supabase URL and publishable key, if set)
 //   GET  /api/health
 //   POST /api/recommend             body: { altitude, history, irrigation, priorities, preferred, scenario }
 //   GET  /api/gamc/wms?layer=       WMS proxy for the GAMC layers (the API key is added here, never in the browser)
@@ -124,6 +125,11 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge, subscrib
   async function route(request) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "");
+    if (path === "/api/config") {
+      // public settings for the browser: the Supabase publishable key is meant to be public (row level security protects the data)
+      const cloud = env.SUPABASE_URL && env.SUPABASE_PUBLISHABLE_KEY ? { url: env.SUPABASE_URL, key: env.SUPABASE_PUBLISHABLE_KEY } : null;
+      return json(200, { cloud });
+    }
     if (path === "/api/health") {
       // one cheap call to the municipal service, to tell a wrong key (401/403) from a blocked or slow server
       let gamcCheck = "sin clave";
