@@ -33,6 +33,15 @@ Límites:
 - Eres un prototipo de apoyo a la decisión. No reemplazas al agricultor ni al técnico, y lo dices si te preguntan.
 - Si te preguntan algo que no es agrícola, responde amablemente que solo ayudas con temas de la tierra y los cultivos.`;
 
+/** How to write for this person: language (es / qu) and view (simple / medio / avanzado). */
+export function styleNote({ lang, mode } = {}) {
+  const parts = [];
+  if (lang === "qu") parts.push("RESPONDE EN QUECHUA BOLIVIANO (Cochabamba), con el alfabeto oficial de Bolivia (a, i, u; j en lugar de h) y formas bolivianas (progresivo -chka-, nunca -sha-). Palabras sencillas del campo; los términos técnicos sin palabra quechua común van en castellano. No traduzcas Yatiri X, Tiri, NASA ni las unidades.");
+  if (mode === "simple") parts.push("Vista sencilla: frases muy cortas y palabras de todos los días, como hablarías con un vecino. Nada de porcentajes ni tecnicismos: di 'casi seguro', 'puede pasar' o 'poco probable'. Máximo 3 frases, con una acción clara.");
+  if (mode === "avanzado") parts.push("Vista avanzada: puedes dar cifras, rangos y la fuente de cada dato.");
+  return parts.length ? `\n\nINDICACIONES PARA ESTA RESPUESTA: ${parts.join(" ")}` : "";
+}
+
 const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 function weekLabel(week) {
@@ -219,7 +228,7 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
     return env.GEMINI_MODEL || geminiModel || FALLBACK_GEMINI_MODEL;
   }
 
-  async function gemini(question, ctx, history) {
+  async function gemini(question, ctx, history, style = "") {
     if (!usableKey(env.GEMINI_API_KEY) || Date.now() < geminiDownUntil) return null;
     try {
       const model = await pickGeminiModel();
@@ -232,7 +241,7 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
           systemInstruction: { parts: [{ text: SYSTEM }] },
           contents: [
             ...history.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
-            { role: "user", parts: [{ text: `DATOS DE LA PARCELA (JSON):\n${JSON.stringify(facts(ctx))}\n\nPREGUNTA DEL AGRICULTOR: ${question}` }] },
+            { role: "user", parts: [{ text: `DATOS DE LA PARCELA (JSON):\n${JSON.stringify(facts(ctx))}\n\nPREGUNTA DEL AGRICULTOR: ${question}${style}` }] },
           ],
           // room for the model's internal reasoning plus a short answer
           generationConfig: { maxOutputTokens: 4000 },
@@ -250,7 +259,7 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
     }
   }
 
-  async function claude(question, ctx, history) {
+  async function claude(question, ctx, history, style = "") {
     const client = await getClient();
     if (!client) return null;
     try {
@@ -261,7 +270,7 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
         system: SYSTEM,
         messages: [
           ...history,
-          { role: "user", content: `DATOS DE LA PARCELA (JSON):\n${JSON.stringify(facts(ctx))}\n\nPREGUNTA DEL AGRICULTOR: ${question}` },
+          { role: "user", content: `DATOS DE LA PARCELA (JSON):\n${JSON.stringify(facts(ctx))}\n\nPREGUNTA DEL AGRICULTOR: ${question}${style}` },
         ],
       });
       if (response.stop_reason === "refusal") return null;
@@ -290,10 +299,11 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
     let fromModel = null;
     let engine = "rules";
     if (question) {
-      fromModel = await gemini(question, ctx, history);
+      const style = styleNote(input);
+      fromModel = await gemini(question, ctx, history, style);
       if (fromModel) engine = "gemini";
       else {
-        fromModel = await claude(question, ctx, history);
+        fromModel = await claude(question, ctx, history, style);
         if (fromModel) engine = "claude";
       }
     }
@@ -301,6 +311,7 @@ export function createTerra({ env, climate, crops, knowledge, plotService, gamcI
       answer: fromModel ? fromModel.text : (question ? rules(question, ctx) : summary(ctx)),
       engine,
       model: fromModel ? fromModel.model : null,
+      lang: fromModel && input.lang === "qu" ? "qu" : "es",
     };
   }
 

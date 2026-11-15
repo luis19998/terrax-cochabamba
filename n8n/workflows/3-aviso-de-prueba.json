@@ -1,0 +1,280 @@
+{
+  "name": "Yatiri X · Aviso de prueba (demo)",
+  "nodes": [
+    {
+      "id": "c8a85f73-47d5-49b4-ab55-40a002a89c78",
+      "name": "Probar ahora",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "3996b6ea-950b-45eb-a750-68b6eb119dc2",
+      "name": "Configuración",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "110f747d-6353-4807-afa5-fbb216f32c7b",
+              "name": "base_url",
+              "type": "string",
+              "value": "https://yatirix-cochabamba.netlify.app"
+            },
+            {
+              "id": "a6a849b7-46fe-42c9-a546-ad9e4eae9dff",
+              "name": "graph_url",
+              "type": "string",
+              "value": "https://graph.facebook.com/v21.0"
+            },
+            {
+              "id": "59a22412-95a0-4c5d-ab54-92e05666ba81",
+              "name": "phone_number_id",
+              "type": "string",
+              "value": "PEGAR_AQUI_EL_PHONE_NUMBER_ID"
+            },
+            {
+              "id": "067eb6e2-94d6-4b4c-a164-3a52f4714723",
+              "name": "team_phone",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "base_url: la web. phone_number_id: el ID del número dedicado (Meta > WhatsApp > API Setup). team_phone: un celular del equipo con código de país (591…), para avisos de fallas; vacío para no avisar."
+    },
+    {
+      "id": "56e6f495-190c-42ed-aa34-3f7159ad447c",
+      "name": "Pedir mensajes a Yatiri X",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configuración').first().json.base_url }}/api/n8n/alerts?test=1",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Yatiri X: clave de avisos (x-alerts-secret)"
+        }
+      }
+    },
+    {
+      "id": "0df20fa7-b8b1-457e-ac98-4420c170bf93",
+      "name": "Separar mensajes",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      }
+    },
+    {
+      "id": "6670e25e-3161-4946-ab14-397075c13d46",
+      "name": "Preparar mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// WhatsApp only lets a business write first with an approved template; the text goes as its only parameter\nconst it = $json;\nconst body = it.template\n  ? { messaging_product: 'whatsapp', to: it.phone, type: 'template', template: { name: it.template, language: { code: it.template_lang || 'es' }, components: [{ type: 'body', parameters: [{ type: 'text', text: it.text.replace(/\\s*\\n+\\s*/g, ' ').slice(0, 1000) }] }] } }\n  : { messaging_product: 'whatsapp', to: it.phone, type: 'text', text: { body: it.text.slice(0, 3900) } };\nreturn { json: { ...it, wa_body: body } };"
+      }
+    },
+    {
+      "id": "6dbf42f3-0ee2-4c74-a32b-6fc0cb6ccd8f",
+      "name": "Enviar por WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuración').first().json.graph_url }}/{{ $('Configuración').first().json.phone_number_id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.wa_body) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1200
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "WhatsApp Cloud API: token (Authorization)"
+        }
+      },
+      "notes": "Un mensaje por segundo para respetar los límites de Meta. Si Meta rechaza uno, se anota y sigue con los demás."
+    },
+    {
+      "id": "5d1aaf8d-9cc4-42bc-acb5-43b2f2465094",
+      "name": "Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const src = $('Preparar mensaje').item.json;\nconst ok = Array.isArray($json.messages) && $json.messages.length > 0;\nreturn { json: { ok, key: src.key, mark: src.mark, lang: src.lang, kind: src.kind, error: ok ? null : (($json.error && $json.error.message) || 'sin respuesta de Meta') } };"
+      }
+    },
+    {
+      "id": "286d97b0-cfa3-47f1-a170-bd4664b94b73",
+      "name": "Resumen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const all = $input.all().map((i) => i.json);\nconst ok = all.filter((x) => x.ok);\nconst bad = all.filter((x) => !x.ok);\nreturn [{ json: { sent: ok.map((x) => ({ key: x.key, mark: x.mark })), ok: ok.length, failed: bad.length, quechua: ok.filter((x) => x.lang === 'qu').length, errors: [...new Set(bad.map((x) => x.error))].slice(0, 3) } }];"
+      }
+    },
+    {
+      "id": "291d5bfe-a94a-4da5-a1f7-2444ca20cb88",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "content": "## Aviso de prueba (demo)\nPulsa **Probar ahora**: cada persona suscrita recibe un mensaje de prueba en su idioma. No marca nada como enviado.",
+        "width": 460,
+        "height": 300
+      }
+    }
+  ],
+  "connections": {
+    "Probar ahora": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuración": {
+      "main": [
+        [
+          {
+            "node": "Pedir mensajes a Yatiri X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedir mensajes a Yatiri X": {
+      "main": [
+        [
+          {
+            "node": "Separar mensajes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar mensajes": {
+      "main": [
+        [
+          {
+            "node": "Preparar mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar mensaje": {
+      "main": [
+        [
+          {
+            "node": "Enviar por WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar por WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado": {
+      "main": [
+        [
+          {
+            "node": "Resumen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/La_Paz",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "active": false,
+  "pinData": {},
+  "meta": {}
+}

@@ -6,7 +6,7 @@ const QU = {
   modeSimple: "Pisilla",
   modeMedium: "Chawpi",
   modeAdvanced: "Tukuy",
-  quNote: "Runasimi rimaykunaqa manaraq qhawarisqachu (borrador). Wakin willakuykuna kastilla simipi kachkan.",
+  quNote: "Runasimiman t'ikrasqaqa manaraq runasimi rimaqkunawan qhawarisqachu (borrador). Pantasqata rikuspaqa willawayku.",
   heroTitle: "Jallp'aykita riqsiyku, aswan allin p'unchaykunata tarpuyku.",
   ctaStart: "Jallp'ayta qhawariy",
   ctaHow: "Imaynata llamk'an",
@@ -75,6 +75,21 @@ const QU = {
   // stepper
   st1: "Maypi", st2: "Tarpuy", st3: "Yaku", st4: "Munasqa", st5: "Qhawariy",
 };
+
+/** Crop names in Quechua (Cochabamba). Loans stay as people say them. Draft for a speaker to review. */
+export const QU_CROPS = {
+  "Papa": "Papa", "Oca": "Uqa", "Papalisa": "Ulluku", "Maíz": "Sara", "Trigo": "Triku", "Cebada": "Siwara",
+  "Avena forrajera": "Avena", "Quinua": "Kinuwa", "Amaranto (achita)": "Achita", "Haba": "Jawas", "Arveja": "Alwirja",
+  "Frijol (poroto)": "Purutu", "Tarwi (chocho)": "Tarwi", "Vicia (abono verde y forraje)": "Vicia", "Alfalfa": "Alfa",
+  "Cebolla": "Siwulla", "Ajo": "Ajus", "Tomate": "Tomate", "Locoto": "Luqutu", "Ají": "Uchu", "Zanahoria": "Zanahoria",
+  "Apio": "Apio", "Repollo": "Repollo", "Coliflor": "Coliflor", "Brócoli": "Brócoli", "Zapallo": "Zapallu",
+  "Pepino": "Pepino", "Remolacha (betarraga)": "Remolacha", "Frutilla": "Frutilla", "Lechuga": "Lechuga",
+  "Espinaca": "Espinaca", "Acelga": "Acelga", "Rábano": "Rábano", "Nabo": "Nabo", "Cilantro": "Kulantru",
+  "Descanso o abono verde": "Samarichiy (abono verde)",
+};
+
+/** Texts that are already Quechua: the page translator leaves them as they are. */
+export const QU_VALUES = new Set(Object.values(QU));
 
 const TAB_ES = {
   tab_general: "Estado general", tab_predicciones: "Predicciones", tab_catalogo: "Todas las siembras", tab_clima: "Clima y pronóstico", tab_suelo: "Suelo", tab_relieve: "Relieve", tab_agua: "Agua",

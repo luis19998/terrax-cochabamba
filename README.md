@@ -30,8 +30,11 @@ and "Analyse my land". The results cover:
 - **Profit or loss** from the farmer's own yield, price and cost, weighted by frost risk;
 - **Sources** and the scoring rule.
 
-Three views (simple, medium, advanced), Spanish and a Quechua draft, a PDF report, plots saved on the device only,
-and **Tiri**, the assistant, on the web and through a WhatsApp Cloud API webhook.
+Three views (simple, medium, advanced): the simple view uses plain everyday words, not just less text. The whole
+site, including every computed result, can be switched to **Quechua** (Bolivia, Cochabamba). The plot can be marked
+with one tap, corner by corner or traced with a finger or the mouse, on a satellite, normal or relief map. Also: a
+PDF report, plots on the device with optional accounts, and **Tiri**, the assistant, on the web and on WhatsApp in
+both languages. **n8n** workflows send urgent warnings and a weekly summary from the team's dedicated WhatsApp number.
 
 When there is not enough data, the app says so instead of inventing results.
 
@@ -71,6 +74,15 @@ python data/download_srtm_grid.py   # NASA SRTM elevation grid of the municipali
 python data/process_power.py        # weekly dataset used by the web app
 ```
 
+## Quechua
+
+`web/js/translate.js` translates the rendered page, so text computed later is covered too. It looks each sentence
+up in `web/data/qu.json` (numbers, crop names and months replaced by `{0}`, `{1}`…, so one translation serves every
+plot). Missing sentences go to `POST /api/translate` (Gemini, cached on the server). Corrections by hand go in
+`web/data/qu-corrections.json` and always win. After browsing the local site in Quechua,
+`node scripts/build_quechua.mjs` moves the new translations into `qu.json`. All of it is a draft until Quechua
+speakers review it.
+
 ## Layout
 
 | Path | Content |
@@ -80,6 +92,7 @@ python data/process_power.py        # weekly dataset used by the web app
 | `server.mjs` | Local server |
 | `netlify/functions/api.mjs` | Hosted function serving `/api/*` |
 | `data/` | Download and processing scripts; `processed/` holds the outputs |
+| `n8n/` | n8n workflows for WhatsApp warnings and the weekly summary, and their setup guide |
 | `docs/` | Team notes in Spanish: data sources, decisions, AI use, references, WhatsApp setup |
 
 ## API
@@ -92,6 +105,8 @@ python data/process_power.py        # weekly dataset used by the web app
 | `GET /api/outlook?lat=&lon=` | Probabilities for the next 16 days, 2 weeks and 3 months |
 | `POST /api/tiri` | Assistant: `{ question, lat, lon, history }` |
 | `GET/POST /api/whatsapp` | WhatsApp Cloud API webhook |
+| `POST /api/translate` | Quechua for a list of texts (Gemini, cached) |
+| `GET /api/n8n/alerts`, `/api/n8n/digest`, `POST /api/n8n/sent` | Messages for the n8n workflows to send (header `x-alerts-secret`) |
 
 ## Data and credits
 

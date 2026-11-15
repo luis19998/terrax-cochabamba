@@ -1,0 +1,419 @@
+{
+  "name": "Yatiri X · Resumen semanal por WhatsApp",
+  "nodes": [
+    {
+      "id": "ed5cce4a-2066-4ad6-a574-740bf8d5adc3",
+      "name": "Lunes 7:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7a27a0ae-0e19-4cb4-ab35-610c81eb3644",
+      "name": "Probar ahora",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "cfd3fe96-786f-4e70-ae2c-e141f8ffa04d",
+      "name": "Configuración",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "75dd429d-db50-45bb-acc9-53489fccbf0d",
+              "name": "base_url",
+              "type": "string",
+              "value": "https://yatirix-cochabamba.netlify.app"
+            },
+            {
+              "id": "e4777387-7b73-4c17-ab82-743c38ae31cf",
+              "name": "graph_url",
+              "type": "string",
+              "value": "https://graph.facebook.com/v21.0"
+            },
+            {
+              "id": "dd4275ef-f759-4bcf-a3c5-2347db2135f8",
+              "name": "phone_number_id",
+              "type": "string",
+              "value": "PEGAR_AQUI_EL_PHONE_NUMBER_ID"
+            },
+            {
+              "id": "da9f0dbc-144a-4a23-aaa5-d555426863c8",
+              "name": "team_phone",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "base_url: la web. phone_number_id: el ID del número dedicado (Meta > WhatsApp > API Setup). team_phone: un celular del equipo con código de país (591…), para avisos de fallas; vacío para no avisar."
+    },
+    {
+      "id": "85541a5d-29e1-4bb0-a27c-355d2fff4de8",
+      "name": "Pedir mensajes a Yatiri X",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configuración').first().json.base_url }}/api/n8n/digest",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Yatiri X: clave de avisos (x-alerts-secret)"
+        }
+      }
+    },
+    {
+      "id": "643b0b47-5879-4742-aa76-a9e4800d2f4a",
+      "name": "Separar mensajes",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      }
+    },
+    {
+      "id": "dd4356bb-b3e8-4f6a-a9d6-27feb63d23d3",
+      "name": "Preparar mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// WhatsApp only lets a business write first with an approved template; the text goes as its only parameter\nconst it = $json;\nconst body = it.template\n  ? { messaging_product: 'whatsapp', to: it.phone, type: 'template', template: { name: it.template, language: { code: it.template_lang || 'es' }, components: [{ type: 'body', parameters: [{ type: 'text', text: it.text.replace(/\\s*\\n+\\s*/g, ' ').slice(0, 1000) }] }] } }\n  : { messaging_product: 'whatsapp', to: it.phone, type: 'text', text: { body: it.text.slice(0, 3900) } };\nreturn { json: { ...it, wa_body: body } };"
+      }
+    },
+    {
+      "id": "abee9398-a4cb-47fa-a250-ed96e6172c15",
+      "name": "Enviar por WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuración').first().json.graph_url }}/{{ $('Configuración').first().json.phone_number_id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.wa_body) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1200
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "WhatsApp Cloud API: token (Authorization)"
+        }
+      },
+      "notes": "Un mensaje por segundo para respetar los límites de Meta. Si Meta rechaza uno, se anota y sigue con los demás."
+    },
+    {
+      "id": "da10984a-cd8a-43b4-ade1-f6fda145e362",
+      "name": "Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const src = $('Preparar mensaje').item.json;\nconst ok = Array.isArray($json.messages) && $json.messages.length > 0;\nreturn { json: { ok, key: src.key, mark: src.mark, lang: src.lang, kind: src.kind, error: ok ? null : (($json.error && $json.error.message) || 'sin respuesta de Meta') } };"
+      }
+    },
+    {
+      "id": "9be4ad6d-9b96-4749-a9d7-9d5fd62561e3",
+      "name": "Resumen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const all = $input.all().map((i) => i.json);\nconst ok = all.filter((x) => x.ok);\nconst bad = all.filter((x) => !x.ok);\nreturn [{ json: { sent: ok.map((x) => ({ key: x.key, mark: x.mark })), ok: ok.length, failed: bad.length, quechua: ok.filter((x) => x.lang === 'qu').length, errors: [...new Set(bad.map((x) => x.error))].slice(0, 3) } }];"
+      }
+    },
+    {
+      "id": "7ecaacf8-b068-4b1f-a77d-f9d1b973cc42",
+      "name": "Marcar enviados",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        220
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuración').first().json.base_url }}/api/n8n/sent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ sent: $json.sent }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Yatiri X: clave de avisos (x-alerts-secret)"
+        }
+      },
+      "notes": "Así nadie recibe el mismo aviso dos veces en el día (ni el resumen dos veces en la semana)."
+    },
+    {
+      "id": "38f143e4-d428-4b5b-a19e-96cd478ae91a",
+      "name": "¿Avisar al equipo?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r = $('Resumen').first().json;\nconst team = $('Configuración').first().json.team_phone;\nif (!r.failed || !team) return [];\nconst text = `Yatiri X (n8n): ${r.failed} mensajes no salieron y ${r.ok} sí. Motivo: ${r.errors.join(' | ')}`;\nreturn [{ json: { wa_body: { messaging_product: 'whatsapp', to: team, type: 'text', text: { body: text } } } }];"
+      }
+    },
+    {
+      "id": "2d964d47-cec4-444a-a288-4c6b34aa6c9a",
+      "name": "Avisar falla al equipo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        420
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuración').first().json.graph_url }}/{{ $('Configuración').first().json.phone_number_id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.wa_body) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1200
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "WhatsApp Cloud API: token (Authorization)"
+        }
+      },
+      "notes": "Un mensaje por segundo para respetar los límites de Meta. Si Meta rechaza uno, se anota y sigue con los demás."
+    },
+    {
+      "id": "61b5d901-46c8-4490-a81c-e6066a4d8ccb",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "content": "## Resumen semanal\nCada lunes a las 7:00 envía a cada persona suscrita: días con lluvia y heladas de la semana, lluvia frente a lo normal, cómo suele ser el mes y un consejo. En su idioma (castellano o quechua).",
+        "width": 460,
+        "height": 300
+      }
+    }
+  ],
+  "connections": {
+    "Lunes 7:00": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuración": {
+      "main": [
+        [
+          {
+            "node": "Pedir mensajes a Yatiri X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedir mensajes a Yatiri X": {
+      "main": [
+        [
+          {
+            "node": "Separar mensajes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar mensajes": {
+      "main": [
+        [
+          {
+            "node": "Preparar mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar mensaje": {
+      "main": [
+        [
+          {
+            "node": "Enviar por WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar por WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado": {
+      "main": [
+        [
+          {
+            "node": "Resumen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar ahora": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resumen": {
+      "main": [
+        [
+          {
+            "node": "Marcar enviados",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "¿Avisar al equipo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Avisar al equipo?": {
+      "main": [
+        [
+          {
+            "node": "Avisar falla al equipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/La_Paz",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "active": false,
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

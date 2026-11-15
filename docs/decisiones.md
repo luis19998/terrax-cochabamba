@@ -105,3 +105,23 @@ Este archivo solo crece por el final.
   la seguridad por fila.
 - **Pendiente en el panel de Supabase:** Site URL y direcciones de retorno del enlace, y el límite de correos del
   servicio gratuito (pocos por hora). Ver `README.md`.
+
+## 2026-11-14, quechua, mapa y n8n
+
+- **Toda la web en quechua.** El botón dice «Quechua». Se traduce la página ya dibujada, así entran también los
+  resultados calculados. Orden: correcciones a mano (`web/data/qu-corrections.json`), diccionario publicado
+  (`web/data/qu.json`, 1.071 textos) y, si falta algo, Gemini en el servidor con memoria. Números, cultivos y meses se
+  reemplazan por marcas: una traducción sirve para cualquier terreno, y cada cultivo sale con su nombre quechua
+  (maíz: sara, haba: jawas). Quechua de Bolivia: se corrige solo el progresivo peruano (-sha- pasa a -chka-).
+- **Límite de Gemini gratuito.** Gemini 3.5 Flash permite solo 20 consultas por día y 2.5 Flash también se agotó al
+  traducir el 14 de noviembre: ese día Tiri respondió por reglas. Por eso el diccionario va en el repositorio, 296
+  textos los tradujo Claude a mano y las consultas a Gemini quedan para frases nuevas. Recomendación: una clave
+  aparte para traducir (`TRANSLATE_MODEL` y otra cuenta) o un plan de pago antes de la final.
+- **Vista sencilla con otras palabras.** No solo esconde partes: cambia «Necesita cuidados» por «Tu terreno necesita
+  cuidados», porcentajes por «casi seguro / puede pasar», «pendiente 34 %» por «muy inclinado», y Tiri responde en
+  frases cortas.
+- **Mapa.** Cambio entre satélite con nombres, satélite, mapa normal y relieve. El terreno se marca con un punto,
+  por esquinas (con «quitar la última» y área en vivo) o con el dedo o el mouse, y las esquinas se pueden mover.
+- **WhatsApp con n8n.** Yatiri X decide qué decir y a quién; n8n decide cuándo y envía desde el número dedicado:
+  avisos urgentes 3 veces al día, resumen semanal los lunes, aviso de prueba y vigilancia del servicio. Cada persona
+  recibe su idioma. Probado en n8n local con una API de WhatsApp simulada.

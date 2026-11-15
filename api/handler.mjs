@@ -3,6 +3,8 @@
 //
 //   GET  /api/config                public browser settings (Supabase URL and publishable key, if set)
 //   GET  /api/health
+//   GET  /api/n8n/alerts|digest     messages to send now (header x-alerts-secret); POST /api/n8n/sent marks them
+//   POST /api/translate             { texts: [...] } -> { translations: { text: quechua } } (Gemini, cached)
 //   POST /api/recommend             body: { altitude, history, irrigation, priorities, preferred, scenario }
 //   GET  /api/gamc/wms?layer=       WMS proxy for the GAMC layers (the API key is added here, never in the browser)
 //   GET  /api/gamc/info?lat=&lon=   district and peri-urban zone of a point (GAMC GetFeatureInfo)
@@ -14,9 +16,10 @@
 import { explain, recommend } from "../web/js/engine.js";
 import { elevationFromGrid } from "../web/js/assess.js";
 import { createOutlook } from "./outlook.mjs";
-import { runAlerts } from "./alerts.mjs";
+import { markSent, pendingMessages, runAlerts } from "./alerts.mjs";
 import { createPlotService } from "./plot.mjs";
 import { createTerra, usableKey } from "./terra.mjs";
+import { createTranslator } from "./translate.mjs";
 import { createWhatsApp } from "./whatsapp.mjs";
 
 // 1 x 1 transparent PNG, sent when the municipal server does not answer so the map keeps working
@@ -30,7 +33,7 @@ const json = (status, data, headers = {}) => new Response(JSON.stringify(data), 
   headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store", ...headers },
 });
 
-export function createApi({ env, climate, crops, gamc, grid, knowledge, subscribers, sessionStore }) {
+export function createApi({ env, climate, crops, gamc, grid, knowledge, subscribers, sessionStore, translationStore }) {
   const layerById = Object.fromEntries(gamc.layers.map((l) => [l.id, l]));
   const wmsUrl = env.GAMC_WMS_URL || "https://serviciosgamc.cochabamba.bo/api/gs/wms";
   const cache = new Map();
@@ -114,6 +117,7 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge, subscrib
   const outlook = createOutlook({ climate });
   const terra = createTerra({ env, climate, crops, knowledge, plotService, gamcInfo, forecast, outlook });
   const whatsapp = createWhatsApp({ env, terra, crops, subscribers, sessionStore });
+  const translator = createTranslator({ env, cache: translationStore });
 
   async function body(request, url) {
     if (request.method !== "POST") return Object.fromEntries(url.searchParams);
@@ -165,6 +169,29 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge, subscrib
       if (!subscribers) throw fail(503, "Sin almacenamiento de suscriptores");
       const opts = await body(request, url);
       return json(200, await runAlerts({ env, subscribers, outlook, grid, simulate: Boolean(opts.simulate) }));
+    }
+    if (path.startsWith("/api/n8n/")) {
+      // for the n8n workflows that send with the dedicated WhatsApp number (n8n/README.md)
+      if (!env.ALERTS_SECRET || request.headers.get("x-alerts-secret") !== env.ALERTS_SECRET) throw fail(403, "Clave de avisos incorrecta");
+      if (!subscribers) throw fail(503, "Sin almacenamiento de suscriptores");
+      if (path === "/api/n8n/alerts" || path === "/api/n8n/digest") {
+        const kind = path.endsWith("digest") ? "digest" : "urgent";
+        return json(200, await pendingMessages({ env, subscribers, outlook, grid, kind, test: url.searchParams.get("test") === "1" }));
+      }
+      if (path === "/api/n8n/sent") {
+        if (request.method !== "POST") throw fail(405, "Usa POST");
+        return json(200, await markSent({ subscribers, sent: (await body(request, url)).sent }));
+      }
+      if (path === "/api/n8n/status") {
+        return json(200, { ok: true, subscribers: (await subscribers.list()).length, sender: env.ALERTS_SENDER || "netlify", template: env.WHATSAPP_ALERT_TEMPLATE || null });
+      }
+      throw fail(404, "Ruta de n8n desconocida");
+    }
+    if (path === "/api/translate") {
+      if (request.method !== "POST") throw fail(405, "Usa POST");
+      const input = await body(request, url);
+      const texts = Array.isArray(input.texts) ? input.texts : [];
+      return json(200, { translations: await translator.translate(texts), engine: translator.available() ? "gemini" : "ninguno" });
     }
     if (path === "/api/tiri" || path === "/api/terra") return json(200, await terra.ask(await body(request, url)));
     const terrainTile = path.match(/^\/api\/terrain\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})\.png$/);

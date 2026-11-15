@@ -56,13 +56,17 @@ export function createWhatsApp({ env, terra, crops, subscribers, sessionStore })
     return r.ok;
   }
 
+  const say = (session, es, qu) => (session.lang === "qu" ? qu : es);
   async function subscribe(key, phone, session) {
-    if (!subscribers) return "Los avisos todavía no están activados en este servidor.";
+    if (!subscribers) return say(session, "Los avisos todavía no están activados en este servidor.", "Kay servidorpi willakuykuna manaraq kachkanchu.");
+    const old = (await subscribers.get(key).catch(() => null)) || {};
     await subscribers.set(key, {
       key, phone, lat: session.lat, lon: session.lon, crops: session.history || [], place: session.place || "Cochabamba",
-      since: new Date().toISOString(), lastAlert: null,
+      lang: session.lang || "es", since: old.since || new Date().toISOString(), lastAlert: old.lastAlert || null, lastDigest: old.lastDigest || null,
     });
-    return `Listo: te avisaré por aquí si el pronóstico trae riesgo de helada o de lluvia fuerte para tu terreno (${session.place || "ubicación guardada"}). Para eso guardamos tu número y la ubicación aproximada del terreno, solo para estos avisos. Escribe BAJA cuando quieras dejar de recibirlos y borrar tus datos.`;
+    return say(session,
+      `Listo: te avisaré por aquí si el pronóstico trae riesgo de helada o de lluvia fuerte para tu terreno (${session.place || "ubicación guardada"}), y cada semana te enviaré un resumen. Para eso guardamos tu número y la ubicación aproximada del terreno, solo para estos avisos. Escribe BAJA cuando quieras dejar de recibirlos y borrar tus datos.`,
+      `Ñam: chakraykipaq qasa utaq sinchi para kaptin, kayman willasqayki (${session.place || "chakrayki"}). Sapa semanataq willakuyta apachimusqayki. Chaypaq numeroykita, chakrayki maypi kasqantawan waqaychayku, kay willakuykunallapaq. Mana astawan chaskiyta munaspaqa BAJA qillqay: tukuy willakuyniykita pichasaqku.`);
   }
 
   async function reply(message) {
@@ -71,40 +75,51 @@ export function createWhatsApp({ env, terra, crops, subscribers, sessionStore })
     if (message.type === "location" && message.location) {
       session.lat = Number(message.location.latitude);
       session.lon = Number(message.location.longitude);
-      session.place = "tu ubicación";
+      session.place = say(session, "tu ubicación", "ubicacionniyki");
       await sessions.set(key, session);
       if (session.wantsAlerts) { session.wantsAlerts = false; await sessions.set(key, session); return subscribe(key, message.from, session); }
-      const { answer } = await terra.ask({ lat: session.lat, lon: session.lon, history: session.history, fast: true });
-      return `${answer} Dime qué sembraste la última campaña (por ejemplo: sembré papa) para afinar. Escribe ALERTAS para recibir avisos de helada y lluvia fuerte, o BAJA para que olvide tus datos.`;
+      const { answer } = await terra.ask({ lat: session.lat, lon: session.lon, history: session.history, fast: true, lang: session.lang, mode: "simple", question: session.lang === "qu" ? "Imaynataq chakray? Imata tarpuyman?" : "" });
+      return `${answer} ${say(session, "Dime qué sembraste la última campaña (por ejemplo: sembré papa) para afinar. Escribe ALERTAS para recibir avisos de helada y lluvia fuerte, o BAJA para que olvide tus datos.", "Qhipa kutipi imata tarpurqanki, willaway (kay jina: papata tarpurqani). WILLAWAY qillqay qasamanta, sinchi paramanta willakuykunata chaskinaykipaq, utaq BAJA willakuyniykita qunqanaypaq.")}`;
     }
-    if (message.type !== "text" || !message.text) return "Por ahora entiendo mensajes de texto y ubicaciones. Envíame la ubicación de tu terreno con el clip.";
+    if (message.type !== "text" || !message.text) return say(session, "Por ahora entiendo mensajes de texto y ubicaciones. Envíame la ubicación de tu terreno con el clip.", "Kunanqa qillqasqa willakuykunata, ubicacionkunatawan intindini. Chakraykiq ubicacionninta clipwan apachimuway.");
     const text = String(message.text.body || "").trim();
+    // language: "QU" at the end of the web link, the words QUECHUA / RUNASIMI / CASTELLANO, or a Quechua greeting
+    if (/\b(quechua|qhichwa|runasimi)\b/i.test(text) || /\bQU\s*$/.test(text) || /^(napaykuyki|imaynalla|allillanchu|willaway)\b/i.test(text)) session.lang = "qu";
+    if (/\b(castellano|espa[nñ]ol)\b/i.test(text)) session.lang = "es";
+    if (/^(quechua|qhichwa|runasimi|castellano|espa[nñ]ol)$/i.test(text)) {
+      await sessions.set(key, session);
+      return say(session, "Listo, te hablaré en castellano.", "Ñam, runasimipi rimasaq.");
+    }
     if (/^baja\b/i.test(text)) {
+      const bye = say(session, "Listo: borré tu terreno y tu suscripción a los avisos. Si quieres volver, envíame tu ubicación.", "Ñam: chakraykitapas, willakuykunaman qillqakusqaykitapas pichani. Kutimuyta munaspaqa, ubicacionniykita apachimuway.");
       await sessions.delete(key);
       if (subscribers) await subscribers.delete(key).catch(() => {});
-      return "Listo: borré tu terreno y tu suscripción a los avisos. Si quieres volver, envíame tu ubicación.";
+      return bye;
     }
     // coordinates sent from the web page, e.g. "ALERTAS -17.4629,-66.1867"
     const coords = text.match(/(-?\d{1,2}\.\d{2,})\s*,\s*(-?\d{2,3}\.\d{2,})/);
-    if (coords) { session.lat = Number(coords[1]); session.lon = Number(coords[2]); session.place = "el terreno que marcaste en la web"; }
+    if (coords) { session.lat = Number(coords[1]); session.lon = Number(coords[2]); session.place = say(session, "el terreno que marcaste en la web", "webpi siq'isqayki chakra"); }
     const preset = PRESETS.find((p) => p.pattern.test(text));
     if (preset) { session.lat = preset.lat; session.lon = preset.lon; session.place = preset.label; }
     const mentioned = cropWords.filter((c) => plain(text).includes(c.word)).map((c) => c.id);
     if (mentioned.length && /sembr|plant|coseche|tenia|tengo|puse/.test(plain(text))) session.history = mentioned.slice(-2);
-    if (/^alertas?\b/i.test(text)) {
+    if (/^(alertas?|willaway)\b/i.test(text)) {
       if (session.lat === undefined) {
         session.wantsAlerts = true;
         await sessions.set(key, session);
-        return "Para enviarte avisos necesito la ubicación de tu terreno: mándala con el clip (Ubicación) y quedas suscrito.";
+        return say(session, "Para enviarte avisos necesito la ubicación de tu terreno: mándala con el clip (Ubicación) y quedas suscrito.", "Willanaypaq chakraykiq ubicacionninta munani: clipwan (Ubicación) apachimuway, chaywan qillqasqa kanki.");
       }
       await sessions.set(key, session);
       return subscribe(key, message.from, session);
     }
     if (session.lat === undefined) {
-      return "¡Hola! Soy Tiri, tu asistente agrícola de Yatiri X. Envíame la ubicación de tu terreno (clip, Ubicación) o escribe Distrito 9 o Distrito 13, y te digo qué sembrar, cuánta agua hace falta, qué plagas vigilar y qué riesgos tiene tu tierra. Escribe ALERTAS para recibir avisos de helada y lluvia fuerte.";
+      await sessions.set(key, session);
+      return say(session,
+        "¡Hola! Soy Tiri, tu asistente agrícola de Yatiri X. Envíame la ubicación de tu terreno (clip, Ubicación) o escribe Distrito 9 o Distrito 13, y te digo qué sembrar, cuánta agua hace falta, qué plagas vigilar y qué riesgos tiene tu tierra. Escribe ALERTAS para recibir avisos de helada y lluvia fuerte. Runasimipi rimanapaq QUECHUA qillqay.",
+        "¡Napaykuyki! Tiri kani, Yatiri X-pa chakra yanapaqnin. Chakraykiq ubicacionninta apachimuway (clip, Ubicación) utaq Distrito 9, Distrito 13 nispa qillqay: imata tarpunaykita, hayk'a yaku munasqanta, ima khurukunata qhawanaykita, jallp'aykiq sasachakuyninkunatawan willasqayki. WILLAWAY qillqay qasamanta, sinchi paramanta willakuykunata chaskinaykipaq. Castellanopi rimanapaq CASTELLANO qillqay.");
     }
     await sessions.set(key, session);
-    const { answer } = await terra.ask({ question: (preset || coords) && text.length < 40 ? "" : text, lat: session.lat, lon: session.lon, history: session.history, fast: true });
+    const { answer } = await terra.ask({ question: (preset || coords) && text.length < 40 ? "" : text, lat: session.lat, lon: session.lon, history: session.history, fast: true, lang: session.lang, mode: "simple" });
     return answer;
   }
 
@@ -123,7 +138,7 @@ export function createWhatsApp({ env, terra, crops, subscribers, sessionStore })
     const replies = [];
     for (const message of messages) {
       let text;
-      try { text = await reply(message); } catch { text = "Tuve un problema para revisar tu parcela. Intenta de nuevo en un momento."; }
+      try { text = await reply(message); } catch { text = "Tuve un problema para revisar tu parcela. Intenta de nuevo en un momento. / Chakrayki qhawanaypi sasachakuy karqa; huk ratullamanta wakmanta qillqamuway."; }
       const sent = configured ? await send(message.from, text).catch(() => false) : false;
       replies.push({ sent, ...(configured ? {} : { text }) });
     }

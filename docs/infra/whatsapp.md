@@ -16,14 +16,22 @@ flowchart LR
 
 ## Lo que ya funciona (probado con mensajes simulados)
 
-- Conversación: ubicación por el clip, «Distrito 9», «sembré papa» y cualquier pregunta.
-- **ALERTAS**: suscribe el terreno a los avisos. Desde la web, el botón «Activar avisos por WhatsApp» abre el chat
-  con el texto `ALERTAS lat,lon` y queda suscrito con un solo envío.
+- Conversación: ubicación por el clip, «Distrito 9», «sembré papa» y cualquier pregunta. Tiri responde con palabras
+  sencillas.
+- **Castellano o quechua.** Cada persona recibe todo en su idioma: quechua si se suscribió desde la web en quechua,
+  si escribe QUECHUA, RUNASIMI o WILLAWAY, o si saluda en quechua («Napaykuyki», «Imaynalla»). CASTELLANO vuelve
+  al castellano.
+- **ALERTAS** (o **WILLAWAY**): suscribe el terreno. Desde la web, el botón «Activar avisos por WhatsApp» abre el
+  chat con el texto `ALERTAS lat,lon` (más `QU` en la vista en quechua) y queda suscrito con un solo envío.
 - **BAJA**: borra la suscripción y el terreno guardado.
-- Avisos diarios a las 18:00 (hora de Bolivia): se envían solo si 3 de cada 10 escenarios traen helada o 5 de cada 10
-  traen 10 mm o más de lluvia en los próximos dos días. Como máximo un aviso por persona por día.
+- **Avisos urgentes:** solo si 3 de cada 10 escenarios traen helada o 5 de cada 10 traen 10 mm o más de lluvia en
+  los próximos dos días. Como máximo uno por persona por día.
+- **Resumen semanal** (lunes): lluvia y heladas de la semana, lluvia frente a lo normal, el mes y un consejo.
+- **Quién envía:** los flujos de **n8n** con el número dedicado (ver `n8n/README.md`): avisos 3 veces al día,
+  resumen los lunes, aviso de prueba para la demo y vigilancia del servicio. Mientras n8n no esté encendido en el
+  servidor, Netlify envía los avisos urgentes a las 18:00.
 - Los teléfonos se guardan en Netlify Blobs (privado del sitio), nunca en el repositorio, y solo después de que la
-  persona escribe ALERTAS.
+  persona escribe ALERTAS o WILLAWAY.
 
 ## Paso a paso con el número boliviano (lo hace una persona del equipo)
 
@@ -86,5 +94,8 @@ Invoke-RestMethod -Method Post -Uri https://yatirix-cochabamba.netlify.app/api/a
 ## Estado
 
 - [x] Código del webhook, ALERTAS, BAJA y avisos diarios, probado con mensajes simulados (`scripts/try_alerts.mjs`).
+- [x] Castellano y quechua, resumen semanal y rutas para n8n, probados con `scripts/try_alerts.mjs`.
+- [x] Cuatro flujos de n8n (`n8n/workflows/`), probados en n8n local con una API de WhatsApp simulada.
+- [ ] `ALERTS_SECRET` en Netlify y las dos credenciales en n8n (`n8n/README.md`).
 - [ ] Número registrado en Meta, token y plantilla (pasos 1 a 6).
 - [ ] Variables en Netlify y webhook verificado (pasos 7 a 9).

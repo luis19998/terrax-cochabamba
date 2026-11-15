@@ -1,0 +1,234 @@
+{
+  "name": "Yatiri X · Vigilancia del servicio",
+  "nodes": [
+    {
+      "id": "6c1a736b-f30a-4724-a68a-0877a2c0ebf6",
+      "name": "Cada 30 minutos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/30 * * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "035b5c8b-be90-4bfe-a792-e270a0964e9f",
+      "name": "Probar ahora",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "b83f7a6d-e734-4913-afa9-25f5cb305298",
+      "name": "Configuración",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e173795-fe2f-4a3b-a037-e390c09c8cde",
+              "name": "base_url",
+              "type": "string",
+              "value": "https://yatirix-cochabamba.netlify.app"
+            },
+            {
+              "id": "f0f28628-cc70-45f2-a56a-a3f313588d85",
+              "name": "graph_url",
+              "type": "string",
+              "value": "https://graph.facebook.com/v21.0"
+            },
+            {
+              "id": "86fb66e1-8f8f-43fc-a88b-5bcad20f4485",
+              "name": "phone_number_id",
+              "type": "string",
+              "value": "PEGAR_AQUI_EL_PHONE_NUMBER_ID"
+            },
+            {
+              "id": "a8f53cac-4f15-408b-ac86-8d52e1d67cbb",
+              "name": "team_phone",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "base_url: la web. phone_number_id: el ID del número dedicado (Meta > WhatsApp > API Setup). team_phone: un celular del equipo con código de país (591…), para avisos de fallas; vacío para no avisar."
+    },
+    {
+      "id": "ce986484-3a1d-44d2-a2fa-f503b8869310",
+      "name": "Revisar Yatiri X",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configuración').first().json.base_url }}/api/health",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "b93d22d8-5bd2-4a5b-a178-a1cfccafed07",
+      "name": "¿Algo falla?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const h = $input.first().json || {};\nconst team = $('Configuración').first().json.team_phone;\nconst problems = [];\nif (!h.ok) problems.push('la web o la API no responde');\nelse {\n  if (h.tiri && h.tiri.engine === 'rules') problems.push('Tiri responde sin IA (revisar GEMINI_API_KEY)');\n  if (h.gamc_check && h.gamc_check !== 'ok') problems.push(`capas del GAMC: ${h.gamc_check}`);\n  if (h.whatsapp === false) problems.push('WhatsApp sin credenciales en Netlify');\n}\n// one message per problem every 6 hours at most\nconst memo = $getWorkflowStaticData('global');\nconst key = problems.join('|');\nif (!problems.length) { memo.last = ''; return []; }\nif (!team || (memo.last === key && Date.now() - (memo.at || 0) < 6 * 3600e3)) return [];\nmemo.last = key; memo.at = Date.now();\nreturn [{ json: { wa_body: { messaging_product: 'whatsapp', to: team, type: 'text', text: { body: `Yatiri X: ${problems.join('; ')}.` } } } }];"
+      }
+    },
+    {
+      "id": "bf5c1ff1-853d-4ce3-a665-2999bceaca2a",
+      "name": "Avisar al equipo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuración').first().json.graph_url }}/{{ $('Configuración').first().json.phone_number_id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.wa_body) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1200
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "WhatsApp Cloud API: token (Authorization)"
+        }
+      },
+      "notes": "Un mensaje por segundo para respetar los límites de Meta. Si Meta rechaza uno, se anota y sigue con los demás."
+    },
+    {
+      "id": "5a111d43-0a60-4f42-a5d7-50fd8c4bdee5",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "content": "## Vigilancia\nCada 30 minutos revisa /api/health. Si la web no responde, Tiri se queda sin IA, fallan las capas del GAMC o WhatsApp pierde las credenciales, escribe al celular del equipo (team_phone). Como mucho un mensaje cada 6 horas por el mismo problema.\n\nMeta solo entrega texto libre si ese celular escribió al número dedicado en las últimas 24 horas.",
+        "width": 460,
+        "height": 300
+      }
+    }
+  ],
+  "connections": {
+    "Cada 30 minutos": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuración": {
+      "main": [
+        [
+          {
+            "node": "Revisar Yatiri X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar Yatiri X": {
+      "main": [
+        [
+          {
+            "node": "¿Algo falla?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Algo falla?": {
+      "main": [
+        [
+          {
+            "node": "Avisar al equipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar ahora": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/La_Paz",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "active": false,
+  "pinData": {},
+  "meta": {}
+}

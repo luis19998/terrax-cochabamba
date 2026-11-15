@@ -34,6 +34,7 @@ const api = createApi({
   knowledge: readJson("web", "data", "knowledge.json"),
   subscribers: fileSubscribers(join(root, "data", "local", "subscribers.json")),
   sessionStore: fileSubscribers(join(root, "data", "local", "wa-sessions.json")),
+  translationStore: fileSubscribers(join(root, "data", "local", "translations.json")),
 });
 
 const MIME = {
@@ -48,7 +49,11 @@ async function serveApi(req, res, url) {
   const hasBody = !["GET", "HEAD"].includes(req.method);
   const request = new Request(url, {
     method: req.method,
-    headers: { "content-type": req.headers["content-type"] || "application/json" },
+    // the headers the API reads: body type, the alerts secret (n8n) and Meta's signature
+    headers: Object.fromEntries([
+      ["content-type", req.headers["content-type"] || "application/json"],
+      ...["x-alerts-secret", "x-hub-signature-256"].filter((h) => req.headers[h]).map((h) => [h, req.headers[h]]),
+    ]),
     body: hasBody ? Buffer.concat(chunks) : undefined,
   });
   const response = await api(request);

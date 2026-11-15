@@ -16,8 +16,8 @@
     <a class="logo" href="#inicio" data-go="home"><img class="logo__mark" src="img/logo-mark.png" alt="" width="28" height="38"><img class="logo__word" src="img/logo-word.png" alt="Yatiri X" width="130" height="28"></a>
     <div class="topbar__tools">
       <div class="switch" role="group" aria-label="Idioma" data-i18n-aria="language">
-        <button type="button" data-lang="es" aria-pressed="true">Español</button>
-        <button type="button" data-lang="qu" aria-pressed="false">Runasimi</button>
+        <button type="button" data-lang="es" aria-pressed="true" translate="no">Español</button>
+        <button type="button" data-lang="qu" aria-pressed="false" translate="no">Quechua</button>
       </div>
       <label class="mode-select">
         <span data-i18n="mode">Vista</span>
@@ -112,13 +112,14 @@
         </form>
       </div>
       <ul class="results-list" id="search-results"></ul>
-      <p class="hint" id="map-hint" data-i18n="mapHint">Toca el mapa para marcar tu terreno.</p>
-      <div id="map" class="map" role="application" aria-label="Mapa del municipio de Cochabamba"></div>
-      <div class="map-tools">
-        <button class="btn btn--small" type="button" id="draw" data-i18n="draw">Dibujar los límites</button>
-        <button class="btn btn--small" type="button" id="draw-done" hidden data-i18n="drawDone">Terminar el dibujo</button>
-        <button class="btn btn--small btn--ghost" type="button" id="draw-clear" hidden data-i18n="drawClear">Borrar el dibujo</button>
+      <p class="field-label">¿Cómo quieres marcar tu terreno?</p>
+      <div class="draw-modes" id="draw-modes" role="group" aria-label="Cómo marcar el terreno"></div>
+      <p class="hint" id="map-hint">Toca el mapa en el centro de tu terreno.</p>
+      <div class="map-wrap">
+        <div class="basemaps" id="basemaps" role="group" aria-label="Tipo de mapa"></div>
+        <div id="map" class="map" role="application" aria-label="Mapa del municipio de Cochabamba"></div>
       </div>
+      <div class="map-tools" id="map-tools" aria-live="polite"></div>
       <details class="layers">
         <summary data-i18n="layers">Capas del mapa</summary>
         <div class="chips chips--small" id="layer-toggles"></div>

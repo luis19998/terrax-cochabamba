@@ -1,7 +1,8 @@
 // Yatiri X: landing page, step-by-step plot set-up, analysis and the Tiri assistant. Vanilla JS, no build step.
 import { WEEKS, explain, recommend } from "./engine.js";
 import { assessPlot, elevationFromGrid } from "./assess.js";
-import { applyLanguage, t } from "./i18n.js";
+import { applyLanguage, t, QU_CROPS, QU_VALUES } from "./i18n.js";
+import { setLanguage, setTerms } from "./translate.js";
 import * as cloud from "./cloud.js";
 
 const $ = (id) => document.getElementById(id);
@@ -26,6 +27,44 @@ const currentWeek = () => {
   const now = new Date();
   return Math.min(51, Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 1)) / 864e5 / 7));
 };
+// ---------- Simple view: plainer words, not only fewer ----------
+const isSimple = () => state.mode === "simple";
+const monthPart = (week) => {
+  const d = weekDate(((week % WEEKS) + WEEKS) % WEEKS);
+  return `${d.day <= 10 ? "a inicios de" : d.day <= 20 ? "a mediados de" : "a fines de"} ${MONTHS_LONG[d.month]}`;
+};
+const chance = (p) => (p >= 0.8 ? "Casi seguro" : p >= 0.5 ? "Probable" : p >= 0.2 ? "Puede pasar" : "Poco probable");
+const rainWord = (p) => (p >= 0.7 ? "Llueve" : p >= 0.4 ? "Puede llover" : "Seco");
+const LEVEL_SIMPLE = { 3: "Peligro", 2: "Cuidado", 1: "Bien" };
+const SIMPLE_HAZARD = {
+  frost: ["Heladas", "En tu zona hiela en las noches frías.", "Siembra cuando ya pasaron las heladas. En noches frías, tapa las plantas chicas."],
+  drought: ["Falta de agua", "Hay meses en que casi no llueve.", "Guarda agua y, en esos meses, siembra lo que pide poca agua."],
+  waterlogging: ["Agua estancada", "El agua de lluvia se puede juntar en tu terreno.", "Haz zanjas para que el agua salga. No siembres en la parte más baja."],
+  erosion: ["La lluvia se lleva la tierra", "Tu terreno está en pendiente: la lluvia puede llevarse la tierra buena.", "Siembra en surcos a lo ancho de la pendiente y no dejes la tierra pelada."],
+  frost_now: ["Helada en estos días", "En los próximos días puede helar.", "Tapa los almácigos y las plantas tiernas en la noche. Riega la tarde anterior."],
+  rain_now: ["Lluvia fuerte esta semana", "Esta semana puede llover mucho.", "Limpia los canales y desagües antes de la lluvia."],
+};
+/** a hazard with plain words in the simple view */
+function hz(h) {
+  if (!isSimple() || !SIMPLE_HAZARD[h.id]) return h;
+  const [title, text, action] = SIMPLE_HAZARD[h.id];
+  return { ...h, title, text: h.level === 1 ? "Con los datos de hoy, no es un problema grande aquí." : text, action, levelLabel: LEVEL_SIMPLE[h.level].toLowerCase() };
+}
+/** a technical reason ("helada dañina en 40 % de las campañas") said simply */
+function simpleReason(reason) {
+  if (/helada/.test(reason)) return "aquí le cae helada";
+  if (/lluvia/.test(reason)) return "la lluvia no le alcanza";
+  if (/ácido|alcalino|pH/.test(reason)) return "tu tierra no le sirve";
+  if (/riego/.test(reason)) return "necesita mucha agua";
+  return reason;
+}
+const yearName = (y) => (y.group === "fallow" ? "dejar descansar la tierra" : y.name.toLowerCase());
+function simpleLead(r) {
+  const best = r.strategies[1];
+  const first = best.years.find((y) => y.group !== "fallow");
+  const order = ["Primer año", "Segundo año", "Tercer año"];
+  return `Te conviene: ${best.years.map((y, i) => `${order[i].toLowerCase()}, ${yearName(y)}`).join("; ")}. ${first ? `Siembra ${first.name.toLowerCase()} ${monthPart(first.sowWeek)}.` : ""} Antes de decidir, conversa con un técnico de tu zona.`;
+}
 const dayLabel = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString("es", { weekday: "short", day: "numeric" });
 
 const CROP_COLORS = {
@@ -72,7 +111,6 @@ const MODULES = [
 const TABS = ["general", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "cultivos", "catalogo", "plagas", "legal", "ganancias", "fuentes"];
 const LOADING_STEPS = ["Leyendo 45 años de clima de la NASA", "Midiendo el relieve de tu terreno", "Consultando las capas del municipio", "Revisando el pronóstico por escenarios", "Comparando 35 cultivos y miles de rotaciones"];
 const LAYERS = [
-  { id: "satelite", label: "Vista satélite", on: true, kind: "base", opacity: 1 },
   { id: "periurbanos", label: "Zonas periurbanas (GAMC)", on: true, kind: "gamc", opacity: 0.5 },
   { id: "drenaje", label: "Drenaje (GAMC)", on: false, kind: "gamc", opacity: 0.9 },
   { id: "distritos", label: "Distritos (GAMC)", on: true, kind: "gamc", opacity: 0.9 },
@@ -88,7 +126,7 @@ const PLANT_SVG = `<svg class="grow grow--small" viewBox="0 0 120 120" aria-hidd
 
 const state = {
   lang: "es", mode: "medio", step: 1, maxStep: 1, tab: "general",
-  site: null, polygon: null, areaHa: null, drawing: false, draft: [],
+  site: null, polygon: null, areaHa: null, drawMode: "point", basemap: "hibrido", draft: [],
   name: "", last: null, previous: null, soilType: null, labPh: null, labOm: null,
   waterSource: null, irrigSystem: null, waterAvail: null, moisture: null,
   priorities: new Set(["risk"]), preferred: new Set(),
@@ -114,7 +152,7 @@ function readStore() {
   try { return JSON.parse(localStorage.getItem(STORE)) || { parcels: [], prefs: {} }; } catch { return { parcels: [], prefs: {} }; }
 }
 function writeStore(data) { try { localStorage.setItem(STORE, JSON.stringify(data)); } catch { /* storage off: the app still works */ } }
-function savePrefs() { const s = readStore(); s.prefs = { lang: state.lang, mode: state.mode }; writeStore(s); }
+function savePrefs() { const s = readStore(); s.prefs = { lang: state.lang, mode: state.mode, basemap: state.basemap }; writeStore(s); }
 function inputsSnapshot() {
   return {
     name: state.name, site: state.site && { lat: state.site.lat, lon: state.site.lon, label: state.site.label },
@@ -366,21 +404,49 @@ function renderReview() {
 }
 
 // ---------- Map ----------
+const BASEMAPS = [
+  { id: "hibrido", label: "Satélite con nombres" },
+  { id: "satelite", label: "Satélite" },
+  { id: "normal", label: "Mapa normal" },
+  { id: "relieve", label: "Relieve" },
+];
+const DRAW_MODES = [
+  { id: "point", label: "Un punto", icon: "pin", hint: "Toca el mapa en el centro de tu terreno." },
+  { id: "corners", label: "Por esquinas", icon: "map", hint: "Toca cada esquina de tu terreno, una por una. Al final pulsa «Listo»." },
+  { id: "free", label: "Con el dedo o el mouse", icon: "leaf", hint: "Mantén presionado y recorre el borde de tu terreno sin soltar. Al soltar, se cierra solo." },
+];
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services";
+function basemapLayers(id) {
+  const imagery = () => L.tileLayer(`${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 19, attribution: "Esri, Maxar, Earthstar Geographics" });
+  if (id === "satelite") return [imagery()];
+  if (id === "hibrido") {
+    return [imagery(),
+      L.tileLayer(`${ESRI}/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 19, opacity: 0.8 }),
+      L.tileLayer(`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 19 })];
+  }
+  if (id === "relieve") return [L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, subdomains: "abc", attribution: "© OpenTopoMap (CC-BY-SA), © OpenStreetMap" })];
+  return [L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" })];
+}
+let baseLayers = [];
+function setBasemap(id) {
+  state.basemap = id;
+  if (map) {
+    baseLayers.forEach((l) => l.remove());
+    baseLayers = basemapLayers(id).map((l) => l.addTo(map));
+    baseLayers.slice().reverse().forEach((l) => l.bringToBack());
+  }
+  renderMapTools();
+  savePrefs();
+}
+
 function initMap() {
   if (map || !grid) return;
   const box = $("map");
   if (!window.L) { box.innerHTML = '<p class="hint" style="padding:1rem">El mapa no cargó. Usa el GPS o el buscador.</p>'; return; }
   const bounds = [[grid.min_lat, grid.min_lon], [grid.max_lat, grid.max_lon]];
   map = L.map(box, { minZoom: 11, maxBounds: [[grid.min_lat - 0.1, grid.min_lon - 0.14], [grid.max_lat + 0.1, grid.max_lon + 0.14]] }).fitBounds(bounds);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
+  setBasemap(state.basemap || "hibrido");
   for (const layer of LAYERS) {
-    if (layer.kind === "base") {
-      layer.leaflet = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
-        maxZoom: 19, zIndex: 1, attribution: "Esri, Maxar, Earthstar Geographics",
-      });
-      if (layer.on) layer.leaflet.addTo(map);
-      continue;
-    }
     layer.leaflet = layer.kind === "gamc"
       ? L.tileLayer.wms(`/api/gamc/wms?layer=${layer.id}`, { layers: "", format: "image/png", transparent: true, version: "1.1.1", opacity: layer.opacity, zIndex: 5, attribution: "GAMC" })
       : L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layer.id}/default/default/GoogleMapsCompatible_Level${layer.zoom}/{z}/{y}/{x}.png`, {
@@ -389,12 +455,89 @@ function initMap() {
     if (layer.on) layer.leaflet.addTo(map);
   }
   map.on("click", (e) => {
-    if (state.drawing) { state.draft.push([e.latlng.lat, e.latlng.lng]); drawShape(); return; }
+    if (state.drawMode === "free") return;
+    if (state.drawMode === "corners") { state.draft.push([e.latlng.lat, e.latlng.lng]); drawShape(); return; }
     selectSite(e.latlng.lat, e.latlng.lng, null);
   });
+  initFreehand(box);
   renderLayerToggles();
-  drawShape();
+  setDrawMode(state.drawMode || "point");
   if (state.site) selectSite(state.site.lat, state.site.lon, state.site.label);
+}
+
+// Freehand: press and trace the border with a finger or the mouse; the map stops panning meanwhile.
+function initFreehand(box) {
+  let path = null;
+  let px = null;
+  let line = null;
+  box.addEventListener("pointerdown", (ev) => {
+    if (state.drawMode !== "free" || ev.button > 0) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    try { box.setPointerCapture(ev.pointerId); } catch { /* the trace still works without capture */ }
+    const ll = map.mouseEventToLatLng(ev);
+    path = [[ll.lat, ll.lng]];
+    px = [[ev.clientX, ev.clientY]];
+    if (line) line.remove();
+    line = L.polyline(path, { color: "#ff8a3d", weight: 4 }).addTo(map);
+  }, true);
+  box.addEventListener("pointermove", (ev) => {
+    if (!path) return;
+    const [x0, y0] = px[px.length - 1];
+    if (Math.hypot(ev.clientX - x0, ev.clientY - y0) < 4) return;
+    const ll = map.mouseEventToLatLng(ev);
+    path.push([ll.lat, ll.lng]);
+    px.push([ev.clientX, ev.clientY]);
+    line.setLatLngs(path);
+  });
+  const end = () => {
+    if (!path) return;
+    const pts = simplifyPath(path, px, 5);
+    path = null;
+    if (line) { line.remove(); line = null; }
+    if (pts.length < 3) { $("wizard-msg").textContent = "El trazo fue muy corto. Recorre todo el borde de tu terreno sin soltar."; return; }
+    $("wizard-msg").textContent = "";
+    state.draft = pts;
+    finishDrawing();
+  };
+  box.addEventListener("pointerup", end);
+  box.addEventListener("pointercancel", end);
+}
+/** Douglas-Peucker on screen pixels: the shape keeps its corners and loses the jitter of the hand. */
+function simplifyPath(pts, px, tol) {
+  if (pts.length < 3) return pts;
+  const keep = new Array(pts.length).fill(false);
+  keep[0] = true;
+  keep[pts.length - 1] = true;
+  const stack = [[0, pts.length - 1]];
+  while (stack.length) {
+    const [a, b] = stack.pop();
+    let best = -1;
+    let dist = tol;
+    const [ax, ay] = px[a];
+    const [bx, by] = px[b];
+    const len = Math.hypot(bx - ax, by - ay);
+    for (let i = a + 1; i < b; i++) {
+      const d = len < 1 ? Math.hypot(px[i][0] - ax, px[i][1] - ay) : Math.abs((by - ay) * px[i][0] - (bx - ax) * px[i][1] + bx * ay - by * ax) / len;
+      if (d > dist) { dist = d; best = i; }
+    }
+    if (best > 0) { keep[best] = true; stack.push([a, best], [best, b]); }
+  }
+  const idx = keep.map((k, i) => (k ? i : -1)).filter((i) => i >= 0);
+  // the hand usually closes the loop on top of the first point: drop that duplicate
+  const last = idx[idx.length - 1];
+  if (idx.length > 3 && Math.hypot(px[last][0] - px[0][0], px[last][1] - px[0][1]) < 20) idx.pop();
+  return idx.map((i) => pts[i]).slice(0, 80);
+}
+function setDrawMode(id) {
+  state.drawMode = id;
+  state.draft = [];
+  if (map) {
+    const free = id === "free";
+    if (free) { map.dragging.disable(); map.doubleClickZoom.disable(); } else { map.dragging.enable(); map.doubleClickZoom.enable(); }
+    $("map").classList.toggle("map--freehand", free);
+  }
+  drawShape();
 }
 function renderLayerToggles() {
   chips($("layer-toggles"), LAYERS, {
@@ -402,17 +545,62 @@ function renderLayerToggles() {
     onClick: (l) => { l.on = !l.on; if (map) (l.on ? l.leaflet.addTo(map) : l.leaflet.remove()); renderLayerToggles(); },
   });
 }
-function drawShape() {
-  if (!map) return;
-  if (shape) shape.remove();
-  const pts = state.drawing ? state.draft : state.polygon;
-  if (pts && pts.length) {
-    shape = (state.drawing ? L.polyline(pts, { color: "#6b4423", weight: 3, dashArray: "6 6" }) : L.polygon(pts, { color: "#6b4423", weight: 3, fillColor: "#93c572", fillOpacity: 0.35 })).addTo(map);
+function renderMapTools() {
+  const bm = $("basemaps");
+  if (bm) {
+    bm.innerHTML = BASEMAPS.map((b) => `<button type="button" data-basemap="${b.id}" aria-pressed="${(state.basemap || "hibrido") === b.id}">${esc(b.label)}</button>`).join("");
+    bm.querySelectorAll("[data-basemap]").forEach((b) => b.addEventListener("click", () => setBasemap(b.dataset.basemap)));
   }
-  $("draw").hidden = state.drawing;
-  $("draw-done").hidden = !state.drawing;
-  $("draw-clear").hidden = !(state.drawing || state.polygon);
-  $("map-hint").textContent = state.drawing ? "Toca cada esquina de tu terreno y luego «Terminar el dibujo»." : "Toca el mapa para marcar tu terreno.";
+  const dm = $("draw-modes");
+  if (dm) {
+    dm.innerHTML = DRAW_MODES.map((m) => `<button type="button" class="draw-mode" data-draw-mode="${m.id}" aria-pressed="${state.drawMode === m.id}">${icon(m.icon, 26)}<span>${esc(m.label)}</span></button>`).join("");
+    dm.querySelectorAll("[data-draw-mode]").forEach((b) => b.addEventListener("click", () => setDrawMode(b.dataset.drawMode)));
+  }
+  const tools = $("map-tools");
+  if (!tools) return;
+  const corners = state.drawMode === "corners";
+  const live = corners && state.draft.length >= 3 ? polygonArea(state.draft) : null;
+  tools.innerHTML = `
+    ${corners ? `<span class="map-tools__count">${state.draft.length === 1 ? "1 esquina" : `${state.draft.length} esquinas`}${live ? ` · ${num(live, 2)} ha` : ""}</span>
+      <button class="btn btn--small" type="button" id="draw-undo" ${state.draft.length ? "" : "disabled"}>Quitar la última esquina</button>
+      <button class="btn btn--small btn--primary" type="button" id="draw-done" ${state.draft.length >= 3 ? "" : "disabled"}>Listo</button>` : ""}
+    ${state.polygon && !corners ? `<span class="map-tools__count">Terreno marcado: ${num(state.areaHa, 2)} ha. Mueve los puntos blancos para corregirlo.</span>
+      <button class="btn btn--small btn--ghost" type="button" id="draw-clear">Borrar el dibujo</button>` : ""}`;
+  const on = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
+  on("draw-undo", () => { state.draft.pop(); drawShape(); });
+  on("draw-done", finishDrawing);
+  on("draw-clear", () => { state.draft = []; state.polygon = null; state.areaHa = null; drawShape(); renderSite(); });
+}
+let handles = [];
+function drawShape() {
+  const hint = $("map-hint");
+  if (hint) hint.textContent = (DRAW_MODES.find((m) => m.id === state.drawMode) || DRAW_MODES[0]).hint;
+  if (!map) { renderMapTools(); return; }
+  if (shape) shape.remove();
+  handles.forEach((h) => h.remove());
+  handles = [];
+  shape = null;
+  const drafting = state.drawMode === "corners" && state.draft.length > 0;
+  const pts = drafting ? state.draft : state.polygon;
+  if (pts && pts.length) {
+    shape = (drafting
+      ? L.polyline(pts, { color: "#ff8a3d", weight: 3, dashArray: "6 6" })
+      : L.polygon(pts, { color: "#ff8a3d", weight: 3, fillColor: "#93c572", fillOpacity: 0.3 })).addTo(map);
+    // corner handles: numbered while marking, draggable afterwards to fix the shape
+    pts.forEach((p, i) => {
+      const h = L.marker(p, {
+        draggable: !drafting,
+        keyboard: false,
+        icon: L.divIcon({ className: "vertex", html: drafting ? `<span>${i + 1}</span>` : "", iconSize: drafting ? [22, 22] : [18, 18] }),
+      }).addTo(map);
+      if (!drafting) {
+        h.on("drag", (e) => { state.polygon[i] = [e.latlng.lat, e.latlng.lng]; shape.setLatLngs(state.polygon); });
+        h.on("dragend", () => { state.areaHa = polygonArea(state.polygon); centerOnPolygon(); renderMapTools(); });
+      }
+      handles.push(h);
+    });
+  }
+  renderMapTools();
 }
 function polygonArea(pts) {
   const lat0 = (pts.reduce((a, p) => a + p[0], 0) / pts.length) * (Math.PI / 180);
@@ -421,16 +609,17 @@ function polygonArea(pts) {
   for (let i = 0; i < xy.length; i++) { const [x1, y1] = xy[i]; const [x2, y2] = xy[(i + 1) % xy.length]; s += x1 * y2 - x2 * y1; }
   return Math.abs(s) / 2 / 10000;
 }
+function centerOnPolygon() {
+  const lat = state.polygon.reduce((a, p) => a + p[0], 0) / state.polygon.length;
+  const lon = state.polygon.reduce((a, p) => a + p[1], 0) / state.polygon.length;
+  selectSite(lat, lon, state.site && state.site.label);
+}
 function finishDrawing() {
   if (state.draft.length < 3) { $("wizard-msg").textContent = "Marca al menos tres esquinas."; return; }
   state.polygon = state.draft;
-  state.draft = [];
-  state.drawing = false;
   state.areaHa = polygonArea(state.polygon);
-  const lat = state.polygon.reduce((a, p) => a + p[0], 0) / state.polygon.length;
-  const lon = state.polygon.reduce((a, p) => a + p[1], 0) / state.polygon.length;
-  drawShape();
-  selectSite(lat, lon, state.site && state.site.label);
+  setDrawMode("point");
+  centerOnPolygon();
 }
 
 async function selectSite(lat, lon, label) {
@@ -455,7 +644,7 @@ function renderSite() {
   const d = gamcDistrict(s.gamc);
   const z = gamcZone(s.gamc);
   $("site").innerHTML = `<dl class="site__grid">
-      <div><dt>Distrito (GAMC)</dt><dd>${d ? `${esc(d.Distrito)}, ${esc(String(d.Comuna).toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase()))}` : s.gamc ? "Sin dato" : "Consultando…"}</dd></div>
+      <div><dt>Distrito (GAMC)</dt><dd>${d ? `<span translate="no">${esc(d.Distrito)}, ${esc(String(d.Comuna).toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase()))}</span>` : s.gamc ? "Sin dato" : "Consultando…"}</dd></div>
       <div><dt>Zona (GAMC)</dt><dd>${z ? esc(z.Periurbano) : s.gamc ? "Fuera de zonas periurbanas" : "Consultando…"}</dd></div>
       <div><dt>Altitud (NASA SRTM)</dt><dd>${num(s.altitude)} m</dd></div>
       <div><dt>Superficie</dt><dd>${state.areaHa ? `${num(state.areaHa, 2)} ha` : "Dibuja los límites para calcularla"}</dd></div>
@@ -644,7 +833,7 @@ function domainLevels() {
 function renderResults() {
   const levels = domainLevels();
   const overall = Math.max(...Object.values(levels).filter((x) => x !== null));
-  const word = { 1: "Buen estado", 2: "Necesita cuidados", 3: "En riesgo" }[overall];
+  const word = (isSimple() ? { 1: "Tu terreno está bien", 2: "Tu terreno necesita cuidados", 3: "Tu terreno tiene peligro" } : { 1: "Buen estado", 2: "Necesita cuidados", 3: "En riesgo" })[overall];
   const d = gamcDistrict((state.plot && state.plot.gamc) || state.site.gamc);
   const icons = { clima: icon("suncloud", 34), suelo: icon("soil", 34), relieve: icon("mountain", 34), agua: icon("drop", 34), riesgos: icon("alert", 34) };
   const names = { clima: "Clima", suelo: "Suelo", relieve: "Relieve", agua: "Agua", riesgos: "Riesgos" };
@@ -653,7 +842,7 @@ function renderResults() {
       <div><p class="summary-card__kicker">${esc(state.name || "Tu terreno")}${d ? ` · ${esc(d.Distrito)}` : ""} · ${num(state.site.altitude)} m${state.areaHa ? ` · ${num(state.areaHa, 2)} ha` : ""}</p>
       <h1 class="summary-card__title summary-card__title--${LEVEL[overall][0]}">${word}</h1></div>
     </div>
-    <ul class="domains">${Object.entries(levels).map(([k, lv]) => `<li class="domain domain--${lv ? LEVEL[lv][0] : "none"}"><button type="button" data-tab-go="${k === "riesgos" ? "riesgos" : k}"><span aria-hidden="true">${icons[k]}</span><b>${names[k]}</b><span>${lv ? LEVEL[lv][2] : "Sin dato"}</span></button></li>`).join("")}</ul>`;
+    <ul class="domains">${Object.entries(levels).map(([k, lv]) => `<li class="domain domain--${lv ? LEVEL[lv][0] : "none"}"><button type="button" data-tab-go="${k === "riesgos" ? "riesgos" : k}"><span aria-hidden="true">${icons[k]}</span><b>${names[k]}</b><span>${lv ? (isSimple() ? LEVEL_SIMPLE[lv] : LEVEL[lv][2]) : "Sin dato"}</span></button></li>`).join("")}</ul>`;
   $("summary-card").querySelectorAll("[data-tab-go]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tabGo)));
   renderTabs();
   renderGeneral(); renderPredicciones(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderCultivos(); renderCatalogo(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
@@ -668,19 +857,21 @@ function doDont() {
   const g = (state.plot && state.plot.gamc) || state.site.gamc;
   const yes = [];
   const no = [];
-  if (first) yes.push(`Sembrar ${first.name.toLowerCase()} hacia el ${weekLabel(first.sowWeek)}, que es la fecha con menos riesgo para tu terreno.`);
-  a.hazards.filter((h) => h.level >= 2).forEach((h) => yes.push(h.action));
-  if (best.years.some((y) => y.group === "legume")) yes.push("Incluir una leguminosa en la rotación: devuelve nitrógeno al suelo.");
-  if (!userSoil()) yes.push("Hacer un análisis de suelo en laboratorio antes de comprar abono.");
-  yes.push("Revisar el cultivo cada semana para detectar plagas a tiempo.");
-  a.avoid.forEach((x) => no.push(`No sembrar ${x.name.toLowerCase()}: ${x.reasons[0]}.`));
+  const sm = isSimple();
+  if (first) yes.push(sm ? `Siembra ${first.name.toLowerCase()} ${monthPart(first.sowWeek)}.` : `Sembrar ${first.name.toLowerCase()} hacia el ${weekLabel(first.sowWeek)}, que es la fecha con menos riesgo para tu terreno.`);
+  a.hazards.filter((h) => h.level >= 2).forEach((h) => yes.push(hz(h).action));
+  if (best.years.some((y) => y.group === "legume")) yes.push(sm ? "Siembra haba, arveja u otra legumbre: le da fuerza a la tierra." : "Incluir una leguminosa en la rotación: devuelve nitrógeno al suelo.");
+  if (!userSoil()) yes.push(sm ? "Antes de comprar abono, haz analizar tu tierra." : "Hacer un análisis de suelo en laboratorio antes de comprar abono.");
+  yes.push(sm ? "Mira tus plantas cada semana para ver si hay plagas." : "Revisar el cultivo cada semana para detectar plagas a tiempo.");
+  a.avoid.forEach((x) => no.push(sm ? `No siembres ${x.name.toLowerCase()}: ${simpleReason(x.reasons[0])}.` : `No sembrar ${x.name.toLowerCase()}: ${x.reasons[0]}.`));
   const hist = [state.previous, state.last].filter(Boolean).map((id) => crops.crops.find((c) => c.id === id));
-  if (hist.length === 2 && hist[0].family === hist[1].family) no.push(`No volver a sembrar ${hist[1].family.toLowerCase()} la próxima campaña: ya repetiste esa familia.`);
-  if (a.hazards.some((h) => h.id === "erosion")) no.push("No dejar el suelo desnudo en la época de lluvias ni arar a favor de la pendiente.");
-  if (g && g.drenaje && !g.drenaje.error) no.push("No construir, rellenar ni sembrar dentro de las franjas de torrenteras y canales.");
-  no.push("No aplicar agroquímicos sin la recomendación de un técnico.");
-  no.push("No quemar los rastrojos: se pierde materia orgánica y humedad del suelo.");
-  return { yes: [...new Set(yes)].slice(0, 6), no: [...new Set(no)].slice(0, 6) };
+  if (hist.length === 2 && hist[0].family === hist[1].family) no.push(sm ? `No siembres otra vez ${hist[1].name.toLowerCase()} ni plantas parecidas el próximo año: la tierra se cansa y vienen plagas.` : `No volver a sembrar ${hist[1].family.toLowerCase()} la próxima campaña: ya repetiste esa familia.`);
+  if (a.hazards.some((h) => h.id === "erosion")) no.push(sm ? "No dejes la tierra pelada en época de lluvias ni ares de arriba hacia abajo." : "No dejar el suelo desnudo en la época de lluvias ni arar a favor de la pendiente.");
+  if (g && g.drenaje && !g.drenaje.error) no.push(sm ? "No construyas ni siembres junto a torrenteras y canales." : "No construir, rellenar ni sembrar dentro de las franjas de torrenteras y canales.");
+  no.push(sm ? "No uses venenos sin preguntar a un técnico." : "No aplicar agroquímicos sin la recomendación de un técnico.");
+  no.push(sm ? "No quemes los rastrojos: la tierra pierde fuerza y humedad." : "No quemar los rastrojos: se pierde materia orgánica y humedad del suelo.");
+  const n = sm ? 4 : 6;
+  return { yes: [...new Set(yes)].slice(0, n), no: [...new Set(no)].slice(0, n) };
 }
 
 // --- Catalogue of every crop ---
@@ -763,7 +954,7 @@ function renderCatalogo() {
           ${(knowledge.pests[x.c.id] || []).length ? `<p class="small"><b>Vigilar:</b> ${esc(knowledge.pests[x.c.id].map((p) => p.name.toLowerCase()).join(", "))}.</p>` : ""}
           ${x.c.type === "Hortaliza de ciclo corto" ? '<p class="small">Ciclo corto: se puede sembrar entre dos cultivos principales.</p>' : ""}
           <button type="button" class="link" data-ask="${esc(x.c.name)}">Preguntarle a Tiri por ${esc(x.c.name.toLowerCase())}</button>
-          ${images.crops[x.c.id] ? `<p class="source">Foto: ${esc(images.crops[x.c.id].author)}, ${esc(images.crops[x.c.id].licence)}, Wikimedia Commons</p>` : ""}
+          ${images.crops[x.c.id] ? `<p class="source" translate="no">Foto: ${esc(images.crops[x.c.id].author)}, ${esc(images.crops[x.c.id].licence)}, Wikimedia Commons</p>` : ""}
         </div>
       </details>`).join("") || '<p class="hint">Ningún cultivo cumple ese filtro.</p>'}</div>
     ${source(`Cada cultivo con su mejor fecha de siembra para tu terreno, NASA POWER ${climate.meta.period.replace(" to ", " a ")}; datos de cultivo FAO-56, por validar con INIAF.`)}`;
@@ -780,7 +971,7 @@ function renderCatalogo() {
 /** A real photo with its credit line, or nothing if there is none. */
 function photo(entry, alt, cls = "photo") {
   if (!entry) return "";
-  return `<figure class="${cls}"><img src="${esc(entry.thumb)}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer"><figcaption>Foto: ${esc(entry.author)}, ${esc(entry.licence)}, <a href="${esc(entry.file_page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption></figure>`;
+  return `<figure class="${cls}"><img src="${esc(entry.thumb)}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer"><figcaption translate="no">Foto: ${esc(entry.author)}, ${esc(entry.licence)}, <a href="${esc(entry.file_page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption></figure>`;
 }
 
 function initMiniMap() {
@@ -788,7 +979,10 @@ function initMiniMap() {
   if (!box || !window.L) return;
   if (miniMap) { miniMap.remove(); miniMap = null; }
   miniMap = L.map(box, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView([state.site.lat, state.site.lon], 16);
-  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Esri, Maxar, Earthstar Geographics" }).addTo(miniMap);
+  const bases = Object.fromEntries(BASEMAPS.map((b) => [b.label, L.layerGroup(basemapLayers(b.id))]));
+  const current = BASEMAPS.find((b) => b.id === (state.basemap || "hibrido")) || BASEMAPS[0];
+  bases[current.label].addTo(miniMap);
+  L.control.layers(bases, null, { collapsed: false, position: "topright" }).addTo(miniMap);
   if (state.polygon) {
     const poly = L.polygon(state.polygon, { color: "#ff8a3d", weight: 3, fillOpacity: 0.12 }).addTo(miniMap);
     miniMap.fitBounds(poly.getBounds(), { padding: [20, 20], maxZoom: 17 });
@@ -808,31 +1002,38 @@ function renderPredicciones() {
   const frostDays = next7 ? next7.filter((d) => d.pFrost >= 0.3).length : null;
   const heavy = next7 ? Math.max(...next7.map((d) => d.pHeavyRain)) : null;
   const best = r.strategies[1];
-  const waText = `ALERTAS ${state.site.lat.toFixed(5)},${state.site.lon.toFixed(5)}`;
+  // "QU" at the end: the alerts for this person go in Quechua
+  const waText = `ALERTAS ${state.site.lat.toFixed(5)},${state.site.lon.toFixed(5)}${state.lang === "qu" ? " QU" : ""}`;
   panel("predicciones").innerHTML = `
     <h2>Predicciones</h2>
-    <p class="hint">Probabilidades a partir de los escenarios del pronóstico y de 45 años de datos de la NASA. Se actualizan cada vez que abres el análisis.</p>
+    <p class="hint">${isSimple() ? "Lo que puede pasar en tu terreno en los próximos días y meses." : "Probabilidades a partir de los escenarios del pronóstico y de 45 años de datos de la NASA. Se actualizan cada vez que abres el análisis."}</p>
     ${state.waNumber ? `<div class="wa-box">
       ${icon("chat", 44)}
       <div><b>Recibe avisos de helada y lluvia fuerte en tu WhatsApp</b>
       <p class="small">Cada tarde revisamos el pronóstico de este terreno y te escribimos solo si hay riesgo. Guardamos tu número y la ubicación aproximada del terreno solo para esos avisos; escribe BAJA para borrarlos.</p>
       <a class="btn btn--primary btn--small" href="https://wa.me/${esc(state.waNumber)}?text=${encodeURIComponent(waText)}" target="_blank" rel="noopener">Activar avisos por WhatsApp</a></div>
     </div>` : ""}
-    ${next7 ? `<div class="facts">
+    ${next7 && isSimple() ? `<div class="facts">
+      <div class="fact"><b>${rainyDays} de 7</b><span>días puede llover esta semana</span></div>
+      <div class="fact"><b>${frostDays ? `${frostDays} ${frostDays === 1 ? "noche" : "noches"}` : "Ninguna noche"}</b><span>con helada esta semana</span></div>
+      <div class="fact"><b>${chance(heavy)}</b><span>que caiga una lluvia fuerte</span></div>
+    </div>` : next7 ? `<div class="facts">
       <div class="fact"><b>${rainyDays} de 7</b><span>días con lluvia probable esta semana</span></div>
       <div class="fact"><b>${frostDays} de 7</b><span>días con riesgo de helada</span></div>
       <div class="fact"><b>${pct(heavy)}</b><span>probabilidad máxima de un día con 10 mm o más</span></div>
       ${w ? `<div class="fact"><b>${tenths(w[0].pAboveNormal)}</b><span>escenarios con más lluvia que lo normal esta semana</span></div>` : ""}
     </div>` : '<p class="hint">El pronóstico no respondió ahora; abajo siguen las probabilidades históricas.</p>'}
     <h3>Próximas semanas</h3>
-    ${w ? w.map((x, i) => notice(x.pWetterThanUsual >= 0.6 || x.pFrost >= 0.3 ? 2 : 1, `<p><b>${i === 0 ? "Esta semana" : "La próxima semana"}:</b> unos ${num(x.rainMedian)} mm (entre ${num(x.rainP10)} y ${num(x.rainP90)} mm), cuando lo normal son ${num(x.normal)} mm.${x.pWetterThanUsual >= 0.6 ? " Mucho más lluvia que de costumbre: revisar canales y drenes." : ""}${x.pDrierThanUsual >= 0.6 ? " Más seco que de costumbre: planificar el riego." : ""}${x.pFrost > 0 ? ` Helada en ${tenths(x.pFrost)} escenarios.` : ""}</p>`)).join("") : '<p class="hint">Sin dato.</p>'}
+    ${w && isSimple() ? w.map((x, i) => notice(x.pWetterThanUsual >= 0.6 || x.pFrost >= 0.3 ? 2 : 1, `<p><b>${i === 0 ? "Esta semana" : "La próxima semana"}:</b> ${x.pWetterThanUsual >= 0.6 ? "va a llover más de lo normal. Limpia los canales." : x.pDrierThanUsual >= 0.6 ? "va a llover menos de lo normal. Planifica el riego." : "lluvia normal para la época."}${x.pFrost >= 0.3 ? " Puede helar: tapa las plantas chicas." : ""}</p>`)).join("")
+    : w ? w.map((x, i) => notice(x.pWetterThanUsual >= 0.6 || x.pFrost >= 0.3 ? 2 : 1, `<p><b>${i === 0 ? "Esta semana" : "La próxima semana"}:</b> unos ${num(x.rainMedian)} mm (entre ${num(x.rainP10)} y ${num(x.rainP90)} mm), cuando lo normal son ${num(x.normal)} mm.${x.pWetterThanUsual >= 0.6 ? " Mucho más lluvia que de costumbre: revisar canales y drenes." : ""}${x.pDrierThanUsual >= 0.6 ? " Más seco que de costumbre: planificar el riego." : ""}${x.pFrost > 0 ? ` Helada en ${tenths(x.pFrost)} escenarios.` : ""}</p>`)).join("") : '<p class="hint">Sin dato.</p>'}
     <h3>Próximos meses</h3>
-    ${o && o.monthly ? `<div class="weeks">${o.monthly.months.map((m) => `<div class="fact"><b>${esc(m.name[0].toUpperCase() + m.name.slice(1))}</b><span>Unos ${num(m.rainMedian)} mm. Mes muy seco ${tenths(m.pDryMonth)} años; muy lluvioso ${tenths(m.pWetMonth)} años.${m.pFrost > 0 ? ` Heló ${tenths(m.pFrost)} años.` : ""}</span></div>`).join("")}</div>` : ""}
+    ${o && o.monthly && isSimple() ? `<div class="weeks">${o.monthly.months.map((m) => `<div class="fact"><b>${esc(m.name[0].toUpperCase() + m.name.slice(1))}</b><span>${simpleMonth(m)}</span></div>`).join("")}</div>`
+    : o && o.monthly ? `<div class="weeks">${o.monthly.months.map((m) => `<div class="fact"><b>${esc(m.name[0].toUpperCase() + m.name.slice(1))}</b><span>Unos ${num(m.rainMedian)} mm. Mes muy seco ${tenths(m.pDryMonth)} años; muy lluvioso ${tenths(m.pWetMonth)} años.${m.pFrost > 0 ? ` Heló ${tenths(m.pFrost)} años.` : ""}</span></div>`).join("")}</div>` : ""}
     <h3>Qué puede pasar con tu terreno</h3>
-    ${a.hazards.filter((h) => h.level >= 2).map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.text)}</p>`)).join("") || notice(1, "<p>Sin riesgos altos previstos con los datos disponibles.</p>")}
-    <h3>Si siembras la rotación recomendada</h3>
-    <p>${best.years.filter((y) => y.group !== "fallow").map((y) => `${esc(y.name)}: helada dañina ${pct(y.frostProb)} de las campañas, la lluvia cubre ${pct(y.coverage)} del agua`).join("; ")}. Riego total en 3 años: ${mm(best.irrigationTotalMm)} frente a ${mm(r.strategies[0].irrigationTotalMm)} de tu rotación actual.</p>
-    <div class="whatif">
+    ${a.hazards.filter((h) => h.level >= 2).map(hz).map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.text)}</p>`)).join("") || notice(1, isSimple() ? "<p>Con los datos de hoy, no se ven peligros grandes.</p>" : "<p>Sin riesgos altos previstos con los datos disponibles.</p>")}
+    <h3 class="mid-up">Si siembras la rotación recomendada</h3>
+    <p class="mid-up">${best.years.filter((y) => y.group !== "fallow").map((y) => `${esc(y.name)}: helada dañina ${pct(y.frostProb)} de las campañas, la lluvia cubre ${pct(y.coverage)} del agua`).join("; ")}. Riego total en 3 años: ${mm(best.irrigationTotalMm)} frente a ${mm(r.strategies[0].irrigationTotalMm)} de tu rotación actual.</p>
+    <div class="whatif mid-up">
       <h3>Simula otro clima</h3>
       <label class="slider"><span>Lluvia: <output>${state.scenario.rainPct ? `${Math.abs(state.scenario.rainPct)} % ${state.scenario.rainPct < 0 ? "menos" : "más"}` : "igual que siempre"}</output></span><input type="range" id="rain" min="-30" max="30" step="10" value="${state.scenario.rainPct}"></label>
       <label class="slider"><span>Temperatura: <output>${state.scenario.tempC ? `${num(Math.abs(state.scenario.tempC), 1)} °C ${state.scenario.tempC < 0 ? "menos" : "más"}` : "igual que siempre"}</output></span><input type="range" id="temp" min="-1" max="3" step="0.5" value="${state.scenario.tempC}"></label>
@@ -877,11 +1078,11 @@ function renderGeneral() {
   const dd = doDont();
   panel("general").innerHTML = `
     <h2>Lo más importante</h2>
-    <p class="lead">${esc(explain(r).join(" "))}</p>
-    ${actions.length ? `<h3>Qué hacer primero</h3>${actions.map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.action)}</p>`)).join("")}` : notice(1, "<p>No hay riesgos altos con los datos disponibles.</p>")}
+    <p class="lead">${esc(isSimple() ? simpleLead(r) : explain(r).join(" "))}</p>
+    ${actions.length ? `<h3>Qué hacer primero</h3>${actions.map(hz).map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.action)}</p>`)).join("")}` : notice(1, isSimple() ? "<p>Con los datos de hoy, tu terreno no tiene peligros grandes.</p>" : "<p>No hay riesgos altos con los datos disponibles.</p>")}
     <div class="dodont">
-      <section class="dodont__col dodont__col--yes"><h3>${icon("check", 26)} Sí hacer</h3><ul>${dd.yes.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
-      <section class="dodont__col dodont__col--no"><h3>${icon("cross", 26)} No hacer</h3><ul>${dd.no.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
+      <section class="dodont__col dodont__col--yes"><h3>${icon("check", 26)} ${isSimple() ? "Haz esto" : "Sí hacer"}</h3><ul>${dd.yes.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
+      <section class="dodont__col dodont__col--no"><h3>${icon("cross", 26)} ${isSimple() ? "No hagas esto" : "No hacer"}</h3><ul>${dd.no.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
     </div>
     <div class="general-grid">
       <div>${wheel(best)}<p class="center"><b>${esc(best.label)}</b><br>${best.years.map((y) => esc(y.name)).join(" → ")}</p></div>
@@ -914,11 +1115,11 @@ function renderClima() {
         <div class="day">
           <p class="day__date">${esc(dayLabel(d.date))}</p>
           <p class="day__icon">${icon(d.pFrost >= 0.3 ? "frost" : d.pRain >= 0.6 ? "rain" : d.pRain >= 0.3 ? "suncloud" : "sun", 40)}</p>
-          <p class="day__prob" title="Probabilidad de lluvia de 1 mm o más"><b>${pct(d.pRain)}</b><span>lluvia</span></p>
+          ${isSimple() ? `<p class="day__prob"><b>${rainWord(d.pRain)}</b></p>` : `<p class="day__prob" title="Probabilidad de lluvia de 1 mm o más"><b>${pct(d.pRain)}</b><span>lluvia</span></p>`}
           <p class="mid-up">${num(d.rainMedian, 1)} mm</p>
           <p class="adv-only small">${num(d.rainP10, 1)} a ${num(d.rainP90, 1)} mm</p>
           <p class="${d.pFrost > 0 ? "day__frost" : ""}">${num(d.tminMedian, 0)}° / ${num(d.tmaxMedian, 0)}°</p>
-          ${d.pFrost > 0 ? `<p class="day__frost small">helada ${pct(d.pFrost)}</p>` : ""}
+          ${d.pFrost > 0 ? `<p class="day__frost small">${isSimple() ? (d.pFrost >= 0.3 ? "Puede helar" : "") : `helada ${pct(d.pFrost)}`}</p>` : ""}
         </div>`).join("")}</div></div>
         <div class="weeks mid-up">${o.weekly.weeks.map((w, i) => `
           <div class="fact"><b>${i === 0 ? "Esta semana" : "La próxima"}</b>
@@ -927,6 +1128,7 @@ function renderClima() {
     }
   } else if (state.period === "meses") {
     if (!o || !o.monthly) body = '<p class="hint">Sin dato.</p>';
+    else if (isSimple()) body = `<div class="weeks">${o.monthly.months.map((m) => `<div class="fact"><b>${esc(m.name[0].toUpperCase() + m.name.slice(1))}</b><span>${simpleMonth(m)}</span></div>`).join("")}</div>`;
     else body = `<div class="weeks">${o.monthly.months.map((m) => `
         <div class="fact"><b>${esc(m.name[0].toUpperCase() + m.name.slice(1))}</b>
         <span>Suelen caer unos ${num(m.rainMedian)} mm. Mes muy seco ${tenths(m.pDryMonth)} años; muy lluvioso ${tenths(m.pWetMonth)} años.${m.pFrost > 0 ? ` Heló ${tenths(m.pFrost)} años.` : " No suele helar."}</span>
@@ -942,6 +1144,10 @@ function renderClima() {
   panel("clima").querySelectorAll("[data-period]").forEach((b) => b.addEventListener("click", () => { state.period = b.dataset.period; renderClima(); }));
 }
 
+function simpleMonth(m) {
+  const rain = m.rainMedian >= 100 ? "llueve mucho" : m.rainMedian >= 40 ? "llueve regular" : m.rainMedian >= 10 ? "llueve poco" : "casi no llueve";
+  return `Suele ser un mes en que ${rain}.${m.pFrost >= 0.3 ? " Suele helar." : ""}`;
+}
 function calendarHtml() {
   const cal = state.result.calendar.weeks;
   const col = 13;
@@ -993,9 +1199,9 @@ function renderSuelo() {
   panel("suelo").innerHTML = `
     <h2>Suelo</h2>
     ${s ? `<div class="facts">
-        <div class="fact"><b>${s.ph === null ? "Sin dato" : num(s.ph, 1)}</b><span>pH</span></div>
+        <div class="fact"><b>${s.ph === null ? "Sin dato" : isSimple() ? (s.ph < 5.5 ? "Ácida" : s.ph > 7.8 ? "Salitrosa" : "Buena") : num(s.ph, 1)}</b><span>${isSimple() && s.ph !== null ? `tu tierra (pH ${num(s.ph, 1)})` : "pH"}</span></div>
         <div class="fact"><b>${esc(s.texture || "Sin dato")}</b><span>textura</span></div>
-        <div class="fact"><b>${s.soc_gkg === null ? "Sin dato" : num(s.soc_gkg)}</b><span>g de carbono orgánico por kg</span></div>
+        <div class="fact"><b>${s.soc_gkg === null ? "Sin dato" : isSimple() ? (s.soc_gkg < 10 ? "Poca" : "Buena") : num(s.soc_gkg)}</b><span>${isSimple() ? "materia orgánica (abono natural de la tierra)" : "g de carbono orgánico por kg"}</span></div>
       </div>
       ${source(`${s.source}${s.depth ? `, ${s.depth}` : ""}. Un análisis de laboratorio es lo más seguro para decidir el abono.`)}
       <h3>Fertilidad y posibles deficiencias</h3>${list([...a.soilAdvice, ...deficiencies].map(esc))}`
@@ -1021,17 +1227,19 @@ function renderRelieve() {
   }
   const mean = around.reduce((a, b) => a + b, 0) / around.length;
   const diff = state.site.altitude - mean;
-  const position = diff < -15 ? "parte baja: el agua de lluvia tiende a llegar y acumularse aquí" : diff > 15 ? "parte alta: el agua escurre hacia abajo y el suelo se seca antes" : "terreno intermedio respecto a su entorno";
-  const hz = state.assessment.hazards.filter((h) => ["erosion", "waterlogging"].includes(h.id));
+  const position = isSimple()
+    ? (diff < -15 ? "parte baja: el agua de lluvia baja y se junta aquí" : diff > 15 ? "parte alta: el agua se va hacia abajo y la tierra se seca rápido" : "parte media: ni muy alta ni muy baja")
+    : diff < -15 ? "parte baja: el agua de lluvia tiende a llegar y acumularse aquí" : diff > 15 ? "parte alta: el agua escurre hacia abajo y el suelo se seca antes" : "parte intermedia respecto a su entorno";
+  const hzs = state.assessment.hazards.filter((h) => ["erosion", "waterlogging"].includes(h.id));
   panel("relieve").innerHTML = `
     <h2>Relieve y topografía</h2>
     <div class="facts">
       <div class="fact"><b>${num(state.site.altitude)} m</b><span>altitud</span></div>
-      <div class="fact"><b>${slope ? `${num(slope.percent, 1)} %` : "Sin dato"}</b><span>pendiente${slope ? `: ${esc(slope.class)}` : ""}</span></div>
+      <div class="fact"><b>${slope ? (isSimple() ? (slope.percent < 5 ? "Plano" : slope.percent < 15 ? "Poco inclinado" : slope.percent < 30 ? "Inclinado" : "Muy inclinado") : `${num(slope.percent, 1)} %`) : "Sin dato"}</b><span>${isSimple() ? "tu terreno es" : `pendiente${slope ? `: ${esc(slope.class)}` : ""}`}</span></div>
       <div class="fact"><b>${num(Math.max(...around) - Math.min(...around))} m</b><span>desnivel en 2 km a la redonda</span></div>
     </div>
-    <p>Tu terreno está en la <b>${position}</b> (${diff >= 0 ? "+" : "−"}${num(Math.abs(diff))} m frente al promedio de alrededor).</p>
-    ${hz.length ? hz.map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.text)}</p><p>${esc(h.action)}</p>`)).join("") : notice(1, "<p>Sin señales de erosión ni de acumulación de agua con estos datos.</p>")}
+    <p>Tu terreno está en la <b>${position}</b><span class="mid-up"> (${diff >= 0 ? "+" : "−"}${num(Math.abs(diff))} m frente al promedio de alrededor)</span>.</p>
+    ${hzs.length ? hzs.map(hz).map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.text)}</p><p>${esc(h.action)}</p>`)).join("") : notice(1, "<p>Sin señales de erosión ni de acumulación de agua con estos datos.</p>")}
     ${source(`NASA SRTM 30 m${slope ? `; ${slope.source}` : ""}. Pendiente en un tramo de 180 m: no ve cárcavas pequeñas dentro de la parcela.`)}
     <h3>Tu terreno en 3D</h3>
     <p class="hint">Relieve real con la imagen satelital encima, en unos 2,3 km alrededor de tu terreno (marcado en naranja). Arrastra para girar y usa la rueda o dos dedos para acercar.</p>
@@ -1099,9 +1307,9 @@ function renderAgua() {
     });
     chart = `<h3>Agua para ${esc(pick.year.name.toLowerCase())}, sembrada hacia el ${weekLabel(pick.year.sowWeek)}</h3>
       <div class="facts">
-        <div class="fact"><b>${mm(pick.data.cropWaterMm)}</b><span>necesita el cultivo</span></div>
-        <div class="fact"><b>${pct(pick.data.coverage)}</b><span>lo cubre la lluvia</span></div>
-        <div class="fact"><b>${mm(pick.data.irrigationMm)}</b><span>hay que poner con riego${state.areaHa ? ` (${num(pick.data.irrigationMm * 10 * state.areaHa)} m³ en tu terreno)` : ""}</span></div>
+        <div class="fact"><b>${mm(pick.data.cropWaterMm)}</b><span>${isSimple() ? "agua que necesita la planta" : "necesita el cultivo"}</span></div>
+        <div class="fact"><b>${pct(pick.data.coverage)}</b><span>${isSimple() ? "de esa agua la pone la lluvia" : "lo cubre la lluvia"}</span></div>
+        <div class="fact"><b>${mm(pick.data.irrigationMm)}</b><span>${isSimple() ? "debes poner tú con riego" : "hay que poner con riego"}${state.areaHa ? ` (${num(pick.data.irrigationMm * 10 * state.areaHa)} m³ en tu terreno)` : ""}</span></div>
       </div>
       <div class="scroll mid-up"><svg class="chart" width="${width}" height="${h + 20}" viewBox="0 0 ${width} ${h + 20}" role="img" aria-label="Agua que necesita el cultivo y lluvia de cada semana">${bars}${labels}</svg></div>
       <ul class="legend mid-up"><li><i style="background:#6b4423"></i>Agua que necesita el cultivo</li><li><i style="background:#8cc4d6"></i>Lluvia de una semana típica</li></ul>`;
@@ -1113,7 +1321,7 @@ function renderAgua() {
     ${c && c.soilWetness !== null ? `<p>Humedad estimada del suelo en la zona de raíces: <b>${num(c.soilWetness * 100)} %</b> (lo normal en estas fechas: ${num(c.soilWetnessNormal * 100)} %).</p>${source(`${c.source}, hasta el ${c.asOf}. En el mapa puedes ver la humedad de NASA SMAP.`)}` : ""}
     ${chart}
     <h3>Meses de escasez</h3>
-    <p>${scarceMonths.length ? `Casi siempre hay semanas secas en ${esc(scarceMonths.join(", "))}: guarda agua o siembra con riego en esos meses.` : "No hay meses con semanas secas casi seguras."}</p>
+    <p>${scarceMonths.length && isSimple() ? `En ${esc(scarceMonths.join(", "))} casi no llueve: guarda agua para esos meses.` : scarceMonths.length ? `Casi siempre hay semanas secas en ${esc(scarceMonths.join(", "))}: guarda agua o siembra con riego en esos meses.` : "No hay meses con semanas secas casi seguras."}</p>
     ${state.waterAvail === "scarce" ? notice(2, "<p>Dijiste que tienes muy poca agua: prioriza la rotación que ahorra agua y riega por goteo o por surcos cortos.</p>") : ""}
     ${source(`NASA POWER ${climate.meta.period.replace(" to ", " a ")}; necesidad del cultivo con evapotranspiración FAO-56 por coeficiente Kc.`)}`;
 }
@@ -1123,10 +1331,10 @@ function renderRiesgos() {
   const a = state.assessment;
   panel("riesgos").innerHTML = `
     <h2>Riesgos y precauciones</h2>
-    <p class="hint">Climáticos, hidrológicos y del relieve, con lo que conviene hacer.</p>
-    ${a.hazards.map((h) => notice(h.level, `<p><b>${esc(h.title)}: riesgo ${h.levelLabel}.</b> ${esc(h.text)}</p><p>${esc(h.action)}</p>${source(h.source)}`)).join("")}
+    <p class="hint">${isSimple() ? "Lo que puede dañar tu cosecha y qué hacer." : "Climáticos, hidrológicos y del relieve, con lo que conviene hacer."}</p>
+    ${a.hazards.map(hz).map((h) => notice(h.level, `<p><b>${esc(h.title)}: ${isSimple() ? h.levelLabel : `riesgo ${h.levelLabel}`}.</b> ${esc(h.text)}</p><p>${esc(h.action)}</p>${source(h.source)}`)).join("")}
     <h3>Lo que no conviene sembrar aquí</h3>
-    ${a.avoid.length ? list(a.avoid.map((x) => `<b>${esc(x.name)}</b>: ${esc(x.reasons.join("; "))}.`)) : '<p class="hint">Con estos datos, ningún cultivo de la lista queda descartado.</p>'}`;
+    ${a.avoid.length ? list(a.avoid.map((x) => `<b>${esc(x.name)}</b>: ${esc(isSimple() ? simpleReason(x.reasons[0]) : x.reasons.join("; "))}.`)) : '<p class="hint">Con estos datos, ningún cultivo de la lista queda descartado.</p>'}`;
 }
 
 // --- Cultivos ---
@@ -1171,7 +1379,7 @@ function renderCultivos() {
       <article class="strategy strategy--${s.kind}" data-selected="${state.selected === s.kind}">
         <p class="strategy__tag">${esc(s.label)}</p>
         <p class="strategy__name">${s.years.map((y) => esc(y.name)).join(", ")}</p>
-        <div class="strategy__photos mid-up">${[...new Set(s.years.map((y) => y.crop))].map((id) => (images.crops[id] ? `<img src="${esc(images.crops[id].thumb)}" alt="${esc(crops.crops.find((c) => c.id === id).name)}" title="Foto: ${esc(images.crops[id].author)}, ${esc(images.crops[id].licence)} (Wikimedia Commons)" loading="lazy" referrerpolicy="no-referrer">` : "")).join("")}</div>
+        <div class="strategy__photos mid-up">${[...new Set(s.years.map((y) => y.crop))].map((id) => (images.crops[id] ? `<img src="${esc(images.crops[id].thumb)}" alt="${esc(crops.crops.find((c) => c.id === id).name)}" title="Foto: ${esc(images.crops[id].author)}, ${esc(images.crops[id].licence)} (Wikimedia Commons)" translate="no" loading="lazy" referrerpolicy="no-referrer">` : "")).join("")}</div>
         ${wheel(s)}
         <ul class="years">${s.years.map((y) => `<li><span class="swatch" style="background:${cropColor(y.crop)}"></span><span>Año ${y.year}: <b>${esc(y.name)}</b></span><span class="when">${y.group === "fallow" ? "El suelo descansa o lleva abono verde." : `Siembra hacia el ${weekLabel(y.sowWeek)}. Riego: ${mm(y.irrigationMm)}.`}</span></li>`).join("")}</ul>
         <div class="bars mid-up">${Object.entries(SCORE_LABELS).map(([k, [l, max]]) => `<div class="bar"><span>${l}</span><span class="bar__track"><span class="bar__fill" style="width:${Math.round((s.parts[k] / max) * 100)}%"></span></span><span class="bar__value">${num(s.parts[k])}/${max}</span></div>`).join("")}</div>
@@ -1228,7 +1436,7 @@ function renderLegal() {
     <p>${esc(knowledge.legal.summary)}</p>
     <h3>Lo que se sabe de este lugar</h3>
     <dl class="kv">
-      <div><dt>Distrito y comuna (GAMC)</dt><dd>${gamcDistrict(g) ? `${esc(gamcDistrict(g).Distrito)}, ${esc(gamcDistrict(g).Comuna)}` : "Sin dato"}</dd></div>
+      <div><dt>Distrito y comuna (GAMC)</dt><dd>${gamcDistrict(g) ? `<span translate="no">${esc(gamcDistrict(g).Distrito)}, ${esc(gamcDistrict(g).Comuna)}</span>` : "Sin dato"}</dd></div>
       <div><dt>Zona periurbana (GAMC)</dt><dd>${zone ? esc(zone.Periurbano) : "Fuera de las zonas periurbanas o sin dato"}</dd></div>
       <div><dt>Área de drenaje e influencia (GAMC)</dt><dd>${drainage ? "Sí" : "No, o sin dato"}</dd></div>
       <div><dt>Propietario registrado</dt><dd>Sin acceso a registros oficiales</dd></div>
@@ -1305,7 +1513,8 @@ function renderFuentes() {
 function renderTiri() {
   chips($("tiri-suggestions"), TIRI_SUGGESTIONS.map((label) => ({ label })), { pressed: () => false, onClick: (s) => askTiri(s.label) });
   const log = $("tiri-log");
-  log.innerHTML = state.chat.map((m) => `<div class="bubble bubble--${m.role}"><p>${esc(m.content)}</p>${m.note ? `<p class="source">${esc(m.note)}</p>` : ""}</div>`).join("")
+  // answers already written in Quechua by the model, and the person's own words, are not translated again
+  log.innerHTML = state.chat.map((m) => `<div class="bubble bubble--${m.role}"><p${m.role === "user" || m.lang === "qu" ? ' translate="no"' : ""}>${esc(m.content)}</p>${m.note ? `<p class="source">${esc(m.note)}</p>` : ""}</div>`).join("")
     + (state.asking ? `<div class="bubble bubble--assistant bubble--thinking">${PLANT_SVG}<p>Tiri está revisando tu terreno…</p></div>` : "");
   log.scrollTop = log.scrollHeight;
 }
@@ -1322,11 +1531,12 @@ async function askTiri(question) {
       body: JSON.stringify({
         question: text, lat: state.site ? state.site.lat : null, lon: state.site ? state.site.lon : null,
         history: [state.previous, state.last].filter(Boolean), irrigation: irrigation(), priorities: [...state.priorities], messages: history.slice(-6),
+        lang: state.lang, mode: state.mode,
       }),
     });
     const data = await r.json();
     if (!r.ok || !data.answer) throw new Error();
-    state.chat.push({ role: "assistant", content: data.answer, note: data.engine === "rules" ? "Respuesta automática con los datos de tu terreno." : `Redactada con IA (${data.model || data.engine}) a partir de tus datos.` });
+    state.chat.push({ role: "assistant", content: data.answer, lang: data.lang, note: data.engine === "rules" ? "Respuesta automática con los datos de tu terreno." : `Redactada con IA (${data.model || data.engine}) a partir de tus datos.` });
   } catch {
     state.chat.push({ role: "assistant", content: "No pude responder ahora. Revisa tu conexión e intenta de nuevo." });
   }
@@ -1349,14 +1559,21 @@ function renderHeroFact() {
 }
 
 // ---------- Start ----------
-function setMode(mode) { state.mode = mode; document.body.dataset.mode = mode; $("mode").value = mode; savePrefs(); }
+function setMode(mode) {
+  state.mode = mode;
+  document.body.dataset.mode = mode;
+  $("mode").value = mode;
+  savePrefs();
+  if (state.result) { renderResults(); setTab(state.tab); }
+}
 function setLang(lang) {
   state.lang = lang;
   applyLanguage(lang);
   document.querySelectorAll("[data-lang]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
   renderStepper();
   if ($("home-modules").children.length) renderHomeModules();
-  if (state.result) renderTabs();
+  if (state.result) { renderTabs(); renderPredicciones(); }
+  setLanguage(lang, { skipValues: QU_VALUES });
   savePrefs();
 }
 
@@ -1367,6 +1584,12 @@ async function start() {
     document.querySelector("#hero-fact .hero__fact-body").textContent = `No se pudieron cargar los datos. ${error.message}. Recarga la página.`;
     return;
   }
+  // crop names (and their short forms, "Frijol" for "Frijol (poroto)") are swapped like numbers when translating
+  const cropTerms = { ...QU_CROPS };
+  for (const c of crops.crops) { const short = c.name.replace(/\s*\(.*\)$/, ""); if (QU_CROPS[c.name] && short !== c.name) cropTerms[short] = QU_CROPS[c.name]; }
+  // month names too (Quechua in Cochabamba uses the Spanish ones): one translation for every date
+  for (const m of [...MONTHS, ...MONTHS_LONG]) cropTerms[m] = m;
+  setTerms(cropTerms);
   try { images = await loadJson("data/images.json", 8000); } catch { /* photos are optional */ }
   try {
     const sprite = await (await fetch("img/icons.svg")).text();
@@ -1391,6 +1614,7 @@ async function start() {
     }
   }).catch(() => {});
   const prefs = readStore().prefs || {};
+  if (prefs.basemap) state.basemap = prefs.basemap;
   setMode(prefs.mode || "medio");
   setLang(prefs.lang || "es");
   renderHomeModules();
@@ -1407,9 +1631,7 @@ async function start() {
   $("analyze").addEventListener("click", analyze);
   $("gps").addEventListener("click", useGps);
   $("search-form").addEventListener("submit", (e) => { e.preventDefault(); const q = $("search-input").value.trim(); if (q) searchPlaces(q); });
-  $("draw").addEventListener("click", () => { state.drawing = true; state.draft = []; drawShape(); });
-  $("draw-done").addEventListener("click", finishDrawing);
-  $("draw-clear").addEventListener("click", () => { state.drawing = false; state.draft = []; state.polygon = null; state.areaHa = null; drawShape(); renderSite(); });
+  renderMapTools();
   $("pdf").addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach((s) => { s.hidden = false; });
     document.querySelectorAll(".tab details").forEach((d) => { d.open = true; });

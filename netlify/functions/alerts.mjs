@@ -7,10 +7,11 @@ import { createOutlook } from "../../api/outlook.mjs";
 import { runAlerts } from "../../api/alerts.mjs";
 import { blobSubscribers } from "../../api/subscribers.mjs";
 
-const NAMES = ["WHATSAPP_TOKEN", "WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_GRAPH_VERSION", "WHATSAPP_ALERT_TEMPLATE", "WHATSAPP_TEMPLATE_LANG"];
+const NAMES = ["ALERTS_SENDER", "WHATSAPP_TOKEN", "WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_GRAPH_VERSION", "WHATSAPP_ALERT_TEMPLATE", "WHATSAPP_TEMPLATE_LANG"];
 
 export default async () => {
   const env = Object.fromEntries(NAMES.map((n) => [n, process.env[n]]).filter(([, v]) => v));
+  if (env.ALERTS_SENDER === "n8n") { console.log("Avisos Yatiri X: los envía n8n (ALERTS_SENDER=n8n)"); return; }
   const summary = await runAlerts({
     env, grid, outlook: createOutlook({ climate }), subscribers: blobSubscribers(getStore("alert-subscribers")),
   });

@@ -156,7 +156,23 @@ body:not([data-mode="avanzado"]) .adv-only { display: none !important; }
 }
 .results-list { list-style: none; padding: 0; margin-top: 0.5rem; display: grid; gap: 0.3rem; }
 .map { height: 50vh; min-height: 300px; max-height: 540px; margin-top: 0.6rem; border-radius: 10px; border: 1px solid var(--line); z-index: 0; }
-.map-tools { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.map-tools { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; align-items: center; }
+.map-tools:empty { display: none; }
+.map-tools__count { flex-basis: 100%; font-weight: 600; }
+.field-label { font-weight: 700; margin: 0.9rem 0 0.35rem; }
+.draw-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; }
+.draw-mode { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 0.55rem 0.4rem; min-height: 64px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-align: center; transition: border-color .15s, background .15s, transform .15s; }
+.draw-mode:hover { transform: translateY(-1px); }
+.draw-mode[aria-pressed="true"] { border-color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 10%, #fff); box-shadow: 0 0 0 2px color-mix(in srgb, var(--terracotta) 30%, transparent); }
+.map-wrap { position: relative; }
+.basemaps { position: absolute; z-index: 500; top: calc(0.6rem + 8px); right: 8px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; max-width: calc(100% - 60px); background: rgba(255, 255, 255, 0.94); border-radius: 10px; padding: 3px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
+.basemaps button { border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 0.8rem; font-weight: 600; padding: 0.35rem 0.55rem; border-radius: 8px; cursor: pointer; min-height: 32px; }
+.basemaps button[aria-pressed="true"] { background: var(--sage); color: #fff; }
+.map--freehand, .map--freehand .leaflet-container, .map--freehand .leaflet-interactive { cursor: crosshair !important; touch-action: none; }
+.map--freehand { outline: 3px solid var(--terracotta); outline-offset: -3px; }
+.vertex { background: #fff; border: 3px solid #ff8a3d; border-radius: 50%; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); display: grid; place-items: center; }
+.vertex span { font-size: 11px; font-weight: 800; color: #6b4423; line-height: 1; }
+@media (max-width: 520px) { .draw-modes { gap: 0.3rem; } .draw-mode { font-size: 0.8rem; } .basemaps button { font-size: 0.72rem; padding: 0.3rem 0.4rem; } }
 .layers { margin-top: 0.6rem; }
 .layers summary, details > summary { cursor: pointer; font-weight: 700; min-height: 32px; }
 .site { margin-top: 0.8rem; }
@@ -354,3 +370,7 @@ body.revealed .tab:not([hidden]) > * { animation: rise 0.45s ease-out both; }
   .scroll { overflow: visible; }
   a { color: inherit; }
 }
+
+/* Quechua translation in progress */
+.qu-busy { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 2000; background: var(--sage); color: #fff; font-weight: 700; font-size: 0.85rem; padding: 0.45rem 0.9rem; border-radius: 999px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.qu-busy[hidden] { display: none; }
