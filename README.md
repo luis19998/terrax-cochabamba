@@ -8,6 +8,10 @@ the Cochabamba site ("Agrotecnología y Gestión del Agua para Agricultores").
 
 Live beta: https://yatirix-cochabamba.netlify.app
 
+
+> **Demo:** https://yatirix-cochabamba.netlify.app · **Entrega (NASA Space Apps 2026, Cochabamba):** `docs/entrega.md` ·
+> **Uso de IA:** `docs/uso-de-ia.md` · **WhatsApp y n8n paso a paso:** `docs/infra/guia-whatsapp-n8n.md`
+
 ## What it does
 
 A landing page explains the problem (droughts, frost and overflowing canals; decisions made by habit), who it

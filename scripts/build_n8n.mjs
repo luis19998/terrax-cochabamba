@@ -208,4 +208,81 @@ sender({
   const connections = { ...chain("Cada 30 minutos", CFG, "Revisar Yatiri X", "¿Algo falla?", "Avisar al equipo"), "Probar ahora": toConfig };
   writeFileSync(join(out, "4-vigilancia.json"), `${JSON.stringify({ name: "Yatiri X · Vigilancia del servicio", nodes, connections, settings, active: false, pinData: {}, meta: {} }, null, 2)}\n`);
 }
+// Gmail bulletin: works without WhatsApp and without any Yatiri X secret (it only reads public routes).
+// Every day at 7:00 it checks the service and the probabilistic forecast of the example plots and emails a summary.
+{
+  scope = "5"; n = 0;
+  const trigger = schedule([0, 300], "0 7 * * *", "Cada día 7:00");
+  const conf = {
+    id: id(), name: CFG, type: "n8n-nodes-base.set", typeVersion: 3.4, position: [220, 300],
+    parameters: {
+      assignments: {
+        assignments: [
+          { id: id(), name: "base_url", type: "string", value: "https://yatirix-cochabamba.netlify.app" },
+          { id: id(), name: "destinatarios", type: "string", value: "PEGAR_CORREOS_SEPARADOS_POR_COMA" },
+          { id: id(), name: "terrenos", type: "string", value: "Distrito 9|-17.4629|-66.1867;Distrito 13|-17.3385|-66.1358" },
+        ],
+      },
+      options: {},
+    },
+    notes: "destinatarios: correos separados por coma. terrenos: nombre|latitud|longitud separados por punto y coma.",
+  };
+  const health = {
+    id: id(), name: "Estado de Yatiri X", type: "n8n-nodes-base.httpRequest", typeVersion: 4.2, position: [440, 300],
+    parameters: { method: "GET", url: `={{ ${cfg("base_url")} }}/api/health`, options: { timeout: 30000, response: { response: { neverError: true } } } },
+  };
+  const plots = {
+    id: id(), name: "Separar terrenos", type: "n8n-nodes-base.code", typeVersion: 2, position: [660, 300],
+    parameters: {
+      mode: "runOnceForAllItems",
+      jsCode: [
+        `const list = String(${cfg("terrenos")}).split(';').map((t) => t.split('|')).filter((t) => t.length === 3);`,
+        "return list.map(([name, lat, lon]) => ({ json: { name: name.trim(), lat: Number(lat), lon: Number(lon) } }));",
+      ].join("\n"),
+    },
+  };
+  const outlook = {
+    id: id(), name: "Pronóstico de cada terreno", type: "n8n-nodes-base.httpRequest", typeVersion: 4.2, position: [880, 300],
+    parameters: {
+      method: "GET", url: `={{ ${cfg("base_url")} }}/api/outlook?lat={{ $json.lat }}&lon={{ $json.lon }}`,
+      options: { timeout: 60000, batching: { batch: { batchSize: 1, batchInterval: 500 } }, response: { response: { neverError: true } } },
+    },
+  };
+  const build = {
+    id: id(), name: "Armar boletín", type: "n8n-nodes-base.code", typeVersion: 2, position: [1100, 300],
+    parameters: {
+      mode: "runOnceForAllItems",
+      jsCode: [
+        "const h = $('Estado de Yatiri X').first().json || {};",
+        "const plots = $('Separar terrenos').all().map((i) => i.json);",
+        "const pct = (x) => `${Math.round((x || 0) * 100)} %`;",
+        "const alerts = [];",
+        "const blocks = $input.all().map((item, i) => {",
+        "  const o = item.json || {};",
+        "  const name = (plots[i] || {}).name || `Terreno ${i + 1}`;",
+        "  if (!o.daily) return `<h3>${name}</h3><p>El pronóstico no respondió hoy.</p>`;",
+        "  const days = o.daily.days.slice(0, 3);",
+        "  days.forEach((d, k) => { if (d.pFrost >= 0.3) alerts.push(`${name}: helada ${k === 0 ? 'hoy' : k === 1 ? 'mañana' : 'pasado mañana'} (${pct(d.pFrost)} de los escenarios)`); if (d.pHeavyRain >= 0.5) alerts.push(`${name}: lluvia fuerte ${k === 0 ? 'hoy' : k === 1 ? 'mañana' : 'pasado mañana'} (${pct(d.pHeavyRain)})`); });",
+        "  const w = o.weekly && o.weekly.weeks[0];",
+        "  const rows = days.map((d) => `<tr><td>${d.date}</td><td>${pct(d.pRain)}</td><td>${Math.round(d.rainMedian)} mm</td><td>${Math.round(d.tminMedian)}° / ${Math.round(d.tmaxMedian)}°</td><td>${pct(d.pFrost)}</td></tr>`).join('');",
+        "  return `<h3>${name} (${o.altitude} m)</h3><table border='1' cellpadding='6' style='border-collapse:collapse'><tr><th>Día</th><th>Lluvia</th><th>Cantidad</th><th>Mín / máx</th><th>Helada</th></tr>${rows}</table>`",
+        "    + (w ? `<p>Esta semana: unos ${Math.round(w.rainMedian)} mm (lo normal: ${Math.round(w.normal)} mm).</p>` : '');",
+        "}).join('');",
+        "const service = h.ok ? `Servicio en línea · Tiri: ${(h.tiri && h.tiri.engine) || '?'} · capas GAMC: ${h.gamc_check || '?'}` : 'ATENCIÓN: la web o la API de Yatiri X no responde';",
+        "const subject = alerts.length ? `Yatiri X · AVISO: ${alerts[0]}` : `Yatiri X · Boletín del ${new Date().toISOString().slice(0, 10)}`;",
+        "const html = `<h2>Boletín diario de Yatiri X</h2>${alerts.length ? `<p style='color:#a3332a'><b>Avisos:</b><br>${alerts.join('<br>')}</p>` : '<p>Sin heladas ni lluvias fuertes probables en los próximos tres días.</p>'}${blocks}<p style='color:#6b5a48'>${service}. Pronóstico por escenarios GFS (NOAA) comparado con 45 años de NASA POWER. https://yatirix-cochabamba.netlify.app</p>`;",
+        "return [{ json: { subject, html, alerts: alerts.length } }];",
+      ].join("\n"),
+    },
+  };
+  const gmail = {
+    id: id(), name: "Enviar por Gmail", type: "n8n-nodes-base.gmail", typeVersion: 2.1, position: [1320, 300],
+    parameters: { sendTo: `={{ ${cfg("destinatarios")} }}`, subject: "={{ $json.subject }}", emailType: "html", message: "={{ $json.html }}", options: { appendAttribution: false } },
+    credentials: { gmailOAuth2: { name: "Gmail (Yatiri X)" } },
+  };
+  const nodes = [trigger, manual([0, 480]), conf, health, plots, outlook, build, gmail,
+    note([0, 0], "## Boletín por Gmail (sin WhatsApp)\nCada día a las 7:00 revisa que Yatiri X esté en línea y el pronóstico por escenarios de los terrenos de la lista, y envía un correo. Si hay helada o lluvia fuerte probable en los próximos tres días, el asunto empieza con **AVISO**.\n\n1. Crea la credencial **Gmail OAuth2** (botón *Sign in with Google*).\n2. En **Configuración** pon los correos y los terrenos.\n3. Pulsa **Probar ahora** y luego activa el flujo.")];
+  const connections = { ...chain("Cada día 7:00", CFG, "Estado de Yatiri X", "Separar terrenos", "Pronóstico de cada terreno", "Armar boletín", "Enviar por Gmail"), "Probar ahora": toConfig };
+  writeFileSync(join(out, "5-boletin-gmail.json"), `${JSON.stringify({ name: "Yatiri X · Boletín diario por Gmail", nodes, connections, settings, active: false, pinData: {}, meta: {} }, null, 2)}\n`);
+}
 console.log("Flujos escritos en n8n/workflows/");

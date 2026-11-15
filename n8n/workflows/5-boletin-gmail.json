@@ -1,0 +1,277 @@
+{
+  "name": "Yatiri X · Boletín diario por Gmail",
+  "nodes": [
+    {
+      "id": "b1740ec5-29c8-404c-a640-430c6351b3dc",
+      "name": "Cada día 7:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "c1109b3e-3341-408d-a3fd-9408c7792412",
+      "name": "Probar ahora",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "c49113a0-72f4-4c62-a258-b965462dcb2a",
+      "name": "Configuración",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6ad34d49-06fb-457d-a6e0-25c22639dbd0",
+              "name": "base_url",
+              "type": "string",
+              "value": "https://yatirix-cochabamba.netlify.app"
+            },
+            {
+              "id": "48b21da1-bc90-430e-ab9f-7bf155cb674f",
+              "name": "destinatarios",
+              "type": "string",
+              "value": "PEGAR_CORREOS_SEPARADOS_POR_COMA"
+            },
+            {
+              "id": "6d761aa0-787b-45b7-ac9b-8fd24bd6e06b",
+              "name": "terrenos",
+              "type": "string",
+              "value": "Distrito 9|-17.4629|-66.1867;Distrito 13|-17.3385|-66.1358"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "destinatarios: correos separados por coma. terrenos: nombre|latitud|longitud separados por punto y coma."
+    },
+    {
+      "id": "1fe05487-6764-4279-a52f-ee85f7d84d37",
+      "name": "Estado de Yatiri X",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configuración').first().json.base_url }}/api/health",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "0c9ee69d-c7ef-4a4c-ace7-1963f8d18e76",
+      "name": "Separar terrenos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const list = String($('Configuración').first().json.terrenos).split(';').map((t) => t.split('|')).filter((t) => t.length === 3);\nreturn list.map(([name, lat, lon]) => ({ json: { name: name.trim(), lat: Number(lat), lon: Number(lon) } }));"
+      }
+    },
+    {
+      "id": "f5cef117-2488-47c6-a45f-c130b8b08716",
+      "name": "Pronóstico de cada terreno",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configuración').first().json.base_url }}/api/outlook?lat={{ $json.lat }}&lon={{ $json.lon }}",
+        "options": {
+          "timeout": 60000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 500
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "30f25155-d7ed-43c1-aa45-6cbd67c226dd",
+      "name": "Armar boletín",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const h = $('Estado de Yatiri X').first().json || {};\nconst plots = $('Separar terrenos').all().map((i) => i.json);\nconst pct = (x) => `${Math.round((x || 0) * 100)} %`;\nconst alerts = [];\nconst blocks = $input.all().map((item, i) => {\n  const o = item.json || {};\n  const name = (plots[i] || {}).name || `Terreno ${i + 1}`;\n  if (!o.daily) return `<h3>${name}</h3><p>El pronóstico no respondió hoy.</p>`;\n  const days = o.daily.days.slice(0, 3);\n  days.forEach((d, k) => { if (d.pFrost >= 0.3) alerts.push(`${name}: helada ${k === 0 ? 'hoy' : k === 1 ? 'mañana' : 'pasado mañana'} (${pct(d.pFrost)} de los escenarios)`); if (d.pHeavyRain >= 0.5) alerts.push(`${name}: lluvia fuerte ${k === 0 ? 'hoy' : k === 1 ? 'mañana' : 'pasado mañana'} (${pct(d.pHeavyRain)})`); });\n  const w = o.weekly && o.weekly.weeks[0];\n  const rows = days.map((d) => `<tr><td>${d.date}</td><td>${pct(d.pRain)}</td><td>${Math.round(d.rainMedian)} mm</td><td>${Math.round(d.tminMedian)}° / ${Math.round(d.tmaxMedian)}°</td><td>${pct(d.pFrost)}</td></tr>`).join('');\n  return `<h3>${name} (${o.altitude} m)</h3><table border='1' cellpadding='6' style='border-collapse:collapse'><tr><th>Día</th><th>Lluvia</th><th>Cantidad</th><th>Mín / máx</th><th>Helada</th></tr>${rows}</table>`\n    + (w ? `<p>Esta semana: unos ${Math.round(w.rainMedian)} mm (lo normal: ${Math.round(w.normal)} mm).</p>` : '');\n}).join('');\nconst service = h.ok ? `Servicio en línea · Tiri: ${(h.tiri && h.tiri.engine) || '?'} · capas GAMC: ${h.gamc_check || '?'}` : 'ATENCIÓN: la web o la API de Yatiri X no responde';\nconst subject = alerts.length ? `Yatiri X · AVISO: ${alerts[0]}` : `Yatiri X · Boletín del ${new Date().toISOString().slice(0, 10)}`;\nconst html = `<h2>Boletín diario de Yatiri X</h2>${alerts.length ? `<p style='color:#a3332a'><b>Avisos:</b><br>${alerts.join('<br>')}</p>` : '<p>Sin heladas ni lluvias fuertes probables en los próximos tres días.</p>'}${blocks}<p style='color:#6b5a48'>${service}. Pronóstico por escenarios GFS (NOAA) comparado con 45 años de NASA POWER. https://yatirix-cochabamba.netlify.app</p>`;\nreturn [{ json: { subject, html, alerts: alerts.length } }];"
+      }
+    },
+    {
+      "id": "ba91b70e-77f8-45a0-a88e-10548448860e",
+      "name": "Enviar por Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Configuración').first().json.destinatarios }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail (Yatiri X)"
+        }
+      }
+    },
+    {
+      "id": "9d6057e3-b3d8-49f1-a7ec-f1fdf0ff41fd",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "content": "## Boletín por Gmail (sin WhatsApp)\nCada día a las 7:00 revisa que Yatiri X esté en línea y el pronóstico por escenarios de los terrenos de la lista, y envía un correo. Si hay helada o lluvia fuerte probable en los próximos tres días, el asunto empieza con **AVISO**.\n\n1. Crea la credencial **Gmail OAuth2** (botón *Sign in with Google*).\n2. En **Configuración** pon los correos y los terrenos.\n3. Pulsa **Probar ahora** y luego activa el flujo.",
+        "width": 460,
+        "height": 300
+      }
+    }
+  ],
+  "connections": {
+    "Cada día 7:00": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuración": {
+      "main": [
+        [
+          {
+            "node": "Estado de Yatiri X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estado de Yatiri X": {
+      "main": [
+        [
+          {
+            "node": "Separar terrenos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar terrenos": {
+      "main": [
+        [
+          {
+            "node": "Pronóstico de cada terreno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pronóstico de cada terreno": {
+      "main": [
+        [
+          {
+            "node": "Armar boletín",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar boletín": {
+      "main": [
+        [
+          {
+            "node": "Enviar por Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar ahora": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/La_Paz",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "active": false,
+  "pinData": {},
+  "meta": {}
+}

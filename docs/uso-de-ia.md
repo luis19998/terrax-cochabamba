@@ -1,16 +1,42 @@
-# Uso de IA
+# Uso de IA (declaración para la entrega)
 
-Registro para el campo de uso de IA de la entrega. Este archivo solo crece por el final.
+Yatiri X usa inteligencia artificial en dos lugares distintos: **para construir** el proyecto y **dentro del
+producto**. Todo lo que la IA produjo fue revisado por el equipo; los datos numéricos (clima, relieve, suelo,
+pronóstico) **no** los genera la IA: vienen de NASA y de las fuentes citadas.
 
-| Fecha | Herramienta | Para qué | Quién |
+## 1. IA usada para construir el proyecto
+
+| Herramienta | Para qué | Revisión humana |
+| --- | --- | --- |
+| **Claude Code** (Anthropic, modelos Claude Opus) | Escribir el código: web, motor de rotación y balance hídrico, API, scripts de datos NASA, animaciones, flujos de n8n, documentación | El equipo probó cada función en el navegador y con scripts de prueba (`scripts/try_*.mjs`) |
+| **Claude Code** | Redactar la base de conocimiento (plagas, abono, especies invasoras, remedios) y la tabla de 147 cultivos con valores de referencia FAO-56 y FAO ECOCROP | Marcada como borrador para validar con INIAF y SENASAG (`needs_validation`) |
+| **Claude Code** | Corregir a mano 299 textos en quechua (`web/data/qu-corrections.json`) | Pendiente de revisión por hablantes de quechua |
+| **Google Gemini** (gemini-3.5-flash, gemini-2.5-flash, gemini-3.1-flash-lite) | Traducción automática al quechua del resto de la interfaz (`web/data/qu.json`, 1.844 textos) | Borrador; se corrigen formas peruanas automáticamente y a mano |
+
+## 2. IA dentro del producto (lo que ve el usuario)
+
+| Función | Modelo | Qué hace | Límites |
 | --- | --- | --- | --- |
-| 2026-11-14 | Claude Code (modelos Claude de Anthropic) | Instalar y verificar las herramientas de la laptop del líder | Líder |
-| 2026-11-14 | Claude Code | Leer el enunciado del reto, el enfoque local y el portal de datos del GAMC, y resumirlos | Líder |
-| 2026-11-14 | Claude Code | Escribir los scripts de descarga y proceso de NASA POWER y NASA SRTM | Líder |
-| 2026-11-14 | Claude Code | Escribir el motor de rotación y balance hídrico, el servidor local y la interfaz web | Líder |
-| 2026-11-14 | Claude Code | Construir Yatiri X: portada, pasos, pronóstico probabilístico, base de conocimiento, relieve en 3D y el asistente Tiri | Líder |
-| 2026-11-14 | Google Gemini (gemini-2.5-flash) y Claude Haiku 5.5 | Dentro del producto: Tiri redacta respuestas con los datos de la parcela; sin clave responde con reglas | Producto |
-| 2026-11-14 | Claude Code | Borrador de la traducción de la interfaz al quechua, pendiente de revisión por un hablante | Líder |
+| **Tiri**, la asistente (web y WhatsApp) | Gemini 2.5 Flash; respaldo Claude Haiku 5.5; sin clave, reglas fijas | Redacta respuestas en castellano o quechua **usando solo los datos calculados de la parcela** | No inventa cifras ni dosis de agroquímicos; la web marca cada respuesta como «redactada con IA» o «automática» |
+| **«Otro» cultivo** | Gemini | Estima ciclo, coeficientes de agua (Kc), helada, pH y familia de un cultivo que no está en la lista | Valores acotados a rangos razonables; la web los marca con la etiqueta **IA** y pide verificar con un técnico |
+| **Traducción al quechua** | Gemini (en el servidor) | Traduce textos nuevos que no están en el diccionario | Se guarda la traducción; el diccionario revisado tiene prioridad |
 
-Pendiente de revisión humana: la tabla de cultivos, las reglas de puntaje y los textos que ve el agricultor.
-Terra, la asistente del producto, puede redactar sus respuestas con Gemini o Claude a partir de los datos de la parcela; sin clave responde con reglas fijas. Declararlo en la entrega con el modelo que se use.
+## 3. Lo que NO hace la IA
+
+- Los datos de clima, lluvia, heladas, relieve y suelo vienen de **NASA POWER, NASA SRTM, NASA SMAP, GPM IMERG,
+  MODIS, SoilGrids, Open-Meteo/GFS** y del **GAMC**, procesados con fórmulas (FAO-56 Penman-Monteith, conteos de
+  años y escenarios). No los produce un modelo de lenguaje.
+- El puntaje de las rotaciones lo calcula un motor determinista (`web/js/engine.js`), no la IA.
+- No hay imágenes, videos ni audios generados por IA: las fotos son reales (Wikimedia Commons, con autor y
+  licencia) y el logo es el oficial del equipo.
+
+## 4. Registro
+
+| Fecha | Herramienta | Para qué |
+| --- | --- | --- |
+| 2026-11-14 | Claude Code | Instalación de herramientas, lectura del reto y del portal del GAMC, scripts NASA POWER y SRTM, motor, servidor e interfaz |
+| 2026-11-14 | Claude Code | Yatiri X: portada, pasos, pronóstico probabilístico, base de conocimiento, relieve 3D, Tiri, WhatsApp (código) |
+| 2026-11-14 | Gemini / Claude Haiku | Tiri dentro del producto |
+| 2026-11-14 | Claude Code | Cuentas con Supabase, quechua en toda la web, modos de mapa, flujos de n8n |
+| 2026-11-15 | Claude Code y Gemini | 147 cultivos, catálogo de plagas, «Otro» cultivo con Gemini, varias parcelas y comparación, animaciones, fuente Plus Jakarta Sans |
+| 2026-11-15 | Claude Code | Flujo de n8n por Gmail, documentación de entrega |

@@ -22,6 +22,7 @@ flowchart LR
 | `2-resumen-semanal.json` | Lunes 7:00 | Días con lluvia y helada de la semana, lluvia frente a lo normal, cómo suele ser el mes y un consejo. |
 | `3-aviso-de-prueba.json` | Al pulsar «Probar ahora» | Mensaje de prueba a cada persona suscrita, en su idioma. Para la demo. |
 | `4-vigilancia.json` | Cada 30 minutos | Si la web no responde, Tiri se queda sin IA, fallan las capas del GAMC o WhatsApp pierde las credenciales, escribe al celular del equipo. |
+| `5-boletin-gmail.json` | Cada día 7:00 | **Sin WhatsApp:** revisa el servicio y el pronóstico de los terrenos de la lista y envía un boletín por Gmail; el asunto empieza con AVISO si hay helada o lluvia fuerte probable. Solo necesita la credencial de Gmail (botón *Sign in with Google*). |
 
 Todos tienen además un botón **Probar ahora** para correrlos a mano. Cada mensaje va en el idioma que eligió la
 persona: castellano, o quechua si se suscribió desde la web en quechua, escribió WILLAWAY o QUECHUA, o saludó en
