@@ -145,3 +145,16 @@ Este archivo solo crece por el final.
 - **Varias parcelas.** Cada terreno tiene su color en el mapa y se ven todos juntos. En los resultados se cambia de
   terreno arriba; lo único que muestra todos a la vez es la pestaña «Comparar» (tabla y mapa).
 - **Tiri más arriba** para que el logo de Netlify no lo tape, con otra altura en teléfonos.
+
+## 2026-11-15, animaciones y fuente
+
+- **Fuente Plus Jakarta Sans** (licencia OFL), desde `@fontsource/plus-jakarta-sans`, copiada a `web/vendor/fonts`
+  con `scripts/copy_fonts.mjs` (solo el subconjunto latino, unos 25 kB por grosor).
+- **Animaciones al estilo de la web de Space Apps Cochabamba, sin librerías:** paisaje vivo en la portada (cerros en
+  capas con parallax, sol, nubes y semillas flotando), logo con satélites en órbita, título palabra por palabra y con
+  degradado de marca, contadores, cinta de fuentes de datos, aparición con desenfoque al bajar, tarjetas que se
+  inclinan en 3D con luz, botones magnéticos, barra de progreso, transiciones entre pantallas y pestañas, y la rueda
+  de rotación que se dibuja sola. Todo se detiene si el teléfono pide menos movimiento. omegle.com no se pudo
+  analizar: el navegador de trabajo lo bloquea por seguridad.
+- **«Vista» pasa a llamarse «Información»** (quechua: «Willakuy»).
+- **Pendiente:** número de WhatsApp en Meta, `ALERTS_SECRET` en Netlify y credenciales de n8n.

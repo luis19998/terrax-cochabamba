@@ -2,7 +2,7 @@
 // speaker must review before it is shown as final (team rule). Any key without a translation falls back to Spanish.
 const QU = {
   language: "Simi",
-  mode: "Rikuy",
+  mode: "Willakuy",
   modeSimple: "Pisilla",
   modeMedium: "Chawpi",
   modeAdvanced: "Tukuy",

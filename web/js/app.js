@@ -3,6 +3,7 @@ import { WEEKS, explain, recommend } from "./engine.js";
 import { assessPlot, elevationFromGrid } from "./assess.js";
 import { applyLanguage, t, QU_CROPS, QU_VALUES } from "./i18n.js";
 import { setLanguage, setTerms } from "./translate.js";
+import { initMotion, replay, splitWords, transition } from "./motion.js";
 import * as cloud from "./cloud.js";
 
 const $ = (id) => document.getElementById(id);
@@ -356,9 +357,12 @@ const irrigation = () => Boolean(state.waterSource && state.waterSource !== "rai
 
 // ---------- Views ----------
 function show(view) {
-  for (const v of ["home", "wizard", "results"]) $(`view-${v}`).hidden = v !== view;
+  transition(() => {
+    for (const v of ["home", "wizard", "results"]) $(`view-${v}`).hidden = v !== view;
+    window.scrollTo({ top: 0 });
+  });
   if (view === "wizard") { initMap(); setTimeout(() => map && map.invalidateSize(), 50); }
-  window.scrollTo({ top: 0 });
+  replay($(`view-${view}`));
 }
 
 // ---------- Chips ----------
@@ -1224,7 +1228,7 @@ function renderPredicciones() {
 }
 
 function moduleCards(active) {
-  return MODULES.map((m) => `<button type="button" class="module" data-module="${m.tab}" aria-pressed="${active === m.tab}">
+  return MODULES.map((m, i) => `<button type="button" class="module" data-module="${m.tab}" aria-pressed="${active === m.tab}" data-tilt style="--i:${i}">
       <span class="module__icon">${icon(m.icon, 46)}</span><b>${esc(t(`mod_${m.id}`, state.lang) === `mod_${m.id}` ? m.label : t(`mod_${m.id}`, state.lang))}</b></button>`).join("");
 }
 function renderTabs() {
@@ -1247,6 +1251,7 @@ function setTab(k) {
   renderTabs();
   if (k === "general" && miniMap) setTimeout(() => miniMap.invalidateSize(), 50);
   if (k === "comparar" && compareMap) setTimeout(() => compareMap.invalidateSize(), 50);
+  replay(panel(k));
 }
 const panel = (k) => document.querySelector(`.tab[data-tab="${k}"]`);
 
@@ -1617,13 +1622,13 @@ function wheel(strategy) {
     const y = strategy.years[i];
     s += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#e7dcc8" stroke-width="${width}"/>`;
     if (y.group === "fallow") s += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${CROP_COLORS.descanso}" stroke-width="${width - 7}" stroke-dasharray="3 7"/>`;
-    else if (y.weeks >= WEEKS) s += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${cropColor(y.crop)}" stroke-width="${width}"/>`;
+    else if (y.weeks >= WEEKS) s += `<circle class="wheel__arc" style="--d:${i}" pathLength="1" cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${cropColor(y.crop)}" stroke-width="${width}"/>`;
     else {
       const a0 = angle(y.sowWeek);
       const sweep = (y.weeks / WEEKS) * 2 * Math.PI;
       const [x0, y0] = point(r, a0);
       const [x1, y1] = point(r, a0 + sweep);
-      s += `<path d="M${x0} ${y0} A${r} ${r} 0 ${sweep > Math.PI ? 1 : 0} 1 ${x1} ${y1}" fill="none" stroke="${cropColor(y.crop)}" stroke-width="${width}"/>`;
+      s += `<path class="wheel__arc" style="--d:${i}" pathLength="1" d="M${x0} ${y0} A${r} ${r} 0 ${sweep > Math.PI ? 1 : 0} 1 ${x1} ${y1}" fill="none" stroke="${cropColor(y.crop)}" stroke-width="${width}"/>`;
     }
   });
   for (let m = 0; m < 12; m++) {
@@ -1890,9 +1895,9 @@ function renderHeroFact() {
   const [current, best, water] = r.strategies;
   const saved = Math.max(0, current.irrigationTotalMm - water.irrigationTotalMm);
   document.querySelector("#hero-fact .hero__fact-body").innerHTML = `
-    <span class="big">${current.score} → ${best.score}</span>
+    <span class="big" translate="no"><span data-count-to="${current.score}">${current.score}</span> → <span class="big__to" data-count-to="${best.score}">${best.score}</span></span>
     <span>puntos sobre 100 al dejar de repetir papa y rotar con ${esc(best.years.map((y) => y.name.toLowerCase()).join(", "))}.</span>
-    <span class="big">${num(saved * 10)} m³</span>
+    <span class="big" translate="no"><span data-count-to="${Math.round(saved * 10)}">${num(saved * 10)}</span> m³</span>
     <span>de agua de riego por hectárea que ahorra en tres años la rotación que cuida el agua.</span>
     <span class="source">Calculado ahora con NASA POWER ${esc(climate.meta.period.slice(0, 4))}–${esc(climate.meta.period.slice(14, 18))} y NASA SRTM, ${num(alt)} m de altitud.</span>`;
 }
@@ -1920,6 +1925,7 @@ function setMode(mode) {
 function setLang(lang) {
   state.lang = lang;
   applyLanguage(lang);
+  splitWords(document.querySelector("[data-split]"));
   document.querySelectorAll("[data-lang]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
   renderStepper();
   if ($("home-modules").children.length) renderHomeModules();
@@ -1929,6 +1935,7 @@ function setLang(lang) {
 }
 
 async function start() {
+  initMotion();
   try {
     [climate, crops, grid, knowledge] = await Promise.all(["climate_weekly", "crops", "srtm_grid", "knowledge"].map((f) => loadJson(`data/${f}.json`)));
   } catch (error) {
