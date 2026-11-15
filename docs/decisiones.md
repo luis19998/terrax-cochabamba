@@ -158,3 +158,19 @@ Este archivo solo crece por el final.
   analizar: el navegador de trabajo lo bloquea por seguridad.
 - **«Vista» pasa a llamarse «Información»** (quechua: «Willakuy»).
 - **Pendiente:** número de WhatsApp en Meta, `ALERTS_SECRET` en Netlify y credenciales de n8n.
+
+## 2026-11-15, 147 cultivos y más animaciones
+
+- **147 cultivos** (60 más): ajipa, mauka y maca; chía, linaza, girasol, canola, trigo sarraceno, mijo; pallar,
+  soya, caupí; pasto sudán, cebada forrajera, pasto ovillo, trébol rojo; choclo, achojcha, hinojo, col de Bruselas,
+  berro y otras hortalizas; aromáticas (albahaca, romero, toronjil, cedrón, paico…); frutales (cítricos, damasco,
+  olivo, pacay, lúcuma, frambuesa, arándano, maracuyá…) y flores (rosa, crisantemo, cala, astromelia…).
+- **Cultivos poco comunes en los valles** (`local: false`: trigo sarraceno, mijo, soya, sandía, kale…) quedan en el
+  catálogo, pero solo entran en una rotación si el agricultor los prefiere o ya los siembra. Antes de este cambio
+  el motor recomendaba «trigo sarraceno → garbanzo → mijo», posible por clima pero sin semilla ni mercado local.
+- **Perennes y frutales** se evalúan una sola vez (plantación con las primeras lluvias): el cálculo completo baja de
+  0,9 a 0,4 segundos con 147 cultivos.
+- **Animaciones en todos los apartados:** pasos que entran según la dirección, cultivo elegido que rebota, avisos,
+  listas y datos escalonados, barras que se llenan, calendario que se revela, días del pronóstico en cascada,
+  filas de la comparación, tarjetas que se elevan, Tiri que se abre desde el botón y mensajes que entran.
+- **Guía paso a paso** de WhatsApp y n8n: `docs/infra/guia-whatsapp-n8n.md`.

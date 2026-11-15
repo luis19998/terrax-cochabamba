@@ -72,6 +72,7 @@ const QU = {
   tab_legal: "Kamachiykuna",
   tab_ganancias: "Qullqi",
   tab_fuentes: "Maymanta",
+  tab_comparar: "Jallp'akunata tupachiy",
   // stepper
   st1: "Maypi", st2: "Tarpuy", st3: "Yaku", st4: "Munasqa", st5: "Qhawariy",
 };
@@ -97,13 +98,25 @@ export const QU_CROPS = {
   "Peral": "Pera", "Ciruelo": "Ciruela", "Membrillo": "Membrillo", "Vid (uva)": "Uva", "Higuera": "Higo", "Nogal": "Nogal",
   "Palto (palta)": "Palta", "Chirimoya": "Chirimuya", "Tuna": "Tuna", "Tumbo": "Tumbo", "Aguaymanto (capulí)": "Capulí",
   "Clavel": "Clavel", "Gladiolo": "Gladiolo",
+  "Ajipa": "Ajipa", "Mauka (chago)": "Mawka", "Maca": "Maka", "Achojcha (caigua)": "Achuqcha", "Trigo sarraceno (alforfón)": "Trigo sarraceno",
+  "Mijo": "Mijo", "Linaza": "Linaza", "Girasol": "Girasol", "Canola (colza)": "Canola", "Chía": "Chía", "Pallar": "Pallar",
+  "Soya": "Soya", "Caupí (frejol de ojo)": "Caupí", "Trébol rojo": "Puka trébol", "Pasto sudán": "Pasto sudán",
+  "Cebada forrajera": "Q'iwa siwara", "Pasto ovillo": "Pasto ovillo", "Choclo (maíz dulce)": "Chuqllu", "Col de Bruselas": "Col de Bruselas",
+  "Colinabo": "Colinabo", "Hinojo": "Hinojo", "Chirivía": "Chirivía", "Escarola (endivia)": "Escarola", "Achicoria": "Achicoria",
+  "Berro": "Berro", "Chalota": "Chalota", "Albahaca": "Albahaca", "Romero": "Romero", "Tomillo": "Tomillo", "Toronjil": "Toronjil",
+  "Cedrón": "Cedrón", "Lavanda": "Lavanda", "Ruda": "Ruda", "Eneldo": "Eneldo", "Estevia": "Estevia", "Paico": "Payqu",
+  "Tomate de árbol": "Sach'a tomate", "Damasco": "Damasco", "Cerezo": "Cereza", "Almendro": "Almendra", "Olivo": "Olivo",
+  "Granado": "Granada", "Níspero": "Níspero", "Pacay": "Pakay", "Lúcuma": "Lukma", "Limonero": "Limón", "Naranjo": "Naranja",
+  "Mandarino": "Mandarina", "Guayabo": "Guayaba", "Frambuesa": "Frambuesa", "Mora (zarzamora)": "Mora", "Arándano": "Arándano",
+  "Kiwi": "Kiwi", "Maracuyá": "Maracuyá", "Rosa": "Rosa", "Crisantemo": "Crisantemo", "Cala (cartucho)": "Cala",
+  "Astromelia": "Astromelia", "Gerbera": "Gerbera", "Lisianthus": "Lisianthus",
 };
 
 /** Texts that are already Quechua: the page translator leaves them as they are. */
 export const QU_VALUES = new Set(Object.values(QU));
 
 const TAB_ES = {
-  tab_general: "Estado general", tab_predicciones: "Predicciones", tab_catalogo: "Todas las siembras", tab_clima: "Clima y pronóstico", tab_suelo: "Suelo", tab_relieve: "Relieve", tab_agua: "Agua",
+  tab_general: "Estado general", tab_predicciones: "Predicciones", tab_catalogo: "Todas las siembras", tab_comparar: "Comparar terrenos", tab_clima: "Clima y pronóstico", tab_suelo: "Suelo", tab_relieve: "Relieve", tab_agua: "Agua",
   tab_riesgos: "Riesgos", tab_cultivos: "Qué sembrar", tab_plagas: "Plagas y cuidados", tab_legal: "Legal", tab_ganancias: "Ganancias",
   tab_fuentes: "Fuentes",
   st1: "Ubicación", st2: "Cultivo y suelo", st3: "Agua", st4: "Prioridades", st5: "Analizar",

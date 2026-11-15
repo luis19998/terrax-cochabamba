@@ -19,7 +19,7 @@ const CROPS = {
 const cropsJson = JSON.parse(readFileSync(join(root, "web/data/crops.json"), "utf8"));
 for (const c of cropsJson.crops) if (!CROPS[c.id] && c.scientific) CROPS[c.id] = [c.scientific, c.name.replace(/ \(.*\)/, "")];
 // titles that work better than the scientific name on Wikipedia
-const EXTRA = { repollo: ["Cabbage", "Repollo"], trebol: ["Trifolium repens", "White clover"], vainita_arbustiva: ["Snow pea"] };
+const EXTRA = { rosa: ["Garden roses", "Rose"], mauka: ["Mirabilis expansa", "Mauka"], repollo: ["Cabbage", "Repollo"], trebol: ["Trifolium repens", "White clover"], vainita_arbustiva: ["Snow pea"] };
 for (const [id, titles] of Object.entries(EXTRA)) CROPS[id] = [...titles, ...(CROPS[id] || [])];
 const PEST_TITLES = { "Acanthoscelides obtectus": ["Bean weevil", "Acanthoscelides"], "Eurysacca melanocampta": ["Eurysacca"] };
 const PLACES = { valle: ["Valle Alto (Bolivia)", "Cochabamba Valley", "Valle de Cochabamba", "Departamento de Cochabamba"] };

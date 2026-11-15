@@ -119,7 +119,7 @@ const asList = (v) => (Array.isArray(v) ? v.filter(Boolean) : v ? [v] : []);
 const cropById = (id) => crops.crops.find((c) => c.id === id);
 const cropName = (id) => (cropById(id) || { name: id }).name;
 const plainText = (x) => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-const LOADING_STEPS = ["Leyendo 45 años de clima de la NASA", "Midiendo el relieve de tu terreno", "Consultando las capas del municipio", "Revisando el pronóstico por escenarios", "Comparando 35 cultivos y miles de rotaciones"];
+const LOADING_STEPS = ["Leyendo 45 años de clima de la NASA", "Midiendo el relieve de tu terreno", "Consultando las capas del municipio", "Revisando el pronóstico por escenarios", "Comparando todos los cultivos y miles de rotaciones"];
 const LAYERS = [
   { id: "periurbanos", label: "Zonas periurbanas (GAMC)", on: true, kind: "gamc", opacity: 0.5 },
   { id: "drenaje", label: "Drenaje (GAMC)", on: false, kind: "gamc", opacity: 0.9 },
@@ -366,12 +366,14 @@ function show(view) {
 }
 
 // ---------- Chips ----------
+let justPicked = "";
 function chips(container, items, { pressed, onClick, dot }) {
   container.replaceChildren(...items.map((item) => {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "chip";
     b.setAttribute("aria-pressed", String(Boolean(pressed(item))));
+    if (justPicked === `${container.id}:${item.label}`) b.classList.add("chip--just");
     if (dot) {
       const i = document.createElement("span");
       i.className = "chip__dot";
@@ -379,7 +381,7 @@ function chips(container, items, { pressed, onClick, dot }) {
       b.append(i);
     }
     b.append(item.label);
-    b.addEventListener("click", () => onClick(item));
+    b.addEventListener("click", () => { justPicked = `${container.id}:${item.label}`; onClick(item); });
     return b;
   }));
 }
@@ -390,7 +392,7 @@ function cropPicker(boxId, key, { allowNone = false } = {}) {
   const selected = new Set(key === "preferred" ? [...state.preferred] : state[key]);
   const ui = state.pickers[boxId] || (state.pickers[boxId] = { open: false, query: "", other: false, busy: false, msg: "", name: "" });
   const all = crops.crops.filter((c) => c.group !== "fallow");
-  const chip = (c) => `<button type="button" class="chip" data-crop="${esc(c.id)}" aria-pressed="${selected.has(c.id)}"><span class="chip__dot" style="background:${cropColor(c.id) || "transparent"}"></span>${esc(c.name)}${c.custom ? ' <span class="chip__ai">IA</span>' : ""}</button>`;
+  const chip = (c) => `<button type="button" class="chip${justPicked === `${boxId}:${c.id}` ? " chip--just" : ""}" data-crop="${esc(c.id)}" aria-pressed="${selected.has(c.id)}"><span class="chip__dot" style="background:${cropColor(c.id) || "transparent"}"></span>${esc(c.name)}${c.custom ? ' <span class="chip__ai">IA</span>' : ""}</button>`;
   const first = [...COMMON_CROPS.map(cropById).filter(Boolean), ...all.filter((c) => selected.has(c.id) && !COMMON_CROPS.includes(c.id))];
   const q = plainText(ui.query);
   const rest = all.filter((c) => !first.includes(c) && (!q || plainText(c.name).includes(q) || plainText(c.type).includes(q)));
@@ -410,6 +412,7 @@ function cropPicker(boxId, key, { allowNone = false } = {}) {
   const set = (ids) => { if (key === "preferred") state.preferred = new Set(ids); else state[key] = ids; renderForm(); };
   box.querySelectorAll("[data-crop]").forEach((b) => b.addEventListener("click", () => {
     const id = b.dataset.crop;
+    justPicked = `${boxId}:${id}`;
     set(selected.has(id) ? [...selected].filter((x) => x !== id) : [...selected, id]);
   }));
   const none = box.querySelector("[data-none]");
@@ -489,6 +492,7 @@ function renderStepper() {
   }));
 }
 function goStep(n) {
+  const dir = n < state.step ? "prev" : "next";
   state.step = Math.max(1, Math.min(5, n));
   state.maxStep = Math.max(state.maxStep, state.step);
   document.querySelectorAll(".step").forEach((s) => { s.hidden = Number(s.dataset.step) !== state.step; });
@@ -498,6 +502,8 @@ function goStep(n) {
   if (state.step === 1 && map) setTimeout(() => map.invalidateSize(), 50);
   if (state.step === 5) renderReview();
   renderStepper();
+  const current = document.querySelector(`.step[data-step="${state.step}"]`);
+  if (current) { current.dataset.dir = dir; replay(current); }
 }
 function nextStep() {
   const problem = stepValid(state.step);

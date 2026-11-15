@@ -157,8 +157,11 @@ function scrollChrome() {
 
 /** Switches screens with a cross-fade when the browser supports view transitions. */
 export function transition(update) {
-  if (document.startViewTransition && !reduce()) document.startViewTransition(update);
-  else update();
+  if (document.startViewTransition && !reduce() && !document.hidden) {
+    const vt = document.startViewTransition(update);
+    // a quick second change skips the first transition: that is expected, not an error
+    for (const p of [vt.ready, vt.finished, vt.updateCallbackDone]) if (p) p.catch(() => {});
+  } else update();
 }
 
 /** Re-plays the entrance of a panel (tabs, results). */

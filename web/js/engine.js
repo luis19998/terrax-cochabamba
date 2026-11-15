@@ -187,6 +187,8 @@ export function evaluateCrop(climate, cropsMeta, crop, sowWeek, altitude, irriga
 /** Best sowing week of a crop for this site: the week with the highest climate score. */
 export function bestSowing(climate, cropsMeta, crop, altitude, irrigation, scenario = {}) {
   if (crop.group === "fallow") return evaluateCrop(climate, cropsMeta, crop, 0, altitude, irrigation, scenario);
+  // perennials and fruit trees stay in the ground all year: the "sowing" week is planting with the first firm rains
+  if (crop.perennial || crop.cycle_days >= 364) return evaluateCrop(climate, cropsMeta, crop, 43, altitude, irrigation, scenario);
   // coarse pass every 3 weeks, then the two neighbours of the best one (same result in practice, a third of the work)
   let best = null;
   const tryWeek = (w) => {
@@ -366,7 +368,10 @@ export function recommend(climate, cropsData, input) {
   const minDays = cropsData.meta.main_crop_min_days || 0;
   // fruit trees, aromatic herbs and flowers live in the catalogue, not in a three-year field rotation
   const NOT_ROTATION = new Set(["tree", "herb", "flower"]);
-  const eligible = crops.filter((c) => !NOT_ROTATION.has(c.group) && (c.group === "fallow" || c.perennial || c.cycle_days >= minDays));
+  // crops that are rare in the valleys (local: false) enter a rotation only when the farmer prefers or already sows them
+  const keepIds = new Set([...preferred, ...history.flat().map((c) => c.id)]);
+  const eligible = crops.filter((c) => !NOT_ROTATION.has(c.group) && (c.local !== false || keepIds.has(c.id))
+    && (c.group === "fallow" || c.perennial || c.cycle_days >= minDays));
   // to stay fast with a large catalogue, only the crops with the best climate for this plot are combined
   // (plus the ones the farmer prefers or already sows)
   const keep = new Set([...preferred, ...history.flat().map((c) => c.id)]);

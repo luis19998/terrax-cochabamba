@@ -12,7 +12,8 @@
   "main_crop_min_days": 90,
   "main_crop_note": "Only crops of 90 days or more (plus perennials and fallow) fill a year of the three-year rotation; shorter vegetables are shown in the catalogue as crops to fit between main crops.",
   "groups_note": "Groups tree (fruit trees and shrubs), herb (aromatic plants) and flower are shown in the catalogue but not used in three-year rotations.",
-  "min_mean_temp_note": "min_mean_temp_c: warm-season crops need at least this mean temperature during the cycle (ECOCROP optimal range); below it the engine lowers the climate score."
+  "min_mean_temp_note": "min_mean_temp_c: warm-season crops need at least this mean temperature during the cycle (ECOCROP optimal range); below it the engine lowers the climate score.",
+  "local_note": "local: false marks crops that are rare in the Cochabamba valleys; they enter rotations only when the farmer prefers or already sows them."
  },
  "crops": [
   {
@@ -842,7 +843,8 @@
    "fixes_nitrogen": false,
    "forage": false,
    "group": "tuber",
-   "min_mean_temp_c": 18
+   "min_mean_temp_c": 18,
+   "local": false
   },
   {
    "id": "centeno",
@@ -863,7 +865,8 @@
    ],
    "fixes_nitrogen": false,
    "forage": false,
-   "group": "cereal"
+   "group": "cereal",
+   "local": false
   },
   {
    "id": "triticale",
@@ -884,7 +887,8 @@
    ],
    "fixes_nitrogen": false,
    "forage": false,
-   "group": "cereal"
+   "group": "cereal",
+   "local": false
   },
   {
    "id": "sorgo",
@@ -906,7 +910,8 @@
    "fixes_nitrogen": false,
    "forage": false,
    "group": "cereal",
-   "min_mean_temp_c": 18
+   "min_mean_temp_c": 18,
+   "local": false
   },
   {
    "id": "canahua",
@@ -991,7 +996,8 @@
    "fixes_nitrogen": true,
    "forage": false,
    "group": "legume",
-   "min_mean_temp_c": 20
+   "min_mean_temp_c": 20,
+   "local": false
   },
   {
    "id": "vainita",
@@ -1144,7 +1150,8 @@
    "fixes_nitrogen": false,
    "forage": false,
    "group": "vegetable",
-   "min_mean_temp_c": 18
+   "min_mean_temp_c": 18,
+   "local": false
   },
   {
    "id": "zapallito",
@@ -1188,7 +1195,8 @@
    "fixes_nitrogen": false,
    "forage": false,
    "group": "vegetable",
-   "min_mean_temp_c": 20
+   "min_mean_temp_c": 20,
+   "local": false
   },
   {
    "id": "melon",
@@ -1210,7 +1218,8 @@
    "fixes_nitrogen": false,
    "forage": false,
    "group": "vegetable",
-   "min_mean_temp_c": 20
+   "min_mean_temp_c": 20,
+   "local": false
   },
   {
    "id": "puerro",
@@ -1294,7 +1303,8 @@
    ],
    "fixes_nitrogen": false,
    "forage": false,
-   "group": "vegetable"
+   "group": "vegetable",
+   "local": false
   },
   {
    "id": "kale",
@@ -1315,7 +1325,8 @@
    ],
    "fixes_nitrogen": false,
    "forage": false,
-   "group": "vegetable"
+   "group": "vegetable",
+   "local": false
   },
   {
    "id": "pakchoi",
@@ -1336,7 +1347,8 @@
    ],
    "fixes_nitrogen": false,
    "forage": false,
-   "group": "vegetable"
+   "group": "vegetable",
+   "local": false
   },
   {
    "id": "vainita_arbustiva",
@@ -1379,7 +1391,8 @@
    "fixes_nitrogen": false,
    "forage": false,
    "group": "vegetable",
-   "perennial": true
+   "perennial": true,
+   "local": false
   },
   {
    "id": "alcachofa",
@@ -1401,7 +1414,8 @@
    "fixes_nitrogen": false,
    "forage": false,
    "group": "vegetable",
-   "perennial": true
+   "perennial": true,
+   "local": false
   },
   {
    "id": "quirquina",
@@ -1865,6 +1879,1340 @@
    "fixes_nitrogen": false,
    "forage": false,
    "group": "flower"
+  },
+  {
+   "id": "ajipa",
+   "name": "Ajipa",
+   "scientific": "Pachyrhizus ahipa",
+   "family": "Leguminosas",
+   "type": "Tubérculo",
+   "cycle_days": 180,
+   "frost_damage_c": -1,
+   "kc": [
+    0.5,
+    1.05,
+    0.8
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": true,
+   "forage": false,
+   "group": "tuber"
+  },
+  {
+   "id": "mauka",
+   "name": "Mauka (chago)",
+   "scientific": "Mirabilis expansa",
+   "family": "Nictagináceas",
+   "type": "Tubérculo",
+   "cycle_days": 300,
+   "frost_damage_c": -2,
+   "kc": [
+    0.5,
+    1.05,
+    0.8
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tuber"
+  },
+  {
+   "id": "maca",
+   "name": "Maca",
+   "scientific": "Lepidium meyenii",
+   "family": "Brasicáceas",
+   "type": "Tubérculo",
+   "cycle_days": 240,
+   "frost_damage_c": -8,
+   "kc": [
+    0.5,
+    1,
+    0.8
+   ],
+   "ph": [
+    5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tuber",
+   "local": false
+  },
+  {
+   "id": "achojcha",
+   "name": "Achojcha (caigua)",
+   "scientific": "Cyclanthera pedata",
+   "family": "Cucurbitáceas",
+   "type": "Hortaliza",
+   "cycle_days": 150,
+   "frost_damage_c": 0,
+   "kc": [
+    0.5,
+    1,
+    0.8
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "min_mean_temp_c": 15
+  },
+  {
+   "id": "trigo_sarraceno",
+   "name": "Trigo sarraceno (alforfón)",
+   "scientific": "Fagopyrum esculentum",
+   "family": "Poligonáceas",
+   "type": "Grano",
+   "cycle_days": 90,
+   "frost_damage_c": 0,
+   "kc": [
+    0.4,
+    1,
+    0.35
+   ],
+   "ph": [
+    5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "grain",
+   "local": false
+  },
+  {
+   "id": "mijo",
+   "name": "Mijo",
+   "scientific": "Panicum miliaceum",
+   "family": "Gramíneas",
+   "type": "Grano",
+   "cycle_days": 90,
+   "frost_damage_c": 0,
+   "kc": [
+    0.3,
+    1,
+    0.3
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "cereal",
+   "min_mean_temp_c": 18,
+   "local": false
+  },
+  {
+   "id": "linaza",
+   "name": "Linaza",
+   "scientific": "Linum usitatissimum",
+   "family": "Lináceas",
+   "type": "Grano",
+   "cycle_days": 120,
+   "frost_damage_c": -4,
+   "kc": [
+    0.35,
+    1.1,
+    0.25
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "grain",
+   "local": false
+  },
+  {
+   "id": "girasol",
+   "name": "Girasol",
+   "scientific": "Helianthus annuus",
+   "family": "Asteráceas",
+   "type": "Grano",
+   "cycle_days": 120,
+   "frost_damage_c": -1,
+   "kc": [
+    0.35,
+    1.05,
+    0.35
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "grain",
+   "min_mean_temp_c": 15,
+   "local": false
+  },
+  {
+   "id": "canola",
+   "name": "Canola (colza)",
+   "scientific": "Brassica napus",
+   "family": "Brasicáceas",
+   "type": "Grano",
+   "cycle_days": 150,
+   "frost_damage_c": -5,
+   "kc": [
+    0.35,
+    1.1,
+    0.35
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "grain",
+   "local": false
+  },
+  {
+   "id": "chia",
+   "name": "Chía",
+   "scientific": "Salvia hispanica",
+   "family": "Lamiáceas",
+   "type": "Grano",
+   "cycle_days": 120,
+   "frost_damage_c": 0,
+   "kc": [
+    0.35,
+    1,
+    0.4
+   ],
+   "ph": [
+    6,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "grain",
+   "min_mean_temp_c": 16,
+   "local": false
+  },
+  {
+   "id": "pallar",
+   "name": "Pallar",
+   "scientific": "Phaseolus lunatus",
+   "family": "Leguminosas",
+   "type": "Leguminosa",
+   "cycle_days": 150,
+   "frost_damage_c": 0,
+   "kc": [
+    0.4,
+    1.15,
+    0.35
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": true,
+   "forage": false,
+   "group": "legume",
+   "min_mean_temp_c": 17,
+   "local": false
+  },
+  {
+   "id": "soya",
+   "name": "Soya",
+   "scientific": "Glycine max",
+   "family": "Leguminosas",
+   "type": "Leguminosa",
+   "cycle_days": 130,
+   "frost_damage_c": 0,
+   "kc": [
+    0.4,
+    1.15,
+    0.5
+   ],
+   "ph": [
+    6,
+    7
+   ],
+   "fixes_nitrogen": true,
+   "forage": false,
+   "group": "legume",
+   "min_mean_temp_c": 18,
+   "local": false
+  },
+  {
+   "id": "caupi",
+   "name": "Caupí (frejol de ojo)",
+   "scientific": "Vigna unguiculata",
+   "family": "Leguminosas",
+   "type": "Leguminosa",
+   "cycle_days": 100,
+   "frost_damage_c": 0,
+   "kc": [
+    0.4,
+    1.05,
+    0.6
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": true,
+   "forage": false,
+   "group": "legume",
+   "min_mean_temp_c": 19,
+   "local": false
+  },
+  {
+   "id": "trebol_rojo",
+   "name": "Trébol rojo",
+   "scientific": "Trifolium pratense",
+   "family": "Leguminosas",
+   "type": "Forraje",
+   "cycle_days": 364,
+   "frost_damage_c": -8,
+   "kc": [
+    0.4,
+    0.9,
+    0.85
+   ],
+   "ph": [
+    6,
+    7
+   ],
+   "fixes_nitrogen": true,
+   "forage": true,
+   "group": "legume",
+   "perennial": true
+  },
+  {
+   "id": "pasto_sudan",
+   "name": "Pasto sudán",
+   "scientific": "Sorghum × drummondii",
+   "family": "Gramíneas",
+   "type": "Forraje",
+   "cycle_days": 120,
+   "frost_damage_c": 0,
+   "kc": [
+    0.3,
+    1,
+    0.8
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": true,
+   "group": "cereal",
+   "min_mean_temp_c": 18,
+   "local": false
+  },
+  {
+   "id": "cebada_forrajera",
+   "name": "Cebada forrajera",
+   "scientific": "Hordeum vulgare",
+   "family": "Gramíneas",
+   "type": "Forraje",
+   "cycle_days": 110,
+   "frost_damage_c": -6,
+   "kc": [
+    0.3,
+    1.15,
+    0.25
+   ],
+   "ph": [
+    6,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": true,
+   "group": "cereal"
+  },
+  {
+   "id": "pasto_ovillo",
+   "name": "Pasto ovillo",
+   "scientific": "Dactylis glomerata",
+   "family": "Gramíneas",
+   "type": "Forraje",
+   "cycle_days": 364,
+   "frost_damage_c": -10,
+   "kc": [
+    0.9,
+    0.95,
+    0.95
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": true,
+   "group": "cereal",
+   "perennial": true
+  },
+  {
+   "id": "choclo",
+   "name": "Choclo (maíz dulce)",
+   "scientific": "Zea mays var. saccharata",
+   "family": "Gramíneas",
+   "type": "Hortaliza",
+   "cycle_days": 100,
+   "frost_damage_c": 0,
+   "kc": [
+    0.3,
+    1.15,
+    1.05
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "cereal",
+   "min_mean_temp_c": 15
+  },
+  {
+   "id": "col_bruselas",
+   "name": "Col de Bruselas",
+   "scientific": "Brassica oleracea var. gemmifera",
+   "family": "Brasicáceas",
+   "type": "Hortaliza",
+   "cycle_days": 150,
+   "frost_damage_c": -8,
+   "kc": [
+    0.7,
+    1.05,
+    0.95
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "local": false
+  },
+  {
+   "id": "colinabo",
+   "name": "Colinabo",
+   "scientific": "Brassica oleracea var. gongylodes",
+   "family": "Brasicáceas",
+   "type": "Hortaliza de ciclo corto",
+   "cycle_days": 60,
+   "frost_damage_c": -5,
+   "kc": [
+    0.7,
+    1.05,
+    0.95
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "local": false
+  },
+  {
+   "id": "hinojo",
+   "name": "Hinojo",
+   "scientific": "Foeniculum vulgare",
+   "family": "Apiáceas",
+   "type": "Hortaliza",
+   "cycle_days": 100,
+   "frost_damage_c": -3,
+   "kc": [
+    0.7,
+    1,
+    0.9
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "local": false
+  },
+  {
+   "id": "chirivia",
+   "name": "Chirivía",
+   "scientific": "Pastinaca sativa",
+   "family": "Apiáceas",
+   "type": "Hortaliza",
+   "cycle_days": 120,
+   "frost_damage_c": -6,
+   "kc": [
+    0.7,
+    1.05,
+    0.95
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "local": false
+  },
+  {
+   "id": "escarola",
+   "name": "Escarola (endivia)",
+   "scientific": "Cichorium endivia",
+   "family": "Asteráceas",
+   "type": "Hortaliza de ciclo corto",
+   "cycle_days": 80,
+   "frost_damage_c": -4,
+   "kc": [
+    0.7,
+    1,
+    0.95
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "local": false
+  },
+  {
+   "id": "achicoria",
+   "name": "Achicoria",
+   "scientific": "Cichorium intybus",
+   "family": "Asteráceas",
+   "type": "Hortaliza",
+   "cycle_days": 100,
+   "frost_damage_c": -5,
+   "kc": [
+    0.7,
+    1,
+    0.95
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "local": false
+  },
+  {
+   "id": "berro",
+   "name": "Berro",
+   "scientific": "Nasturtium officinale",
+   "family": "Brasicáceas",
+   "type": "Hortaliza de ciclo corto",
+   "cycle_days": 50,
+   "frost_damage_c": -3,
+   "kc": [
+    0.7,
+    1.1,
+    1.05
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "local": false
+  },
+  {
+   "id": "chalota",
+   "name": "Chalota",
+   "scientific": "Allium cepa var. aggregatum",
+   "family": "Amarilidáceas",
+   "type": "Hortaliza",
+   "cycle_days": 110,
+   "frost_damage_c": -5,
+   "kc": [
+    0.7,
+    1.05,
+    0.75
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "vegetable",
+   "local": false
+  },
+  {
+   "id": "albahaca",
+   "name": "Albahaca",
+   "scientific": "Ocimum basilicum",
+   "family": "Lamiáceas",
+   "type": "Aromática",
+   "cycle_days": 90,
+   "frost_damage_c": 0,
+   "kc": [
+    0.6,
+    1,
+    0.9
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb",
+   "min_mean_temp_c": 17
+  },
+  {
+   "id": "romero",
+   "name": "Romero",
+   "scientific": "Salvia rosmarinus",
+   "family": "Lamiáceas",
+   "type": "Aromática",
+   "cycle_days": 364,
+   "frost_damage_c": -8,
+   "kc": [
+    0.4,
+    0.7,
+    0.65
+   ],
+   "ph": [
+    6,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb",
+   "perennial": true
+  },
+  {
+   "id": "tomillo",
+   "name": "Tomillo",
+   "scientific": "Thymus vulgaris",
+   "family": "Lamiáceas",
+   "type": "Aromática",
+   "cycle_days": 364,
+   "frost_damage_c": -10,
+   "kc": [
+    0.4,
+    0.7,
+    0.65
+   ],
+   "ph": [
+    6,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb",
+   "perennial": true
+  },
+  {
+   "id": "toronjil",
+   "name": "Toronjil",
+   "scientific": "Melissa officinalis",
+   "family": "Lamiáceas",
+   "type": "Aromática",
+   "cycle_days": 364,
+   "frost_damage_c": -8,
+   "kc": [
+    0.5,
+    0.95,
+    0.9
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb",
+   "perennial": true
+  },
+  {
+   "id": "cedron",
+   "name": "Cedrón",
+   "scientific": "Aloysia citriodora",
+   "family": "Verbenáceas",
+   "type": "Aromática",
+   "cycle_days": 364,
+   "frost_damage_c": -3,
+   "kc": [
+    0.5,
+    0.85,
+    0.8
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb",
+   "perennial": true
+  },
+  {
+   "id": "lavanda",
+   "name": "Lavanda",
+   "scientific": "Lavandula angustifolia",
+   "family": "Lamiáceas",
+   "type": "Aromática",
+   "cycle_days": 364,
+   "frost_damage_c": -12,
+   "kc": [
+    0.4,
+    0.7,
+    0.6
+   ],
+   "ph": [
+    6.5,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb",
+   "perennial": true
+  },
+  {
+   "id": "ruda",
+   "name": "Ruda",
+   "scientific": "Ruta graveolens",
+   "family": "Rutáceas",
+   "type": "Aromática",
+   "cycle_days": 364,
+   "frost_damage_c": -8,
+   "kc": [
+    0.4,
+    0.7,
+    0.6
+   ],
+   "ph": [
+    6,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb",
+   "perennial": true
+  },
+  {
+   "id": "eneldo",
+   "name": "Eneldo",
+   "scientific": "Anethum graveolens",
+   "family": "Apiáceas",
+   "type": "Aromática",
+   "cycle_days": 70,
+   "frost_damage_c": -2,
+   "kc": [
+    0.6,
+    0.95,
+    0.85
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb"
+  },
+  {
+   "id": "estevia",
+   "name": "Estevia",
+   "scientific": "Stevia rebaudiana",
+   "family": "Asteráceas",
+   "type": "Aromática",
+   "cycle_days": 364,
+   "frost_damage_c": 0,
+   "kc": [
+    0.5,
+    1,
+    0.9
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb",
+   "perennial": true,
+   "min_mean_temp_c": 16
+  },
+  {
+   "id": "paico",
+   "name": "Paico",
+   "scientific": "Dysphania ambrosioides",
+   "family": "Amarantáceas",
+   "type": "Aromática",
+   "cycle_days": 120,
+   "frost_damage_c": -1,
+   "kc": [
+    0.5,
+    0.9,
+    0.8
+   ],
+   "ph": [
+    5.5,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "herb"
+  },
+  {
+   "id": "tomate_arbol",
+   "name": "Tomate de árbol",
+   "scientific": "Solanum betaceum",
+   "family": "Solanáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -1,
+   "kc": [
+    0.5,
+    0.9,
+    0.8
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 15
+  },
+  {
+   "id": "damasco",
+   "name": "Damasco",
+   "scientific": "Prunus armeniaca",
+   "family": "Rosáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -2,
+   "kc": [
+    0.55,
+    0.9,
+    0.65
+   ],
+   "ph": [
+    6,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true
+  },
+  {
+   "id": "cerezo",
+   "name": "Cerezo",
+   "scientific": "Prunus avium",
+   "family": "Rosáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -2,
+   "kc": [
+    0.5,
+    0.95,
+    0.7
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true
+  },
+  {
+   "id": "almendro",
+   "name": "Almendro",
+   "scientific": "Prunus dulcis",
+   "family": "Rosáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -2,
+   "kc": [
+    0.4,
+    0.9,
+    0.65
+   ],
+   "ph": [
+    6,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true
+  },
+  {
+   "id": "olivo",
+   "name": "Olivo",
+   "scientific": "Olea europaea",
+   "family": "Oleáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -7,
+   "kc": [
+    0.65,
+    0.7,
+    0.7
+   ],
+   "ph": [
+    6.5,
+    8.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 14
+  },
+  {
+   "id": "granado",
+   "name": "Granado",
+   "scientific": "Punica granatum",
+   "family": "Litráceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -8,
+   "kc": [
+    0.4,
+    0.85,
+    0.7
+   ],
+   "ph": [
+    6,
+    8
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 15
+  },
+  {
+   "id": "nispero",
+   "name": "Níspero",
+   "scientific": "Eriobotrya japonica",
+   "family": "Rosáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -3,
+   "kc": [
+    0.5,
+    0.85,
+    0.75
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true
+  },
+  {
+   "id": "pacay",
+   "name": "Pacay",
+   "scientific": "Inga feuillei",
+   "family": "Leguminosas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -1,
+   "kc": [
+    0.5,
+    0.85,
+    0.75
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": true,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 15
+  },
+  {
+   "id": "lucuma",
+   "name": "Lúcuma",
+   "scientific": "Pouteria lucuma",
+   "family": "Sapotáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -1,
+   "kc": [
+    0.5,
+    0.8,
+    0.7
+   ],
+   "ph": [
+    6,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 15
+  },
+  {
+   "id": "limonero",
+   "name": "Limonero",
+   "scientific": "Citrus × limon",
+   "family": "Rutáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -2,
+   "kc": [
+    0.7,
+    0.65,
+    0.7
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 17
+  },
+  {
+   "id": "naranjo",
+   "name": "Naranjo",
+   "scientific": "Citrus × sinensis",
+   "family": "Rutáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -3,
+   "kc": [
+    0.7,
+    0.65,
+    0.7
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 18
+  },
+  {
+   "id": "mandarino",
+   "name": "Mandarino",
+   "scientific": "Citrus reticulata",
+   "family": "Rutáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -3,
+   "kc": [
+    0.7,
+    0.65,
+    0.7
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 17
+  },
+  {
+   "id": "guayabo",
+   "name": "Guayabo",
+   "scientific": "Psidium guajava",
+   "family": "Mirtáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": 0,
+   "kc": [
+    0.5,
+    0.8,
+    0.7
+   ],
+   "ph": [
+    5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 18
+  },
+  {
+   "id": "frambuesa",
+   "name": "Frambuesa",
+   "scientific": "Rubus idaeus",
+   "family": "Rosáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -10,
+   "kc": [
+    0.4,
+    1.05,
+    0.5
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true
+  },
+  {
+   "id": "mora",
+   "name": "Mora (zarzamora)",
+   "scientific": "Rubus ulmifolius",
+   "family": "Rosáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -8,
+   "kc": [
+    0.3,
+    1.05,
+    0.5
+   ],
+   "ph": [
+    5.5,
+    7.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true
+  },
+  {
+   "id": "arandano",
+   "name": "Arándano",
+   "scientific": "Vaccinium corymbosum",
+   "family": "Ericáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -10,
+   "kc": [
+    0.3,
+    1.05,
+    0.5
+   ],
+   "ph": [
+    4.5,
+    5.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true
+  },
+  {
+   "id": "kiwi",
+   "name": "Kiwi",
+   "scientific": "Actinidia deliciosa",
+   "family": "Actinidiáceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": -2,
+   "kc": [
+    0.4,
+    1.05,
+    1.05
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 15
+  },
+  {
+   "id": "maracuya",
+   "name": "Maracuyá",
+   "scientific": "Passiflora edulis",
+   "family": "Pasifloráceas",
+   "type": "Frutal",
+   "cycle_days": 364,
+   "frost_damage_c": 0,
+   "kc": [
+    0.5,
+    0.9,
+    0.8
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "tree",
+   "perennial": true,
+   "min_mean_temp_c": 20
+  },
+  {
+   "id": "rosa",
+   "name": "Rosa",
+   "scientific": "Rosa × hybrida",
+   "family": "Rosáceas",
+   "type": "Flor",
+   "cycle_days": 364,
+   "frost_damage_c": -3,
+   "kc": [
+    0.5,
+    1,
+    0.9
+   ],
+   "ph": [
+    6,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "flower",
+   "perennial": true
+  },
+  {
+   "id": "crisantemo",
+   "name": "Crisantemo",
+   "scientific": "Chrysanthemum × morifolium",
+   "family": "Asteráceas",
+   "type": "Flor",
+   "cycle_days": 120,
+   "frost_damage_c": -2,
+   "kc": [
+    0.5,
+    1,
+    0.85
+   ],
+   "ph": [
+    6,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "flower"
+  },
+  {
+   "id": "cala",
+   "name": "Cala (cartucho)",
+   "scientific": "Zantedeschia aethiopica",
+   "family": "Aráceas",
+   "type": "Flor",
+   "cycle_days": 364,
+   "frost_damage_c": -2,
+   "kc": [
+    0.6,
+    1.05,
+    0.95
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "flower",
+   "perennial": true
+  },
+  {
+   "id": "astromelia",
+   "name": "Astromelia",
+   "scientific": "Alstroemeria aurea",
+   "family": "Alstroemeriáceas",
+   "type": "Flor",
+   "cycle_days": 364,
+   "frost_damage_c": -3,
+   "kc": [
+    0.5,
+    1,
+    0.9
+   ],
+   "ph": [
+    5.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "flower",
+   "perennial": true
+  },
+  {
+   "id": "gerbera",
+   "name": "Gerbera",
+   "scientific": "Gerbera jamesonii",
+   "family": "Asteráceas",
+   "type": "Flor",
+   "cycle_days": 364,
+   "frost_damage_c": 0,
+   "kc": [
+    0.5,
+    1,
+    0.9
+   ],
+   "ph": [
+    5.5,
+    6.5
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "flower",
+   "perennial": true,
+   "min_mean_temp_c": 16
+  },
+  {
+   "id": "lisianthus",
+   "name": "Lisianthus",
+   "scientific": "Eustoma grandiflorum",
+   "family": "Gencianáceas",
+   "type": "Flor",
+   "cycle_days": 150,
+   "frost_damage_c": 0,
+   "kc": [
+    0.5,
+    1,
+    0.85
+   ],
+   "ph": [
+    6.5,
+    7
+   ],
+   "fixes_nitrogen": false,
+   "forage": false,
+   "group": "flower",
+   "min_mean_temp_c": 16
   },
   {
    "id": "descanso",
