@@ -28,20 +28,29 @@ export function createPlotService({ climate, grid }) {
   const round = (x, d = 4) => Number(x).toFixed(d);
 
   function soil(lat, lon) {
-    return cached(`soil:${round(lat, 3)},${round(lon, 3)}`, 24 * HOUR, async () => {
+    return cached(`soil2:${round(lat, 3)},${round(lon, 3)}`, 24 * HOUR, async () => {
       const query = new URLSearchParams([["lon", round(lon)], ["lat", round(lat)], ["value", "mean"],
-        ...["phh2o", "clay", "sand", "silt", "soc", "nitrogen"].map((p) => ["property", p]),
-        ...["0-5cm", "5-15cm", "15-30cm"].map((d) => ["depth", d])]);
+        ...["phh2o", "clay", "sand", "silt", "soc", "nitrogen", "cfvo", "bdod"].map((p) => ["property", p]),
+        ...["0-5cm", "5-15cm", "15-30cm", "30-60cm", "60-100cm", "100-200cm"].map((d) => ["depth", d])]);
       // SoilGrids can take from 5 to more than 40 seconds: give up early so the page never waits for it
       const data = await getJson(`https://rest.isric.org/soilgrids/v2.0/properties/query?${query}`, 8000);
       const thickness = { "0-5cm": 5, "5-15cm": 10, "15-30cm": 15 };
       const out = {};
+      // every depth down to 2 m, for the 3D soil profile
+      const profile = {};
+      for (const layer of data.properties.layers) {
+        for (const depth of layer.depths) {
+          const v = depth.values.mean;
+          profile[depth.label] ||= { depth: depth.label };
+          profile[depth.label][layer.name] = v === null || v === undefined ? null : v / layer.unit_measure.d_factor;
+        }
+      }
       for (const layer of data.properties.layers) {
         let sum = 0;
         let weight = 0;
         for (const depth of layer.depths) {
           const v = depth.values.mean;
-          if (v === null || v === undefined) continue;
+          if (v === null || v === undefined || !thickness[depth.label]) continue;
           sum += (v / layer.unit_measure.d_factor) * thickness[depth.label];
           weight += thickness[depth.label];
         }
@@ -51,6 +60,7 @@ export function createPlotService({ climate, grid }) {
       return {
         depth: "0 a 30 cm", ph: out.phh2o, clay: out.clay, sand: out.sand, silt: out.silt,
         soc_gkg: out.soc, nitrogen_gkg: out.nitrogen, texture: textureClass(out.sand, out.silt, out.clay),
+        profile: ["0-5cm", "5-15cm", "15-30cm", "30-60cm", "60-100cm", "100-200cm"].map((d) => profile[d]).filter(Boolean),
         source: "SoilGrids 2.0 (ISRIC), 250 m; estimación de un modelo, no un análisis de la parcela",
       };
     });

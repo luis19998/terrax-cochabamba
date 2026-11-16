@@ -8,6 +8,7 @@ import { createClimateService } from "./climate_global.js";
 import { avatarSVG, microphone, say, setFace, setVoice, speak, voiceEnabled } from "./tiri.js";
 import * as cloud from "./cloud.js";
 import { growthTimeline, radialYear, weatherScene } from "./viz.js";
+import { LUNAR_FARMING, lunarSite } from "./moon.js";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -159,6 +160,7 @@ let images = { crops: {}, pests: {}, invasive: {}, places: {} };
 let map;
 let miniMap;
 let terrainView;
+let soilView = null;
 let marker;
 let shape;
 // cloud copy of the plots: config from /api/config, user once signed in
@@ -1407,6 +1409,10 @@ function setTab(k) {
   if (k === "comparar" && compareMap) setTimeout(() => compareMap.invalidateSize(), 50);
   replay(panel(k));
   tiriTip(k);
+  if (window.innerWidth >= 900) {
+    if (k === "relieve" && !terrainView) openTerrain();
+    if (k === "suelo" && !soilView) openSoil3D();
+  }
 }
 const panel = (k) => document.querySelector(`.tab[data-tab="${k}"]`);
 
@@ -1537,7 +1543,44 @@ function calendarHtml() {
 }
 
 // --- Suelo ---
+async function openSoil3D() {
+  const btn = $("soil-open");
+  if (!btn || btn.disabled) return;
+  btn.disabled = true;
+  const s = userSoil();
+  const best = state.result.strategies[1].years.find((y) => y.group !== "fallow");
+  const crop = best ? crops.crops.find((c) => c.id === best.crop) : null;
+  const wetBottom = state.assessment.hazards.some((h) => h.id === "waterlogging" && h.level >= 2);
+  try {
+    const { renderSoil3D } = await import("./soil3d.js");
+    if (soilView) soilView.dispose();
+    soilView = await renderSoil3D($("soil3d"), {
+      profile: s && s.profile, summary: s, crop, wetBottom,
+      onPick: (text) => say(text, { state: "talk", ms: 8000, onClick: openTiri }),
+    });
+    if (!soilView) return;
+    btn.hidden = true;
+    $("soil-panel").hidden = false;
+    panel("suelo").querySelectorAll("[data-stoggle]").forEach((c) => c.addEventListener("change", () => soilView.toggle(c.dataset.stoggle, c.checked)));
+    $("soil-gap").addEventListener("input", (e) => soilView.explode(Number(e.target.value)));
+    const top = soilView.rows[0];
+    $("soil3d-notes").innerHTML = `
+      <div class="facts">
+        <div class="fact"><b>${num(soilView.rootDepth * 100)} cm</b><span>${crop ? `hasta donde llegan las raíces de ${esc(crop.name.toLowerCase())}` : "profundidad de raíces"}</span></div>
+        <div class="fact"><b>${num(soilView.tableDepth * 100)} cm</b><span>agua subterránea (esquema: ${wetBottom ? "zona baja, suele estar más cerca" : "estimación general"})</span></div>
+        <div class="fact"><b>${soilView.minerals.length ? esc(soilView.minerals.map((m) => m.name.split(" (")[0]).join(", ")) : "Sin señales"}</b><span>minerales posibles</span></div>
+      </div>
+      ${soilView.minerals.length ? `<ul class="legend">${soilView.minerals.map((m) => `<li><i style="background:#${m.color.toString(16).padStart(6, "0")}"></i><b>${esc(m.name)}:</b>&nbsp;${esc(m.why)}</li>`).join("")}</ul>` : ""}
+      ${source(`${soilView.generic ? "SoilGrids no respondió ahora: se muestra un perfil típico de suelo franco solo como ejemplo. Vuelve a abrir el análisis más tarde o usa tu análisis de laboratorio en el paso 2." : soilView.estimated ? "Capas profundas estimadas a partir de los primeros 30 cm (SoilGrids no dio el perfil completo)." : "SoilGrids 2.0 (ISRIC), 6 profundidades hasta 2 m, 250 m."} Raíces: FAO-56, tabla 22. El nivel del agua subterránea y los minerales son orientativos: confirmar con un pozo, una calicata o un análisis de laboratorio.`)}`;
+    say(top && (top.clay ?? 0) >= 35 ? "Tu suelo tiene mucha arcilla arriba: el agua entra despacio. Mira cómo bajan las gotas." : "Mira cómo baja el agua de lluvia por las capas y hasta dónde llegan las raíces. Toca una capa o un cristal para saber más.", { state: "talk", ms: 9000, onClick: openTiri });
+  } catch (error) {
+    $("soil3d").innerHTML = `<p class="hint" style="padding:1rem">No se pudo cargar el 3D del suelo: ${esc(error.message)}.</p>`;
+    btn.disabled = false;
+  }
+}
+
 function renderSuelo() {
+  if (soilView) { soilView.dispose(); soilView = null; }
   const s = userSoil();
   const a = state.assessment;
   const r = state.result;
@@ -1566,6 +1609,20 @@ function renderSuelo() {
       ${source(`${s.source}${s.depth ? `, ${s.depth}` : ""}. Un análisis de laboratorio es lo más seguro para decidir el abono.`)}
       <h3>Fertilidad y posibles deficiencias</h3>${list([...a.soilAdvice, ...deficiencies].map(esc))}`
     : '<p class="hint">No hay dato de suelo para este punto: el servicio mundial de suelos no respondió o el punto es urbano. Si tienes un análisis de laboratorio, ponlo en el paso 2. Las recomendaciones de abono de abajo siguen valiendo.</p>'}
+    <h3>${isSimple() ? "Tu suelo por dentro, en 3D" : "Perfil del suelo en 3D, hasta 2 m"}</h3>
+    <p class="hint">${isSimple() ? "Mira las capas de tu tierra, cómo entra el agua de lluvia, hasta dónde llegan las raíces y qué minerales puede haber." : "Cada capa es una profundidad de SoilGrids (color por textura y carbono orgánico; puntos claros, piedras). Se ven las raíces del próximo cultivo hasta su profundidad típica (FAO-56), la lluvia infiltrándose a la velocidad que permite la textura, un nivel freático ilustrativo con el agua subterránea en movimiento y los minerales probables según pH y textura. Pasa el dedo o el mouse por una capa o un cristal."}</p>
+    <div class="terrain-tools no-print"><button class="btn btn--primary btn--shine" type="button" id="soil-open">Ver mi suelo en 3D</button></div>
+    <div class="terrain-panel no-print" id="soil-panel" hidden>
+      <div class="terrain-toggles">
+        <label><input type="checkbox" data-stoggle="water" checked> Agua: lluvia y agua subterránea</label>
+        <label><input type="checkbox" data-stoggle="roots" checked> Raíces</label>
+        <label><input type="checkbox" data-stoggle="minerals" checked> Minerales posibles</label>
+        <label><input type="checkbox" data-stoggle="spin" checked> Girar solo</label>
+      </div>
+      <label class="slider"><span>Separar las capas</span><input type="range" id="soil-gap" min="0" max="0.25" step="0.01" value="0"></label>
+    </div>
+    <div id="soil3d" class="terrain3d"></div>
+    <div id="soil3d-notes"></div>
     <h3>Abono para tu rotación recomendada</h3>
     ${list(bestCrops.map((id) => `<b>${esc(crops.crops.find((c) => c.id === id).name)}:</b> ${esc(knowledge.fertility[id] || "")}`))}
     <p class="hint">Orientación general, sin dosis: la cantidad la define un análisis de suelo y un técnico.</p>
@@ -1573,6 +1630,7 @@ function renderSuelo() {
     <div class="scroll"><table class="table"><thead><tr><th>Cultivo</th><th>Aptitud</th><th class="mid-up">Helada dañina</th><th class="mid-up">Lluvia cubre</th><th class="adv-only">pH</th><th class="mid-up">Motivo</th></tr></thead><tbody>
       ${aptitude.map((x) => `<tr><td>${esc(x.c.name)}</td><td><span class="badge badge--${LEVEL[x.status][0]}">${label[x.status]}</span></td><td class="mid-up">${pct(x.e.frostProb)}</td><td class="mid-up">${pct(x.e.coverage)}</td><td class="adv-only">${x.c.ph ? `${x.c.ph[0]}–${x.c.ph[1]}${x.phOk === false ? " ✗" : ""}` : ""}</td><td class="mid-up">${esc(x.reason)}</td></tr>`).join("")}
     </tbody></table></div>`;
+  $("soil-open").addEventListener("click", openSoil3D);
 }
 
 // --- Relieve ---
@@ -1601,20 +1659,50 @@ function renderRelieve() {
     <p>Tu terreno está en la <b>${position}</b><span class="mid-up"> (${diff >= 0 ? "+" : "−"}${num(Math.abs(diff))} m frente al promedio de alrededor)</span>.</p>
     ${hzs.length ? hzs.map(hz).map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.text)}</p><p>${esc(h.action)}</p>`)).join("") : notice(1, "<p>Sin señales de erosión ni de acumulación de agua con estos datos.</p>")}
     ${source(`NASA SRTM 30 m${slope ? `; ${slope.source}` : ""}. Pendiente en un tramo de 180 m: no ve cárcavas pequeñas dentro de la parcela.`)}
-    <h3>Tu terreno en 3D</h3>
-    <p class="hint">Relieve real con la imagen satelital encima, en unos 2,3 km alrededor de tu terreno (marcado en naranja). Arrastra para girar y usa la rueda o dos dedos para acercar.</p>
+    <h3>Tu terreno en 3D: relieve, agua y subsuelo</h3>
+    <p class="hint">${isSimple() ? "Tu terreno y lo que lo rodea, como una maqueta. Las líneas celestes muestran por dónde corre el agua de lluvia." : "Bloque de unos 2,3 km alrededor de tu terreno (punto rosado): relieve real, por dónde escurre el agua de lluvia, la cuenca que drena hacia tu terreno, ríos y canales de OpenStreetMap y, en los costados, un esquema de las capas del suelo y del agua subterránea. Arrastra para girar; rueda o dos dedos para acercar; pasa el dedo o el mouse para ver cada punto."}</p>
     <div class="terrain-tools no-print">
-      <button class="btn" type="button" id="terrain-open">Ver el relieve en 3D</button>
-      <label class="slider terrain-ex" hidden><span>Exagerar la altura: <output id="terrain-ex-out">2×</output></span><input type="range" id="terrain-ex" min="1" max="5" step="0.5" value="2"></label>
+      <button class="btn btn--primary btn--shine" type="button" id="terrain-open">Ver mi terreno en 3D</button>
+    </div>
+    <div class="terrain-panel no-print" id="terrain-panel" hidden>
+      <div class="chips" role="group" aria-label="Vista del relieve">
+        <button type="button" class="chip" data-tmode="sat" aria-pressed="true">Satélite</button>
+        <button type="button" class="chip" data-tmode="hyps" aria-pressed="false">Altura y curvas de nivel</button>
+        <button type="button" class="chip" data-tmode="slope" aria-pressed="false">Pendiente</button>
+        <button type="button" class="chip" data-tmode="water" aria-pressed="false">Agua</button>
+      </div>
+      <div class="terrain-toggles">
+        <label><input type="checkbox" data-ttoggle="streams" checked> Por dónde corre la lluvia</label>
+        <label><input type="checkbox" data-ttoggle="basin" checked> Cuenca de tu terreno</label>
+        <label><input type="checkbox" data-ttoggle="rivers" checked> Ríos y canales reales</label>
+        <label><input type="checkbox" data-ttoggle="flow" checked> Agua en movimiento</label>
+        <label><input type="checkbox" id="terrain-spin" checked> Girar solo</label>
+      </div>
+      <label class="slider"><span>Exagerar la altura: <output id="terrain-ex-out">2×</output></span><input type="range" id="terrain-ex" min="1" max="6" step="0.5" value="2"></label>
+      <label class="slider"><span>Simular agua estancada: <output id="terrain-lvl-out">sin agua</output></span><input type="range" id="terrain-lvl" min="0" max="40" step="1" value="0"></label>
+      <p class="hint small" id="terrain-lvl-note"></p>
+      <ul class="legend terrain-legend" id="terrain-legend"></ul>
     </div>
     <div id="terrain3d" class="terrain3d"></div>
+    <div class="facts terrain-facts" id="terrain-facts" hidden></div>
     <p class="source" id="terrain-stats"></p>`;
   if (terrainView) { terrainView.dispose(); terrainView = null; }
   $("terrain-open").addEventListener("click", openTerrain);
 }
 
+const TERRAIN_LEGENDS = {
+  sat: [["#38c7ff", "Por dónde corre el agua de lluvia (calculado con el relieve)"], ["#00e5c8", "Cuenca: el agua de esta zona baja hacia tu terreno"], ["#1565ff", "Río"], ["#00e5ff", "Canal"], ["#7cf3c4", "Acequia o desagüe"], ["#ff3d6e", "Tu terreno"]],
+  hyps: [["#2e7d32", "Lo más bajo"], ["#e5d66a", "Medio"], ["#8e5e3c", "Alto"], ["#f5f5f5", "Lo más alto"], ["#333", "Curvas de nivel"]],
+  slope: [["#43a047", "Plano (menos de 5 %)"], ["#fdd835", "Suave (5 a 15 %)"], ["#fb8c00", "Inclinado (15 a 30 %)"], ["#e53935", "Muy inclinado (más de 30 %)"]],
+  water: [["#38c7ff", "Cauces de lluvia"], ["#00e5c8", "Cuenca de tu terreno"], ["#1565ff", "Ríos, canales y lagunas"]],
+  sides: [["#3b2a1a", "Suelo con materia orgánica"], ["#7a5230", "Subsuelo"], ["#2f7fd1", "Agua subterránea (esquema)"], ["#5d5f66", "Roca"]],
+};
+function terrainLegend(mode) {
+  $("terrain-legend").innerHTML = [...TERRAIN_LEGENDS[mode], ...TERRAIN_LEGENDS.sides].map(([c, l]) => `<li><i style="background:${c}"></i>${esc(l)}</li>`).join("");
+}
 async function openTerrain() {
   const btn = $("terrain-open");
+  if (!btn || btn.disabled) return;
   btn.disabled = true;
   try {
     const { renderTerrain3D } = await import("./terrain3d.js");
@@ -1622,14 +1710,44 @@ async function openTerrain() {
     terrainView = await renderTerrain3D($("terrain3d"), {
       lat: state.site.lat, lon: state.site.lon, polygon: state.polygon, exaggeration: 2,
       onStats: (s) => {
-        $("terrain-stats").textContent = `Altura entre ${num(s.min)} y ${num(s.max)} m en ${num(s.sizeKm, 1)} km; tu terreno a ${num(s.plotElev)} m. Elevación: SRTM en teselas Terrarium (AWS Open Data), píxel de ${num(s.metresPerPixel)} m. Imagen: Esri World Imagery.`;
+        $("terrain-stats").textContent = `Altura entre ${num(s.min)} y ${num(s.max)} m en ${num(s.sizeKm, 1)} km; tu terreno a ${num(s.plotElev)} m. Cauces y cuenca calculados con el relieve (relleno de depresiones y dirección de máxima pendiente). Elevación: SRTM en teselas Terrarium (AWS Open Data), píxel de ${num(s.metresPerPixel)} m. Imagen: Esri World Imagery. Ríos y canales: OpenStreetMap. Los costados del bloque son un esquema, no un sondeo.`;
       },
+      onPoint: (p) => say(p.stream ? `Ahí corre el agua cuando llueve: junta la lluvia de ${num(p.drainsHa)} ha. Mejor no sembrar justo en el cauce.` : `Ese punto está a ${num(p.elev)} m, con ${num(p.slope)} % de pendiente.${p.slope > 15 ? " Si siembras ahí, haz surcos a lo ancho de la pendiente." : ""}`, { state: "talk", ms: 7000, onClick: openTiri }),
     });
+    if (!terrainView) return;
     btn.hidden = true;
-    document.querySelector(".terrain-ex").hidden = false;
+    $("terrain-panel").hidden = false;
+    terrainLegend("sat");
+    const st = terrainView.stats;
+    const facts = $("terrain-facts");
+    facts.hidden = false;
+    const paint = (osm) => {
+      facts.innerHTML = `
+        <div class="fact"><b>${st.basinHa < 1 ? "menos de 1" : num(st.basinHa)} ha</b><span>${isSimple() ? "de tierra mandan su lluvia a tu terreno" : "de cuenca drenan hacia tu terreno"}</span></div>
+        <div class="fact"><b>${st.streamM === null ? "—" : st.streamM < 30 ? "Muy cerca" : `${num(st.streamM)} m`}</b><span>${isSimple() ? "hasta donde corre el agua de lluvia" : "al cauce de lluvia más cercano"}</span></div>
+        <div class="fact"><b>${osm ? (osm.failed ? "Sin respuesta" : osm.total ? osm.total : "Ninguno") : "…"}</b><span>${osm && osm.named.length ? `ríos, canales o lagunas cerca: ${esc(osm.named.slice(0, 3).join(", "))}` : "ríos, canales o lagunas registrados cerca (OpenStreetMap)"}</span></div>`;
+    };
+    paint(null);
+    terrainView.waterways.then((osm) => paint(osm || { total: null, named: [], failed: true }));
+    say(st.basinHa > 20
+      ? `Mira: el agua de lluvia de unas ${num(st.basinHa)} ha baja hacia tu terreno (zona turquesa). Cuando llueve fuerte, ten listas zanjas para sacarla.`
+      : "Las líneas celestes son por donde corre la lluvia y los puntos que se mueven son el agua bajando. En los costados ves las capas del suelo y el agua subterránea.", { state: "talk", ms: 11000, onClick: openTiri });
+    panel("relieve").querySelectorAll("[data-tmode]").forEach((b) => b.addEventListener("click", () => {
+      panel("relieve").querySelectorAll("[data-tmode]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      terrainView.setMode(b.dataset.tmode);
+      terrainLegend(b.dataset.tmode);
+    }));
+    panel("relieve").querySelectorAll("[data-ttoggle]").forEach((c) => c.addEventListener("change", () => terrainView.toggle(c.dataset.ttoggle, c.checked)));
+    $("terrain-spin").addEventListener("change", (e) => terrainView.spin(e.target.checked));
     $("terrain-ex").addEventListener("input", (e) => {
       $("terrain-ex-out").textContent = `${e.target.value}×`;
-      if (terrainView) terrainView.setExaggeration(Number(e.target.value));
+      terrainView.setExaggeration(Number(e.target.value));
+    });
+    $("terrain-lvl").addEventListener("input", (e) => {
+      const m = Number(e.target.value);
+      const r = terrainView.setLevel(m);
+      $("terrain-lvl-out").textContent = m ? `${m} m sobre el punto más bajo` : "sin agua";
+      $("terrain-lvl-note").textContent = m ? `Quedaría bajo el agua el ${num(r.flooded * 100)} % de la zona.${r.plot ? " Tu terreno también se mojaría." : " Tu terreno quedaría seco."} Simulación sencilla de «bañera»: no considera canales ni suelo.` : "";
     });
   } catch (error) {
     $("terrain3d").innerHTML = `<p class="hint" style="padding:1rem">No se pudo cargar el 3D: ${esc(error.message)}. Revisa la conexión.</p>`;
@@ -2043,6 +2161,13 @@ async function askTiri(question) {
   if (!text || state.asking) return;
   const history = state.chat.slice(1).map(({ role, content }) => ({ role, content }));
   state.chat.push({ role: "user", content: text });
+  // the Moon is a secret: Tiri only answers with a riddle until it is found
+  if (/\b(luna|moon|killa|phaxsi|lune|mond|lua)\b/i.test(text) && !moonUnlocked()) {
+    state.chat.push({ role: "assistant", content: "La Luna guarda un secreto. Cuando el cielo esté limpio y las montañas toquen las estrellas, llámala tres veces desde el planeta.", note: "Pista de Tiri." });
+    renderTiri();
+    setFace("happy");
+    return;
+  }
   state.asking = true;
   renderTiri();
   try {
@@ -2124,6 +2249,9 @@ async function initWorld() {
     worldBands = mod.CLIMATE_BANDS;
     world = await mod.createGlobe(box, {
       onPick: (p) => pickPlace(p.lat, p.lon),
+      onSatellite: showSatellite,
+      onMoonClick: moonKnock,
+      onMoonPick: (p) => showLunarSite(p.lat, p.lon),
       onProgress: (p) => { bar.style.transform = `scaleX(${p.toFixed(3)})`; $("globe-pct").textContent = `${Math.round(p * 100)} %`; if (p >= 1) setTimeout(done, 600); },
     });
     renderWorldControls(mod.GLOBE_LAYERS);
@@ -2153,6 +2281,14 @@ function renderWorldControls(layers) {
   });
   $("world-bands-legend").innerHTML = worldBands.map((b) => `<span><i style="background:${b.color}"></i>${esc(b.name)}</span>`).join("");
   $("world-relief").addEventListener("input", (e) => world.setRelief(Number(e.target.value)));
+  $("world-clouds").addEventListener("change", (e) => world.setClouds(e.target.checked));
+  if (moonUnlocked()) $("world-moon").hidden = false;
+  $("world-moon").addEventListener("click", () => (world.inMoon() ? leaveMoon() : goToMoon()));
+  // what each layer shows, in Tiri's words
+  box.querySelectorAll("[data-layer]").forEach((b) => b.addEventListener("click", () => {
+    const l = layers.find((x) => x.id === b.dataset.layer);
+    if (l) say(l.legend, { state: "talk", ms: 6000, onClick: openTiri });
+  }));
   $("world-locate").addEventListener("click", () => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition((p) => { world.flyTo(p.coords.latitude, p.coords.longitude); world.mark(p.coords.latitude, p.coords.longitude); pickPlace(p.coords.latitude, p.coords.longitude); });
@@ -2173,6 +2309,81 @@ function renderWorldControls(layers) {
     } catch { /* search is optional */ }
   });
 }
+// ---------- Satellites and the secret of the Moon ----------
+function showSatellite(s) {
+  const card = $("world-pick");
+  card.hidden = false;
+  card.innerHTML = `<p class="world__place">Satélite ${esc(s.name)}</p>
+    <div class="world__facts world__facts--sat"><span><b>${esc(s.mission)}</b>misión</span><span><b>${esc(s.orbit)}</b>órbita</span></div>
+    <p>${esc(s.measures)}</p><p class="hint small">${esc(s.use)} El modelo 3D es ilustrativo; la órbita y el tamaño no están a escala.</p>`;
+  replay(card);
+  say(`Ese es ${s.name}. ${s.measures}`, { state: "happy", ms: 9000, onClick: openTiri });
+}
+const moonUnlocked = () => { try { return localStorage.getItem("yatirix.moon") === "1"; } catch { return false; } };
+const moonKnocks = [];
+let moonHinted = false;
+/** The secret: with the sky clear (no clouds) and the mountains raised to the top, tap the Moon three times. */
+function moonKnock() {
+  const now = Date.now();
+  moonKnocks.push(now);
+  while (moonKnocks.length && now - moonKnocks[0] > 4000) moonKnocks.shift();
+  const ready = !$("world-clouds").checked && Number($("world-relief").value) >= Number($("world-relief").max) - 1e-6;
+  if (moonUnlocked()) { goToMoon(); return; }
+  if (moonKnocks.length >= 3 && ready) { unlockMoon(); return; }
+  if (moonKnocks.length >= 3 && !moonHinted) {
+    moonHinted = true;
+    say("La Luna no contesta… Dicen los abuelos: «cuando el cielo esté limpio y las montañas toquen las estrellas, llámala tres veces».", { state: "think", ms: 12000, onClick: openTiri });
+  } else if (moonKnocks.length === 1) {
+    say("Esa es la Luna. Está a unos 384.000 km; aquí la ves mucho más cerca.", { state: "happy", ms: 6000 });
+  }
+}
+function unlockMoon() {
+  try { localStorage.setItem("yatirix.moon", "1"); } catch { /* this visit only */ }
+  const banner = $("moon-unlock");
+  banner.hidden = false;
+  banner.classList.remove("is-in");
+  void banner.offsetWidth;
+  banner.classList.add("is-in");
+  setTimeout(() => { banner.hidden = true; }, 5200);
+  $("world-moon").hidden = false;
+  goToMoon();
+}
+function goToMoon() {
+  world.enterMoon();
+  $("world-moon").textContent = "Volver a la Tierra";
+  document.querySelector(".world").classList.add("is-moon");
+  const card = $("world-pick");
+  card.hidden = false;
+  card.innerHTML = `<p class="world__place">La Luna</p>
+    <p>Toca cualquier punto de la Luna y te digo cómo es su terreno, cuánto sol recibe y qué se podría sembrar ahí.</p>
+    <p class="hint small">Textura ilustrativa con los mares y cráteres en su posición real. La bandera marca el Mar de la Tranquilidad, donde bajó el Apolo 11 en 1969.</p>`;
+  replay(card);
+  setTimeout(() => say("¡Llegamos a la Luna! Plantamos la bandera de Yatiri X. En la Luna no hay viento: ondea solo de alegría. Toca un lugar y vemos qué se podría sembrar.", { state: "happy", ms: 12000, onClick: openTiri }), 2600);
+}
+function leaveMoon() {
+  world.exitMoon();
+  $("world-moon").textContent = "Ir a la Luna";
+  document.querySelector(".world").classList.remove("is-moon");
+  $("world-pick").hidden = true;
+}
+function showLunarSite(lat, lon) {
+  const x = lunarSite(lat, lon);
+  const card = $("world-pick");
+  card.hidden = false;
+  card.innerHTML = `<p class="world__place">${esc(x.name)}</p>
+    <div class="world__facts"><span><b>${esc(x.kind)}</b>terreno</span><span><b>${esc(x.temp)}</b>temperatura</span><span><b>${esc(x.light)}</b>luz</span><span><b>1/6</b>de la gravedad de la Tierra</span></div>
+    <p>${esc(x.ground)}</p>
+    <p><b>Para una granja aquí:</b> ${esc(x.plan)}</p>
+    <details class="moon-farm"><summary>Qué sembrar en la Luna y cómo</summary>
+      <h4>Cultivos candidatos</h4><ul>${LUNAR_FARMING.crops.map(([n, w]) => `<li><b>${esc(n)}:</b> ${esc(w)}</li>`).join("")}</ul>
+      <h4>Cómo</h4><ol>${LUNAR_FARMING.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
+      <h4>Lo que ya se probó</h4><ul>${LUNAR_FARMING.evidence.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>
+    </details>
+    <p class="hint small">Valores aproximados para curiosear: no es un análisis agrícola como el de la Tierra.</p>`;
+  replay(card);
+  say(`${x.kind}: ${x.plan}`, { state: "talk", ms: 9000, onClick: openTiri });
+}
+
 /** A place picked on the planet: elevation, climate band, local time and the way to analyse it. */
 async function pickPlace(lat, lon, name = null) {
   const card = $("world-pick");

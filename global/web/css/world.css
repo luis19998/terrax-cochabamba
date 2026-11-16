@@ -232,3 +232,35 @@ body.hc :focus-visible { outline: 3px solid #ff3d6e !important; outline-offset: 
   .mode-select > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .mode-select select { font-size: 0.85rem; }
 }
+
+/* ---------- satellites, clouds and the lunar secret ---------- */
+.globe-label--sat { border-color: rgba(72, 198, 255, 0.7); font-size: 0.66rem; color: #bfe8ff; translate: 14px -120%; }
+.globe-label--moon { border-color: rgba(220, 220, 230, 0.75); background: rgba(20, 20, 28, 0.7); }
+.world__tip { margin: 0; font-size: 0.78rem; color: #9fb0d4; }
+.world__facts--sat { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.btn--moon { background: linear-gradient(135deg, #e9edf5, #9aa6bd); color: #0b1530; border: 0; font-weight: 800; box-shadow: 0 0 22px rgba(220, 230, 255, 0.45); }
+.world.is-moon { background: radial-gradient(1000px 700px at 50% 40%, #1a1a24 0%, #04050a 70%); }
+.world.is-moon .world__intro { opacity: 0.25; transition: opacity 0.6s; }
+.world.is-moon .world__pick { border-color: rgba(220, 225, 240, 0.6); box-shadow: 0 30px 70px -30px rgba(200, 210, 255, 0.5); max-height: 60%; overflow: auto; }
+.moon-farm summary { cursor: pointer; font-weight: 800; color: var(--neon-sun); margin: 0.4rem 0; }
+.moon-farm h4 { margin: 0.6rem 0 0.2rem; color: #fff; }
+.moon-farm ul, .moon-farm ol { margin: 0; padding-left: 1.2rem; font-size: 0.88rem; color: #dfe8ff; }
+.moon-unlock { position: absolute; z-index: 6; left: 50%; top: 18%; translate: -50% 0; display: grid; text-align: center; gap: 0.2rem; padding: 1rem 1.6rem; border-radius: 20px; background: rgba(10, 12, 24, 0.82); border: 1px solid rgba(255, 210, 63, 0.7); color: #fff; box-shadow: 0 0 60px rgba(255, 210, 63, 0.35); pointer-events: none; }
+.moon-unlock span { font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--neon-sun); font-weight: 800; }
+.moon-unlock b { font-size: clamp(1.3rem, 3vw, 2rem); }
+.moon-unlock.is-in { animation: unlock 5.2s ease both; }
+@keyframes unlock { 0% { opacity: 0; scale: 0.6; filter: blur(8px); } 10% { opacity: 1; scale: 1.06; filter: none; } 16% { scale: 1; } 85% { opacity: 1; } 100% { opacity: 0; translate: -50% -20px; } }
+
+/* ---------- 3D relief and soil panels ---------- */
+.terrain3d { position: relative; border-radius: 18px; overflow: hidden; background: #0b1530; box-shadow: 0 24px 60px -30px rgba(5, 10, 24, 0.8); }
+.terrain3d canvas { display: block; width: 100% !important; cursor: grab; }
+.terrain3d canvas:active { cursor: grabbing; }
+.terrain-panel { display: grid; gap: 0.6rem; margin: 0.6rem 0; padding: 0.8rem; border-radius: 16px; background: linear-gradient(135deg, rgba(11, 21, 48, 0.06), rgba(72, 198, 255, 0.08)); border: 1px solid var(--line); }
+.terrain-toggles { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: 0.88rem; font-weight: 600; }
+.terrain-toggles label { display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+.terrain-toggles input { accent-color: var(--pistachio-deep); width: 17px; height: 17px; }
+.terrain-legend { display: flex; flex-wrap: wrap; gap: 0.3rem 0.9rem; }
+.terrain-tip { position: absolute; z-index: 2; pointer-events: none; translate: 14px -110%; max-width: 260px; padding: 0.45rem 0.65rem; border-radius: 10px; background: rgba(5, 10, 24, 0.88); color: #eef4ff; font-size: 0.78rem; line-height: 1.35; border: 1px solid rgba(72, 198, 255, 0.5); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6); }
+.terrain-tip b { color: #8ef0ff; }
+.terrain-facts { margin-top: 0.7rem; }
+#terrain-open, #soil-open { animation: tiri-glow 3.2s ease-in-out infinite; }

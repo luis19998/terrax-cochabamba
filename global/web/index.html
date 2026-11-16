@@ -76,10 +76,14 @@
         <p class="world__panel-title">Capas de la NASA</p>
         <div class="world__layers" id="world-layers"></div>
         <div class="world__legend" id="world-legend"></div>
+        <label class="world__toggle"><input type="checkbox" id="world-clouds" checked> Nubes</label>
         <label class="world__toggle"><input type="checkbox" id="world-bands"> Franjas climáticas</label>
         <div class="world__bands" id="world-bands-legend" hidden></div>
         <label class="world__slider">Relieve exagerado <input type="range" id="world-relief" min="0" max="0.14" step="0.005" value="0.035"></label>
+        <p class="world__tip">Toca un satélite para conocerlo.</p>
+        <button type="button" class="btn btn--moon" id="world-moon" hidden>Ir a la Luna</button>
       </aside>
+      <div class="moon-unlock" id="moon-unlock" hidden aria-live="assertive"><span>Secreto desbloqueado</span><b>Yatiri X llegó a la Luna</b></div>
       <div class="world__pick" id="world-pick" hidden aria-live="polite"></div>
     </section>
 

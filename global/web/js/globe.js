@@ -4,7 +4,14 @@
 //   createGlobe(container, { onPick, onProgress }) -> { setLayer, setBands, setRelief, flyTo, mark, dispose, layers }
 // Textures: web/vendor/earth (NASA Blue Marble / Black Marble derivatives, public domain).
 // Live layers: NASA GIBS WMS in EPSG:4326 (one equirectangular image of the whole planet).
+import { flagModel, MOON_SPOTS, moonTextures } from "./moon.js";
 const DEG = Math.PI / 180;
+
+export const SATELLITES = {
+  Terra: { name: "Terra", mission: "NASA, en órbita desde 1999", orbit: "705 km de altura, órbita polar que pasa siempre a la misma hora solar", measures: "Color real, temperatura de la superficie y verdor de las plantas con sus instrumentos MODIS, ASTER, CERES, MISR y MOPITT.", use: "En Yatiri X: las capas de color real, temperatura del suelo y vegetación." },
+  GPM: { name: "GPM Core Observatory", mission: "NASA y JAXA (Japón), desde 2014", orbit: "407 km de altura, inclinada 65°", measures: "La lluvia y la nieve de todo el planeta con un radar de doble frecuencia (DPR) y un radiómetro de microondas (GMI).", use: "En Yatiri X: la capa «Lluvia ahora» (IMERG)." },
+  SMAP: { name: "SMAP", mission: "NASA, desde 2015", orbit: "685 km de altura, órbita polar", measures: "La humedad de los primeros 5 cm del suelo con una antena de malla de 6 m que gira unas 14 veces por minuto.", use: "En Yatiri X: la capa de humedad del suelo y la humedad de la zona de raíces." },
+};
 
 export const GLOBE_LAYERS = [
   { id: "none", label: "Planeta (Blue Marble)", legend: "Imagen compuesta de la NASA, sin nubes." },
@@ -74,6 +81,9 @@ uniform sampler2D overlay;
 uniform float overlayOn;
 uniform float overlayOpaque;
 uniform float bandsOn;
+uniform sampler2D cloudMap;
+uniform float cloudsOn;
+uniform float cloudShift;
 uniform vec3 sunDir;
 uniform vec3 camPos;
 uniform float time;
@@ -109,13 +119,20 @@ void main() {
     float edge = 1.0 - smoothstep(0.0, 0.6, min(abs(abs(lat) - 23.44), min(abs(abs(lat) - 35.0), min(abs(abs(lat) - 55.0), abs(abs(lat) - 66.5)))));
     day = mix(day, bc, 0.42) + edge * 0.35;
   }
-  vec3 night = texture2D(nightMap, vUv).rgb * vec3(1.0, 0.85, 0.6) * 1.6;
+  // shadows of the clouds on the ground
+  float shade = texture2D(cloudMap, vec2(fract(vUv.x - cloudShift - 0.004), vUv.y + 0.003)).a * cloudsOn;
+  day *= 1.0 - shade * 0.32;
+  vec3 night = texture2D(nightMap, vUv).rgb * vec3(1.0, 0.85, 0.6) * (1.45 + 0.2 * sin(time * 1.3 + vUv.x * 40.0 + vUv.y * 25.0));
   vec3 color = mix(night + day * 0.09, day * (0.2 + 1.05 * max(light, 0.0)), dayMix);
+  // warm band of sunrise and sunset along the line between day and night
+  color += vec3(1.0, 0.42, 0.12) * exp(-pow(light * 7.0, 2.0)) * 0.22;
   // sun glint on the oceans
   float water = texture2D(waterMap, vUv).r;
   vec3 viewDir = normalize(camPos - vPosW);
   vec3 h = normalize(normalize(sunDir) + viewDir);
-  color += water * pow(max(dot(n, h), 0.0), 60.0) * 0.55 * dayMix;
+  float ripple = 0.9 + 0.1 * sin(time * 0.6 + vUv.y * 60.0);
+  color += water * pow(max(dot(n, h), 0.0), 60.0) * 0.6 * ripple * dayMix;
+  color = mix(color, color * vec3(0.82, 0.95, 1.12), water * 0.35 * dayMix);
   // soft rim of the atmosphere on the disc edge
   float rim = pow(1.0 - max(dot(viewDir, normalize(vNormalW)), 0.0), 3.0);
   color += vec3(0.25, 0.55, 1.0) * rim * 0.55 * (0.3 + dayMix);
@@ -153,26 +170,100 @@ function glowTexture(THREE, inner, outer) {
   return new THREE.CanvasTexture(c);
 }
 
-function satelliteModel(THREE, color) {
+function solarCells(THREE) {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 64;
+  const g = c.getContext("2d");
+  const grad = g.createLinearGradient(0, 0, 256, 64);
+  grad.addColorStop(0, "#14306e");
+  grad.addColorStop(0.5, "#2b5ed8");
+  grad.addColorStop(1, "#14306e");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 256, 64);
+  g.strokeStyle = "rgba(190,215,255,.55)";
+  g.lineWidth = 1;
+  for (let x = 0; x <= 256; x += 16) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 64); g.stroke(); }
+  for (let y = 0; y <= 64; y += 16) { g.beginPath(); g.moveTo(0, y); g.lineTo(256, y); g.stroke(); }
+  g.strokeStyle = "#c9d6e8";
+  g.lineWidth = 3;
+  g.strokeRect(1, 1, 254, 62);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/** A satellite with bus, gold foil, solar wings, antennas, instruments and a blinking light. kind: Terra, GPM or SMAP. */
+function satelliteModel(THREE, kind, color, cells) {
   const sat = new THREE.Group();
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.045), new THREE.MeshStandardMaterial({ color: 0xd4a537, metalness: 0.8, roughness: 0.3 }));
-  const panelMat = new THREE.MeshStandardMaterial({ color: 0x1d3f9c, metalness: 0.4, roughness: 0.35, emissive: 0x0a1a55 });
-  const p1 = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.002, 0.03), panelMat);
-  p1.position.x = 0.065;
-  const p2 = p1.clone();
-  p2.position.x = -0.065;
-  const dish = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.014, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.5 }));
-  dish.position.z = 0.03;
-  dish.rotation.x = Math.PI / 2;
-  // sensor cone pointing to the ground
-  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.2, 24, 1, true), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false }));
+  const foil = new THREE.MeshStandardMaterial({ color: 0xe0ac3c, metalness: 0.95, roughness: 0.32, emissive: 0x2a1800 });
+  const silver = new THREE.MeshStandardMaterial({ color: 0xe3e8ef, metalness: 0.85, roughness: 0.22 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x30343d, metalness: 0.5, roughness: 0.55 });
+  const wingMat = new THREE.MeshStandardMaterial({ map: cells, metalness: 0.55, roughness: 0.28, emissive: 0x0b1f66, emissiveIntensity: 0.35, side: THREE.DoubleSide });
+  const box = (w, h, d, m, x = 0, y = 0, z = 0) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); sat.add(o); return o; };
+  const rod = (len, x, y, z, rx = 0, rz = 0, r = 0.0012) => { const o = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 6), silver); o.position.set(x, y, z); o.rotation.set(rx, 0, rz); sat.add(o); return o; };
+  const wing = (side, len, segs) => {
+    rod(0.03, side * 0.032, 0, 0, 0, Math.PI / 2);
+    for (let k = 0; k < segs; k++) {
+      const seg = new THREE.Mesh(new THREE.BoxGeometry(len / segs - 0.003, 0.0016, 0.034), wingMat);
+      seg.position.set(side * (0.048 + (k + 0.5) * (len / segs)), 0, 0);
+      sat.add(seg);
+    }
+  };
+  const dish = (r, y, z, tilt) => {
+    const pts = [];
+    for (let i = 0; i <= 10; i++) { const x = (i / 10) * r; pts.push(new THREE.Vector2(x, (x * x) / (r * 1.6))); }
+    const d = new THREE.Mesh(new THREE.LatheGeometry(pts, 24), new THREE.MeshStandardMaterial({ color: 0xf4f6fa, metalness: 0.4, roughness: 0.3, side: THREE.DoubleSide }));
+    d.position.set(0, y, z);
+    d.rotation.x = tilt;
+    sat.add(d);
+    return d;
+  };
+  // main bus with gold foil and an instrument deck facing the ground (-y)
+  box(0.036, 0.032, 0.05, foil);
+  box(0.03, 0.008, 0.03, dark, 0, -0.02, 0);
+  box(0.01, 0.01, 0.012, silver, 0.008, -0.026, 0.008);
+  box(0.008, 0.012, 0.008, silver, -0.01, -0.027, -0.01);
+  if (kind === "Terra") {
+    wing(1, 0.13, 4);
+    dish(0.011, 0.012, 0.03, Math.PI / 2);
+    rod(0.03, -0.022, 0.012, 0, 0, 0.6);
+    box(0.012, 0.012, 0.016, silver, -0.024, -0.006, 0.012);
+  } else if (kind === "GPM") {
+    wing(1, 0.1, 3);
+    wing(-1, 0.1, 3);
+    dish(0.016, 0.03, 0, 0); // GMI radiometer on top
+    box(0.03, 0.004, 0.03, new THREE.MeshStandardMaterial({ color: 0x9aa4b4, metalness: 0.7, roughness: 0.3 }), 0, -0.03, 0); // DPR radar
+  } else {
+    wing(1, 0.09, 3);
+    rod(0.05, 0, 0.04, 0, 0, 0, 0.0016); // boom
+    const spinner = new THREE.Group();
+    const tilt = Math.PI / 2.4;
+    const mesh = new THREE.Mesh(new THREE.CircleGeometry(0.045, 40), new THREE.MeshStandardMaterial({ color: 0xd8c27a, metalness: 0.6, roughness: 0.4, transparent: true, opacity: 0.55, side: THREE.DoubleSide }));
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.0016, 6, 48), silver);
+    const spokes = new THREE.Mesh(new THREE.CircleGeometry(0.045, 12), new THREE.MeshBasicMaterial({ color: 0xfff1b8, wireframe: true, transparent: true, opacity: 0.5 }));
+    for (const o of [mesh, rim, spokes]) { o.rotation.x = tilt; spinner.add(o); }
+    spinner.position.y = 0.068;
+    sat.add(spinner);
+    sat.userData.spinner = spinner;
+  }
+  rod(0.026, 0.012, 0.02, -0.02);
+  const light = new THREE.Mesh(new THREE.SphereGeometry(0.0035, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff3d3d, transparent: true }));
+  light.position.set(0, 0.018, 0.026);
+  sat.add(light);
+  // sensor cone pointing to the ground, and a larger invisible target so a tap hits the satellite
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.2, 32, 1, true), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false }));
   cone.position.y = -0.1;
-  sat.add(body, p1, p2, dish, cone);
+  const hit = new THREE.Mesh(new THREE.SphereGeometry(0.075, 8, 8), new THREE.MeshBasicMaterial({ visible: false }));
+  hit.userData.satellite = kind;
+  sat.add(cone, hit);
   sat.userData.cone = cone;
+  sat.userData.light = light;
+  sat.userData.hit = hit;
   return sat;
 }
 
-export async function createGlobe(container, { onPick = () => {}, onProgress = () => {}, autoRotate = true } = {}) {
+export async function createGlobe(container, { onPick = () => {}, onProgress = () => {}, onSatellite = () => {}, onMoonClick = () => {}, onMoonPick = () => {}, autoRotate = true } = {}) {
   const [THREE, { OrbitControls }] = await Promise.all([import("three"), import("../vendor/three/OrbitControls.js")]);
   const width = () => container.clientWidth || 600;
   const height = () => container.clientHeight || 600;
@@ -182,13 +273,13 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.append(renderer.domElement);
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, width() / height(), 0.01, 200);
+  const camera = new THREE.PerspectiveCamera(42, width() / height(), 0.005, 200);
   camera.position.set(0, 0.6, 3.2);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.minDistance = 1.25;
-  controls.maxDistance = 6;
+  controls.maxDistance = 9;
   controls.enablePan = false;
   controls.autoRotate = autoRotate;
   controls.autoRotateSpeed = 0.45;
@@ -217,21 +308,23 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
   // start looking at the day side, with the line between day and night in view
   camera.position.copy(latLonToVec(THREE, sun.lat * 0.4 + 8, sun.lon - 38, 3.4));
   // on wide screens the planet sits to the right of the title
+  let moonMode = false;
   const frameView = () => {
     const w = width();
     const h = height();
-    if (w > 860) camera.setViewOffset(w, h, -w * 0.17, 0, w, h); else camera.clearViewOffset();
+    if (w > 860 && !moonMode) camera.setViewOffset(w, h, -w * 0.17, 0, w, h); else camera.clearViewOffset();
   };
   frameView();
   const uniforms = {
     dayMap: { value: day }, nightMap: { value: night }, waterMap: { value: water }, topo: { value: topo }, overlay: { value: blank },
     overlayOn: { value: 0 }, overlayOpaque: { value: 0 }, bandsOn: { value: 0 }, relief: { value: 0.035 },
+    cloudMap: { value: cloudsTex }, cloudsOn: { value: 1 }, cloudShift: { value: 0 },
     sunDir: { value: sunDir.clone() }, camPos: { value: camera.position }, time: { value: 0 },
   };
   const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 384, 192), new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG }));
   scene.add(earth);
 
-  const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.028, 128, 64), new THREE.MeshLambertMaterial({ alphaMap: cloudsTex, transparent: true, opacity: 0.55, depthWrite: false, color: 0xffffff }));
+  const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.028, 128, 64), new THREE.MeshLambertMaterial({ map: cloudsTex, transparent: true, opacity: 0.85, depthWrite: false }));
   scene.add(clouds);
 
   const atmo = new THREE.Mesh(new THREE.SphereGeometry(1.11, 96, 48), new THREE.ShaderMaterial({
@@ -260,6 +353,7 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
   sunLight.position.copy(sunDir).multiplyScalar(10);
   scene.add(sunLight, new THREE.AmbientLight(0x6688cc, 0.35));
 
+  const cells = solarCells(THREE);
   // satellites: polar (Terra/Aqua-like), tilted (GPM-like) and one more polar (SMAP-like)
   const orbits = [
     { name: "Terra", incl: 98.2, r: 1.32, speed: 0.22, phase: 0, color: 0x93c572 },
@@ -271,11 +365,37 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
     pivot.rotation.y = o.node || 0;
     const ring = new THREE.Mesh(new THREE.TorusGeometry(o.r, 0.0018, 6, 256), new THREE.MeshBasicMaterial({ color: o.color, transparent: true, opacity: 0.35 }));
     ring.rotation.y = Math.PI / 2;
-    const sat = satelliteModel(THREE, o.color);
+    const sat = satelliteModel(THREE, o.name, o.color, cells);
     pivot.add(ring, sat);
     scene.add(pivot);
-    return { ...o, pivot, sat };
+    const trail = new THREE.Mesh(new THREE.TorusGeometry(o.r, 0.004, 6, 96, 0.9), new THREE.MeshBasicMaterial({ color: o.color, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending }));
+    trail.rotation.x = Math.PI / 2;
+    pivot.add(trail);
+    return { ...o, pivot, sat, trail };
   });
+
+  // the Moon: illustrative texture at real positions, tilted orbit of 5 degrees, always the same face to the Earth
+  const moonTex = moonTextures(THREE);
+  const moonPivot = new THREE.Group();
+  moonPivot.rotation.x = 5.1 * DEG;
+  const MOON_R = 0.273;
+  const MOON_ORBIT = 2.75;
+  const moon = new THREE.Mesh(new THREE.SphereGeometry(MOON_R, 128, 64), new THREE.MeshStandardMaterial({ map: moonTex.map, bumpMap: moonTex.bump, bumpScale: 1.2, roughness: 0.95, metalness: 0, emissive: 0x8899bb, emissiveMap: moonTex.map, emissiveIntensity: 0.22 }));
+  moonPivot.add(moon);
+  scene.add(moonPivot);
+  let moonAngle = 1.2;
+  let moonHiRes = false;
+  const flag = flagModel(THREE);
+  flag.scale.setScalar(0.45);
+  flag.visible = false;
+  moon.add(flag);
+  {
+    const at = latLonToVec(THREE, MOON_SPOTS[0].lat, MOON_SPOTS[0].lon, MOON_R);
+    flag.position.copy(at);
+    flag.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), at.clone().normalize());
+  }
+  const moonLabelEls = MOON_SPOTS.map((m) => { const el = document.createElement("span"); el.className = "globe-label globe-label--moon is-hidden"; el.textContent = m.name; return el; });
+  const satLabelEls = orbits.map((o) => { const el = document.createElement("span"); el.className = "globe-label globe-label--sat"; el.textContent = o.name; return el; });
 
   // notable reliefs and the picked place
   const markers = new THREE.Group();
@@ -291,6 +411,7 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
   labels.className = "globe-labels";
   container.append(labels);
   const labelEls = RELIEFS.map((r) => { const el = document.createElement("span"); el.className = "globe-label"; el.textContent = r.name; labels.append(el); return el; });
+  labels.append(...moonLabelEls, ...satLabelEls);
   const pin = new THREE.Group();
   const pinHead = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 16), new THREE.MeshBasicMaterial({ color: 0xff3d6e }));
   const pinRing = new THREE.Mesh(new THREE.RingGeometry(0.03, 0.036, 48), new THREE.MeshBasicMaterial({ color: 0xff3d6e, transparent: true, side: THREE.DoubleSide }));
@@ -303,7 +424,7 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
   function setLayer(id) {
     const layer = GLOBE_LAYERS.find((l) => l.id === id) || GLOBE_LAYERS[0];
     const token = ++overlayToken;
-    if (layer.id === "none") { uniforms.overlayOn.value = 0; return Promise.resolve(layer); }
+    if (layer.id === "none") { uniforms.overlayOn.value = 0; uniforms.overlayOpaque.value = 0; clouds.visible = cloudsWanted; return Promise.resolve(layer); }
     const date = new Date(Date.now() - (layer.daysAgo || 0) * 864e5).toISOString().slice(0, 10);
     const params = new URLSearchParams({ SERVICE: "WMS", REQUEST: "GetMap", VERSION: "1.3.0", LAYERS: layer.id, CRS: "EPSG:4326", BBOX: "-90,-180,90,180", WIDTH: "2048", HEIGHT: "1024", FORMAT: layer.format, TRANSPARENT: layer.opaque ? "FALSE" : "TRUE" });
     if (layer.daysAgo) params.set("TIME", date);
@@ -314,20 +435,46 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
         uniforms.overlay.value = t;
         uniforms.overlayOpaque.value = layer.opaque ? 1 : 0;
         uniforms.overlayOn.value = 1;
-        clouds.visible = !layer.opaque;
+        clouds.visible = !layer.opaque && cloudsWanted;
         resolve(layer);
       }, undefined, reject);
     });
   }
   const setBands = (on) => { uniforms.bandsOn.value = on ? 1 : 0; };
+  let cloudsWanted = true;
+  const setClouds = (on) => { cloudsWanted = on; clouds.visible = on && !uniforms.overlayOpaque.value; uniforms.cloudsOn.value = on ? 1 : 0; };
   const setRelief = (x) => { uniforms.relief.value = x; };
 
   // camera flight to a place
   let flight = null;
   function flyTo(lat, lon, distance = 2.1) {
+    if (moonMode) exitMoon();
     const target = latLonToVec(THREE, lat, lon, distance).applyMatrix4(earth.matrixWorld);
-    flight = { from: camera.position.clone(), to: target, t: 0 };
+    flight = { from: camera.position.clone(), to: target, t: 0, look: [controls.target.clone(), new THREE.Vector3()] };
     controls.autoRotate = false;
+  }
+  // lunar mode: the Moon stops, the camera flies to it and orbits around it; the flag appears
+  const moonWorld = () => moon.getWorldPosition(new THREE.Vector3());
+  function enterMoon() {
+    moonMode = true;
+    flag.visible = true;
+    const m = moonWorld();
+    const toEarth = m.clone().negate().normalize();
+    const eye = m.clone().add(toEarth.multiplyScalar(1.05)).add(new THREE.Vector3(0, 0.18, 0));
+    // sharper Moon once it is the centre of the view
+    if (!moonHiRes && window.innerWidth >= 700) { moonHiRes = true; setTimeout(() => { const hi = moonTextures(THREE, 2048); moon.material.map = hi.map; moon.material.emissiveMap = hi.map; moon.material.bumpMap = hi.bump; moon.material.needsUpdate = true; }, 50); }
+    flight = { from: camera.position.clone(), to: eye, t: 0, look: [controls.target.clone(), m], straight: true, secs: 2.6 };
+    controls.minDistance = MOON_R + 0.04;
+    controls.autoRotate = false;
+    frameView();
+    camera.updateProjectionMatrix();
+  }
+  function exitMoon() {
+    moonMode = false;
+    controls.minDistance = 1.25;
+    flight = { from: camera.position.clone(), to: new THREE.Vector3(0, 0.6, 3.2), t: 0, look: [controls.target.clone(), new THREE.Vector3()], straight: true, secs: 2.2 };
+    frameView();
+    camera.updateProjectionMatrix();
   }
   function mark(lat, lon) {
     pin.position.copy(latLonToVec(THREE, lat, lon, 1.04));
@@ -345,8 +492,17 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
     const r = renderer.domElement.getBoundingClientRect();
     pointer.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
-    const hit = raycaster.intersectObject(earth)[0];
+    const targets = moonMode ? [moon] : [moon, earth, ...orbits.map((o) => o.sat.userData.hit)];
+    const hit = raycaster.intersectObjects(targets, false)[0];
     if (!hit) return;
+    if (hit.object.userData.satellite) { onSatellite(SATELLITES[hit.object.userData.satellite]); return; }
+    if (hit.object === moon) {
+      const q = moon.worldToLocal(hit.point.clone()).normalize();
+      const mlat = 90 - Math.acos(q.y) / DEG;
+      const mlon = ((Math.atan2(q.z, -q.x) / DEG - 180 + 540) % 360) - 180;
+      if (moonMode) onMoonPick({ lat: mlat, lon: mlon }); else onMoonClick();
+      return;
+    }
     const p = earth.worldToLocal(hit.point.clone()).normalize();
     const lat = 90 - Math.acos(p.y) / DEG;
     let lon = Math.atan2(p.z, -p.x) / DEG - 180;
@@ -377,19 +533,29 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
     const t = clock.elapsedTime;
     uniforms.time.value = t;
     clouds.rotation.y += dt * 0.012;
+    uniforms.cloudShift.value = clouds.rotation.y / (Math.PI * 2);
     for (const o of orbits) {
       const a = t * o.speed + o.phase;
       o.sat.position.set(Math.cos(a) * o.r, 0, Math.sin(a) * o.r);
       o.sat.lookAt(0, 0, 0);
       o.sat.rotateX(-Math.PI / 2); // the sensor cone (local -y) faces the ground
       o.sat.userData.cone.material.opacity = 0.12 + 0.1 * Math.sin(t * 3 + o.phase);
+      o.sat.userData.light.material.opacity = Math.sin(t * 5 + o.phase) > 0.7 ? 1 : 0.15;
+      if (o.sat.userData.spinner) o.sat.userData.spinner.rotation.y += dt * 1.53; // 14.6 turns a minute
+      o.trail.rotation.z = -a; // the bright trail follows behind the satellite
     }
+    if (!moonMode) moonAngle += dt * 0.05;
+    moon.position.set(Math.cos(moonAngle) * MOON_ORBIT, 0, Math.sin(moonAngle) * MOON_ORBIT);
+    moon.rotation.y = Math.PI - moonAngle; // the near side always faces the Earth
+    flag.userData.uniforms.time.value = t;
     pinRing.scale.setScalar(1 + 0.35 * Math.sin(t * 4));
     pinRing.material.opacity = 0.6 - 0.3 * Math.sin(t * 4);
     if (flight) {
-      flight.t = Math.min(1, flight.t + dt / 1.6);
+      flight.t = Math.min(1, flight.t + dt / (flight.secs || 1.6));
       const k = flight.t < 0.5 ? 4 * flight.t ** 3 : 1 - (-2 * flight.t + 2) ** 3 / 2;
-      camera.position.copy(flight.from).lerp(flight.to, k).setLength(flight.from.length() + (flight.to.length() - flight.from.length()) * k);
+      camera.position.copy(flight.from).lerp(flight.to, k);
+      if (!flight.straight) camera.position.setLength(flight.from.length() + (flight.to.length() - flight.from.length()) * k);
+      if (flight.look) controls.target.copy(flight.look[0]).lerp(flight.look[1], k);
       if (flight.t >= 1) flight = null;
     }
     controls.update();
@@ -404,13 +570,31 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
       tmp.project(camera);
       const el = labelEls[i];
       el.style.transform = `translate(${((tmp.x + 1) / 2) * w}px, ${((1 - tmp.y) / 2) * h}px)`;
-      el.classList.toggle("is-hidden", !facing);
+      el.classList.toggle("is-hidden", !facing || moonMode);
+    });
+    // satellite names, and the named places of the Moon in lunar mode
+    const camDir = camera.position.clone().normalize();
+    orbits.forEach((o, i) => {
+      o.sat.getWorldPosition(tmp);
+      const behind = tmp.clone().normalize().dot(camDir) < -0.35 && tmp.length() < camera.position.length();
+      tmp.project(camera);
+      satLabelEls[i].style.transform = `translate(${((tmp.x + 1) / 2) * w}px, ${((1 - tmp.y) / 2) * h}px)`;
+      satLabelEls[i].classList.toggle("is-hidden", behind || moonMode || tmp.z > 1);
+    });
+    const mc = moonWorld();
+    MOON_SPOTS.forEach((m, i) => {
+      const world = moon.localToWorld(latLonToVec(THREE, m.lat, m.lon, MOON_R * 1.01));
+      const facing = world.clone().sub(mc).normalize().dot(camera.position.clone().sub(world).normalize()) > 0.2;
+      world.project(camera);
+      moonLabelEls[i].style.transform = `translate(${((world.x + 1) / 2) * w}px, ${((1 - world.y) / 2) * h}px)`;
+      moonLabelEls[i].classList.toggle("is-hidden", !moonMode || !facing);
     });
   }
   frame();
 
   return {
-    layers: GLOBE_LAYERS, setLayer, setBands, setRelief, flyTo, mark,
+    layers: GLOBE_LAYERS, setLayer, setBands, setRelief, setClouds, flyTo, mark, enterMoon, exitMoon,
+    inMoon: () => moonMode,
     stopRotation: () => { controls.autoRotate = false; },
     dispose() { running = false; resize.disconnect(); io.disconnect(); renderer.dispose(); container.innerHTML = ""; },
   };
