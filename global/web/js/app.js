@@ -5,7 +5,9 @@ import { applyLanguage, t, QU_CROPS, QU_VALUES } from "./i18n.js";
 import { setLanguage, setTerms } from "./translate.js";
 import { initMotion, replay, splitWords, transition } from "./motion.js";
 import { createClimateService } from "./climate_global.js";
+import { avatarSVG, microphone, say, setFace, setVoice, speak, voiceEnabled } from "./tiri.js";
 import * as cloud from "./cloud.js";
+import { growthTimeline, radialYear, weatherScene } from "./viz.js";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -811,7 +813,7 @@ async function selectSite(lat, lon, label) {
 /** Name of a place (town, region, country) from OpenStreetMap. */
 async function placeName(lat, lon) {
   try {
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?${new URLSearchParams({ format: "jsonv2", lat: lat.toFixed(5), lon: lon.toFixed(5), zoom: "10", "accept-language": state.lang === "qu" ? "es" : state.lang })}`, { signal: AbortSignal.timeout(8000) });
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?${new URLSearchParams({ format: "jsonv2", lat: lat.toFixed(5), lon: lon.toFixed(5), zoom: "10", "accept-language": ["qu", "ay", "gn"].includes(state.lang) ? "es" : state.lang })}`, { signal: AbortSignal.timeout(8000) });
     const d = await r.json();
     const a = d.address || {};
     return [a.village || a.town || a.city || a.county || a.state_district, a.state, a.country].filter(Boolean).join(", ") || null;
@@ -824,6 +826,8 @@ function renderSite() {
   if (!s) { $("site").innerHTML = ""; return; }
   const d = gamcDistrict(s.gamc);
   const z = gamcZone(s.gamc);
+  // municipal (GAMC) layers only exist inside Cochabamba
+  $("layer-toggles").querySelectorAll("button").forEach((btn) => { if (btn.textContent.includes("GAMC")) btn.hidden = !s.local; });
   if (!s.local) {
     $("site").innerHTML = `<dl class="site__grid">
       <div><dt>Lugar</dt><dd translate="no">${s.place ? esc(s.place) : "Consultando…"}</dd></div>
@@ -932,12 +936,100 @@ function download(name, data) {
 function openTiri() {
   $("tiri-body").hidden = false;
   $("tiri-toggle").setAttribute("aria-expanded", "true");
+  $("tiri-say").hidden = true;
+}
+
+// ---------- Tiri, the proactive agent ----------
+/** Carries out what the agent decided to do in the page. */
+async function runAction(a) {
+  const x = a.args || {};
+  if (a.name === "ui_open_tab" && state.result) { show("results"); setTab(x.tab); }
+  else if (a.name === "ui_set_language" && x.code) setLang(x.code);
+  else if (a.name === "ui_set_view" && x.mode) setMode(x.mode);
+  else if (a.name === "ui_fly_to" && Number.isFinite(x.lat)) {
+    show("home");
+    if (world) { world.flyTo(x.lat, x.lon); world.mark(x.lat, x.lon); }
+    pickPlace(x.lat, x.lon, x.label || null);
+  } else if (a.name === "ui_analyze_place" && Number.isFinite(x.lat)) {
+    newParcel();
+    show("wizard");
+    if (map) map.setView([x.lat, x.lon], 15);
+    await selectSite(x.lat, x.lon, x.label || null);
+    goStep(2);
+  }
+}
+const daysUntilWeek = (week) => {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1 + week * 7));
+  let d = Math.round((start - now) / 864e5);
+  if (d < -7) d += 365;
+  return d;
+};
+/** After every analysis Tiri speaks first: the main risk, the week ahead and the countdown to sowing. */
+function tiriBriefing() {
+  if (!state.result || !state.assessment) return;
+  const top = state.assessment.hazards.filter((h) => h.level >= 2).map(hz)[0];
+  const next7 = state.outlook && state.outlook.daily ? state.outlook.daily.days.slice(0, 7) : [];
+  const frost = next7.filter((d) => d.pFrost >= 0.3).length;
+  const heavy = next7.filter((d) => d.pHeavyRain >= 0.5).length;
+  const first = state.result.strategies[1].years.find((y) => y.group !== "fallow");
+  const days = first ? daysUntilWeek(first.sowWeek) : null;
+  const parts = [`Listo, revisé ${state.site.place || state.name || "tu terreno"}.`];
+  if (frost) parts.push(`Esta semana puede helar ${frost === 1 ? "una noche" : `${frost} noches`}: tapa las plantas chicas.`);
+  if (heavy) parts.push(`Viene lluvia fuerte ${heavy === 1 ? "un día" : `${heavy} días`}: limpia canales y desagües.`);
+  if (top && !frost && !heavy) parts.push(`${top.title}: ${top.action}`);
+  if (first && days !== null) parts.push(days <= 0 ? `Ya es buen momento para sembrar ${first.name.toLowerCase()}.` : `Faltan ${days} días para sembrar ${first.name.toLowerCase()}.`);
+  parts.push("¿Quieres que te diga qué hacer esta semana?");
+  const text = parts.join(" ");
+  state.chat.push({ role: "assistant", content: text, note: "Mensaje automático de Tiri con los datos de tu terreno." });
+  renderTiri();
+  say(text, { state: frost || heavy ? "alert" : "talk", ms: 14000, onClick: openTiri });
+  // read aloud what the bubble shows, once the page translator has put it in the reader's language
+  if (voiceEnabled()) setTimeout(() => speak($("tiri-say").innerText || text, state.lang), state.lang === "es" ? 0 : 2500);
+}
+/** Saved plots are checked when the page opens: frost or heavy rain in the next two days makes Tiri warn. */
+async function tiriWatch() {
+  const plots = readStore().parcels.filter((p) => p.site).slice(0, 3);
+  for (const p of plots) {
+    try {
+      const o = await loadJson(`/api/outlook?lat=${p.site.lat.toFixed(4)}&lon=${p.site.lon.toFixed(4)}`, 30000);
+      const days = o.daily ? o.daily.days.slice(0, 2) : [];
+      const frost = days.find((d) => d.pFrost >= 0.3);
+      const rain = days.find((d) => d.pHeavyRain >= 0.5);
+      if (!frost && !rain) continue;
+      const when = (d) => (d === days[0] ? "hoy" : "mañana");
+      const text = frost ? `Aviso para ${p.name || "tu terreno"}: puede helar ${when(frost)} (${Math.round(frost.pFrost * 10)} de cada 10 escenarios). Tapa los almácigos.`
+        : `Aviso para ${p.name || "tu terreno"}: lluvia fuerte ${when(rain)} (${Math.round(rain.pHeavyRain * 10)} de cada 10 escenarios). Revisa canales.`;
+      state.chat.push({ role: "assistant", content: text, note: "Vigilancia automática de tus terrenos guardados." });
+      renderTiri();
+      say(text, { state: "alert", ms: 16000, onClick: openTiri });
+      if ("Notification" in window && Notification.permission === "granted") new Notification("Yatiri X · Tiri", { body: text, icon: "img/favicon.png" });
+      return;
+    } catch { /* next plot */ }
+  }
+}
+const TAB_TIPS = {
+  predicciones: "Aquí ves la lluvia y las heladas de los próximos días y meses. Pregúntame «¿qué hago esta semana?».",
+  clima: "El calendario muestra 45 años de lluvia y heladas de la NASA para tu terreno.",
+  relieve: "Pulsa «Ver el relieve en 3D» para girar tu terreno con la imagen satelital.",
+  agua: "Te muestro cuánta agua pone la lluvia y cuánta debes regar.",
+  plagas: "Filtra por tu cultivo para ver qué plaga vigilar y su remedio casero.",
+  catalogo: "Aquí están los 146 cultivos: busca el tuyo o usa «Otro».",
+  comparar: "Compara tus terrenos lado a lado y toca «Ver» para abrir uno.",
+};
+const tipsShown = new Set();
+function tiriTip(tab) {
+  if (!TAB_TIPS[tab] || tipsShown.has(tab) || !$("tiri-body").hidden) return;
+  tipsShown.add(tab);
+  setTimeout(() => say(TAB_TIPS[tab], { state: "happy", ms: 7000, onClick: openTiri }), 900);
 }
 
 // ---------- Analysis ----------
 // data already fetched for each plot in this visit, so switching between plots is instant
 const analysisCache = new Map();
 async function analyze(keepTab = null) {
+  // the stepper lets people jump ahead: what is missing sends them back to that step
+  for (const n of [1, 2]) { const problem = stepValid(n); if (problem) { goStep(n); $("wizard-msg").textContent = problem; return; } }
   const btn = $("analyze");
   btn.disabled = true;
   btn.textContent = "Analizando tu terreno…";
@@ -960,6 +1052,7 @@ async function analyze(keepTab = null) {
   state.outlook = outlook;
   compute();
   await stopLoader();
+  setTimeout(tiriBriefing, 1400);
   btn.disabled = false;
   btn.textContent = t("analyze", state.lang);
   show("results");
@@ -976,11 +1069,14 @@ function showLoader() {
   let k = 0;
   msg.textContent = LOADING_STEPS[0];
   box.hidden = false;
+  $("loader-reel").innerHTML = "";
+  const stopReel = photoReel($("loader-reel"));
   const timer = setInterval(() => { k = (k + 1) % LOADING_STEPS.length; msg.textContent = LOADING_STEPS[k]; }, 1400);
   return async () => {
     const wait = Math.max(0, 1600 - (Date.now() - started)); // let the plant finish growing at least once
     await new Promise((r) => { setTimeout(r, wait); });
     clearInterval(timer);
+    stopReel();
     box.hidden = true;
   };
 }
@@ -1253,6 +1349,7 @@ function renderPredicciones() {
       <p class="small">Cada tarde revisamos el pronóstico de este terreno y te escribimos solo si hay riesgo. Guardamos tu número y la ubicación aproximada del terreno solo para esos avisos; escribe BAJA para borrarlos.</p>
       <a class="btn btn--primary btn--small" href="https://wa.me/${esc(state.waNumber)}?text=${encodeURIComponent(waText)}" target="_blank" rel="noopener">Activar avisos por WhatsApp</a></div>
     </div>` : ""}
+    ${next7 ? `<div class="wx-strip">${next7.map((d) => `<div class="wx-day"><span>${esc(dayLabel(d.date))}</span>${weatherScene(d)}<b>${num(d.tminMedian, 0)}° / ${num(d.tmaxMedian, 0)}°</b></div>`).join("")}</div>` : ""}
     ${next7 && isSimple() ? `<div class="facts">
       <div class="fact"><b>${rainyDays} de 7</b><span>días puede llover esta semana</span></div>
       <div class="fact"><b>${frostDays ? `${frostDays} ${frostDays === 1 ? "noche" : "noches"}` : "Ninguna noche"}</b><span>con helada esta semana</span></div>
@@ -1309,6 +1406,7 @@ function setTab(k) {
   if (k === "general" && miniMap) setTimeout(() => miniMap.invalidateSize(), 50);
   if (k === "comparar" && compareMap) setTimeout(() => compareMap.invalidateSize(), 50);
   replay(panel(k));
+  tiriTip(k);
 }
 const panel = (k) => document.querySelector(`.tab[data-tab="${k}"]`);
 
@@ -1318,10 +1416,13 @@ function renderGeneral() {
   const best = r.strategies[1];
   const actions = a.hazards.filter((h) => h.level >= 2).slice(0, 3);
   const dd = doDont();
+  const nextCrop = best.years.find((y) => y.group !== "fallow" && y.sowWeek !== null);
   panel("general").innerHTML = `
     <h2>Lo más importante</h2>
     <p class="lead">${esc(isSimple() ? simpleLead(r) : explain(r).join(" "))}</p>
     ${actions.length ? `<h3>Qué hacer primero</h3>${actions.map(hz).map((h) => notice(h.level, `<p><b>${esc(h.title)}.</b> ${esc(h.action)}</p>`)).join("")}` : notice(1, isSimple() ? "<p>Con los datos de hoy, tu terreno no tiene peligros grandes.</p>" : "<p>No hay riesgos altos con los datos disponibles.</p>")}
+    ${nextCrop ? `<h3>${isSimple() ? "Tu próximo cultivo, paso a paso" : "Próximo cultivo: ciclo semana a semana"}</h3>
+    ${growthTimeline({ name: nextCrop.name, color: cropColor(nextCrop.crop), sowWeek: nextCrop.sowWeek, weeks: nextCrop.weeks || 16, today: currentWeek(), label: weekLabel, photo: images.crops && images.crops[nextCrop.crop] ? images.crops[nextCrop.crop].thumb : null })}` : ""}
     <div class="dodont">
       <section class="dodont__col dodont__col--yes"><h3>${icon("check", 26)} ${isSimple() ? "Haz esto" : "Sí hacer"}</h3><ul>${dd.yes.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
       <section class="dodont__col dodont__col--no"><h3>${icon("cross", 26)} ${isSimple() ? "No hagas esto" : "No hacer"}</h3><ul>${dd.no.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
@@ -1356,7 +1457,7 @@ function renderClima() {
       body = `<div class="scroll"><div class="days">${days.map((d) => `
         <div class="day">
           <p class="day__date">${esc(dayLabel(d.date))}</p>
-          <p class="day__icon">${icon(d.pFrost >= 0.3 ? "frost" : d.pRain >= 0.6 ? "rain" : d.pRain >= 0.3 ? "suncloud" : "sun", 40)}</p>
+          <p class="day__icon">${weatherScene(d)}</p>
           ${isSimple() ? `<p class="day__prob"><b>${rainWord(d.pRain)}</b></p>` : `<p class="day__prob" title="Probabilidad de lluvia de 1 mm o más"><b>${pct(d.pRain)}</b><span>lluvia</span></p>`}
           <p class="mid-up">${num(d.rainMedian, 1)} mm</p>
           <p class="adv-only small">${num(d.rainP10, 1)} a ${num(d.rainP90, 1)} mm</p>
@@ -1411,9 +1512,26 @@ function calendarHtml() {
   const valid = state.result.onset.days_after_1_october.filter((x) => x !== null).sort((a, b) => a - b);
   const onsetWeek = Math.floor(((state.result.onset.start_doy || 274) - 1 + valid[Math.floor(valid.length / 2)]) / 7) % WEEKS;
   const mk = climate.onset.mann_kendall;
-  return `<p class="hint">Cada columna es una semana. Cuanto más oscuro, más veces pasó en 45 años.</p>
-    <div class="scroll"><svg class="chart" width="${width}" height="114" viewBox="0 0 ${width} 114" role="img" aria-label="Lluvia, heladas y semanas secas por semana del año">${s}</svg></div>
-    <ul class="legend"><li><i style="background:#8cc4d6"></i>Lluvia media</li><li><i style="background:#3d6fb6"></i>Helada (0 °C o menos)</li><li><i style="background:#c98b00"></i>Semana seca (menos de 5 mm)</li></ul>
+  const months = [];
+  for (let i = 0, last = -1; i < WEEKS; i++) { const m = weekDate(i).month; if (m !== last) { months.push({ week: i, label: MONTHS[m] }); last = m; } }
+  const cycles = state.result.strategies[1].years.filter((y) => y.group !== "fallow" && y.sowWeek !== null).slice(0, 2)
+    .map((y) => ({ start: y.sowWeek, len: y.weeks || 16, color: cropColor(y.crop), label: y.name }));
+  const yearRain = cal.reduce((t, w) => t + w.rainMean, 0);
+  return `<div class="radial">
+      ${radialYear({ weeks: cal, months, today: currentWeek(), cycles, label: weekLabel, centre: { big: `${num(yearRain)} mm`, small: "de lluvia al año" } })}
+      <div class="radial__legend">
+        <p class="hint">${isSimple() ? "Tu año como un reloj. La aguja roja es hoy." : "El año como un reloj: cada rebanada es una semana, de enero arriba en sentido horario. La aguja roja marca hoy."}</p>
+        <ul class="legend legend--radial">
+          <li><i style="background:#48c6ff"></i>${isSimple() ? "Cuánto llueve (barras de afuera)" : "Lluvia media semanal (barras exteriores)"}</li>
+          <li><i style="background:#7fd8ff"></i>${isSimple() ? "Cuándo hiela (más fuerte, más veces)" : "Helada: semanas con 0 °C o menos"}</li>
+          <li><i style="background:#ffb23f"></i>${isSimple() ? "Semanas secas" : "Semana seca (menos de 5 mm)"}</li>
+          ${cycles.map((c) => `<li><i style="background:${c.color}"></i>${esc(c.label)}: ${isSimple() ? "cuando está en el campo" : `${weekLabel(c.start)} a ${weekLabel(c.start + c.len)}`}</li>`).join("")}
+        </ul>
+      </div>
+    </div>
+    <p class="hint adv-only">Cada columna es una semana. Cuanto más oscuro, más veces pasó en 45 años.</p>
+    <div class="scroll adv-only"><svg class="chart" width="${width}" height="114" viewBox="0 0 ${width} 114" role="img" aria-label="Lluvia, heladas y semanas secas por semana del año">${s}</svg></div>
+    <ul class="legend adv-only"><li><i style="background:#8cc4d6"></i>Lluvia media</li><li><i style="background:#3d6fb6"></i>Helada (0 °C o menos)</li><li><i style="background:#c98b00"></i>Semana seca (menos de 5 mm)</li></ul>
     <p>Las lluvias firmes suelen empezar hacia el ${weekLabel(onsetWeek)}. ${mk.trend === "no trend" ? `Esa fecha no muestra una tendencia clara en 45 años (Mann-Kendall, p = ${num(mk.p, 2)}).` : `Esa fecha se mueve ${num(Math.abs(mk.slope_days_per_year) * 10, 1)} días por década (Mann-Kendall, p = ${num(mk.p, 2)}).`}</p>
     ${source(`NASA POWER ${climate.meta.period.replace(" to ", " a ")}, ajustado a ${num(state.site.altitude)} m`)}`;
 }
@@ -1836,10 +1954,11 @@ function renderLegal() {
     <h2>Legal y propiedad</h2>
     <p>${esc(knowledge.legal.summary)}</p>
     <h3>Lo que se sabe de este lugar</h3>
-    <dl class="kv">
+    <dl class="kv">${state.site && !state.site.local ? `
+      <div><dt>Datos municipales</dt><dd>Los mapas de distritos, zonas y drenaje solo existen para Cochabamba (GAMC). Consulta el catastro o la alcaldía de tu lugar.</dd></div>` : `
       <div><dt>Distrito y comuna (GAMC)</dt><dd>${gamcDistrict(g) ? `<span translate="no">${esc(gamcDistrict(g).Distrito)}, ${esc(gamcDistrict(g).Comuna)}</span>` : "Sin dato"}</dd></div>
       <div><dt>Zona periurbana (GAMC)</dt><dd>${zone ? esc(zone.Periurbano) : "Fuera de las zonas periurbanas o sin dato"}</dd></div>
-      <div><dt>Área de drenaje e influencia (GAMC)</dt><dd>${drainage ? "Sí" : "No, o sin dato"}</dd></div>
+      <div><dt>Área de drenaje e influencia (GAMC)</dt><dd>${drainage ? "Sí" : "No, o sin dato"}</dd></div>`}
       <div><dt>Propietario registrado</dt><dd>Sin acceso a registros oficiales</dd></div>
     </dl>
     ${notes.map((n) => notice(2, `<p>${esc(n)}</p>`)).join("")}
@@ -1915,7 +2034,7 @@ function renderTiri() {
   chips($("tiri-suggestions"), TIRI_SUGGESTIONS.map((label) => ({ label })), { pressed: () => false, onClick: (s) => askTiri(s.label) });
   const log = $("tiri-log");
   // answers already written in Quechua by the model, and the person's own words, are not translated again
-  log.innerHTML = state.chat.map((m) => `<div class="bubble bubble--${m.role}"><p${m.role === "user" || m.lang === "qu" ? ' translate="no"' : ""}>${esc(m.content)}</p>${m.note ? `<p class="source">${esc(m.note)}</p>` : ""}</div>`).join("")
+  log.innerHTML = state.chat.map((m) => `<div class="bubble bubble--${m.role}"><p${m.role === "user" || (m.lang && m.lang !== "es") ? ' translate="no"' : ""}>${esc(m.content)}</p>${m.note ? `<p class="source">${esc(m.note)}</p>` : ""}</div>`).join("")
     + (state.asking ? `<div class="bubble bubble--assistant bubble--thinking">${PLANT_SVG}<p>Tiri está revisando tu terreno…</p></div>` : "");
   log.scrollTop = log.scrollHeight;
 }
@@ -1927,9 +2046,10 @@ async function askTiri(question) {
   state.asking = true;
   renderTiri();
   try {
-    const r = await fetch("/api/tiri", {
+    setFace("think");
+    const r = await fetch("/api/agent", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: JSON.stringify({ tab: $("view-results").hidden ? "inicio" : state.tab,
         question: text, lat: state.site ? state.site.lat : null, lon: state.site ? state.site.lon : null,
         history: [state.previous, state.last].filter((l) => l.length), irrigation: irrigation(), priorities: [...state.priorities], messages: history.slice(-6),
         customCrops: state.customCrops,
@@ -1938,8 +2058,12 @@ async function askTiri(question) {
     });
     const data = await r.json();
     if (!r.ok || !data.answer) throw new Error();
+    for (const a of data.actions || []) runAction(a).catch(() => {});
+    setFace("happy");
+    if (voiceEnabled()) speak(data.answer, state.lang);
     state.chat.push({ role: "assistant", content: data.answer, lang: data.lang, note: data.engine === "rules" ? "Respuesta automática con los datos de tu terreno." : `Redactada con IA (${data.model || data.engine}) a partir de tus datos.` });
   } catch {
+    setFace("idle");
     state.chat.push({ role: "assistant", content: "No pude responder ahora. Revisa tu conexión e intenta de nuevo." });
   }
   state.asking = false;
@@ -2110,11 +2234,13 @@ function setMode(mode) {
   savePrefs();
   if (state.result) { renderResults(); setTab(state.tab); }
 }
+const LANG_CODES = ["es", "qu", "ay", "gn", "en", "pt", "fr", "de", "it", "sw", "hi", "zh", "ar"];
 function setLang(lang) {
+  if (!LANG_CODES.includes(lang)) lang = "es";
   state.lang = lang;
   applyLanguage(lang);
   splitWords(document.querySelector("[data-split]"));
-  document.querySelectorAll("[data-lang]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  $("lang").value = lang;
   renderStepper();
   if ($("home-modules").children.length) renderHomeModules();
   if (state.result) { renderTabs(); renderPredicciones(); }
@@ -2160,16 +2286,36 @@ async function start() {
   const prefs = readStore().prefs || {};
   if (prefs.basemap) state.basemap = prefs.basemap;
   setMode(prefs.mode || "medio");
-  setLang(prefs.lang || "es");
+  // first visit: the browser's language when Yatiri X speaks it
+  const browserLang = (navigator.language || "es").slice(0, 2).toLowerCase();
+  setLang(LANG_CODES.includes(prefs.lang) ? prefs.lang : LANG_CODES.includes(browserLang) ? browserLang : "es");
   renderHomeModules();
   renderHeroFact();
   initWorld();
+  // Tiri: face, voice and the watch over saved plots
+  $("tiri-avatar").innerHTML = avatarSVG(34);
+  $("tiri-avatar-big").innerHTML = avatarSVG(64);
+  $("tiri-voice").checked = voiceEnabled();
+  $("tiri-voice").addEventListener("change", (e) => setVoice(e.target.checked));
+  $("tiri-notify").addEventListener("click", async () => {
+    if (!("Notification" in window)) { $("tiri-notify").textContent = "Este navegador no permite avisos"; return; }
+    const p = await Notification.requestPermission();
+    $("tiri-notify").textContent = p === "granted" ? "Avisos del navegador activados" : "Avisos bloqueados en este navegador";
+  });
+  const listen = microphone(() => state.lang, (text) => { openTiri(); askTiri(text); }, (on) => $("tiri-mic").classList.toggle("is-listening", on));
+  if (listen) { $("tiri-mic").hidden = false; $("tiri-mic").addEventListener("click", listen); }
+  setTimeout(() => say("¡Hola! Soy Tiri. Toca un lugar del planeta o pregúntame lo que quieras, también hablando.", { state: "happy", ms: 9000, onClick: openTiri }), 4500);
+  setTimeout(tiriWatch, 7000);
   renderForm();
   renderSaved();
   renderTiri();
   goStep(1);
   document.querySelectorAll("[data-go]").forEach((el) => el.addEventListener("click", (e) => { e.preventDefault(); show(el.dataset.go); }));
-  document.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
+  $("lang").addEventListener("change", (e) => setLang(e.target.value));
+  // high contrast, remembered in this browser
+  const setHc = (on) => { document.body.classList.toggle("hc", on); $("hc").setAttribute("aria-pressed", String(on)); try { localStorage.setItem("yatirix.hc", on ? "1" : "0"); } catch { /* this visit only */ } };
+  try { setHc(localStorage.getItem("yatirix.hc") === "1"); } catch { /* default off */ }
+  $("hc").addEventListener("click", () => setHc(!document.body.classList.contains("hc")));
   $("mode").addEventListener("change", (e) => setMode(e.target.value));
   $("next").addEventListener("click", nextStep);
   $("prev").addEventListener("click", () => goStep(state.step - 1));

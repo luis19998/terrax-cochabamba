@@ -17,10 +17,28 @@ Reglas:
 - Un texto muy corto (un botón, una etiqueta) se traduce corto.
 - Si el texto ya está en quechua o es solo un nombre propio, devuélvelo igual.`;
 
+// Every other language of Yatiri X Global: same marks and names rules, simpler wording for the field.
+export const LANGUAGES = {
+  qu: "quechua boliviano", ay: "aimara de Bolivia (La Paz)", gn: "guaraní (Paraguay y Bolivia)", en: "English", pt: "português do Brasil",
+  fr: "français", de: "Deutsch", it: "italiano", sw: "Kiswahili", hi: "हिन्दी (Hindi)", zh: "中文简体 (chino simplificado)", ar: "العربية الفصحى (árabe)",
+};
+export function rulesFor(lang) {
+  if (lang === "qu") return QUECHUA_RULES;
+  return `Traduces del castellano al ${LANGUAGES[lang]} los textos de una web agrícola, para agricultores que leen en el teléfono.
+Reglas:
+- Palabras sencillas y cotidianas, como se hablan en el campo. Frases cortas.
+- No traduzcas y deja igual: Yatiri X, Tiri, TIRI, NASA, POWER, SRTM, SMAP, MODIS, GPM, IMERG, GIBS, GFS, NOAA, GAMC, SENASAG, INIAF, FAO, ECOCROP, SoilGrids, Open-Meteo, Esri, Maxar, OpenStreetMap, OpenTopoMap, Wikimedia Commons, WhatsApp, GPS, PDF, JSON, Supabase, nombres científicos en latín, unidades (mm, °C, m, ha, km, %, m³, g/kg) y siglas.
+- Nombres de cultivos y de meses: el nombre común en ese idioma.
+- Conserva exactamente las marcas {0}, {1}, {2}… (cada una una sola vez) y las etiquetas HTML con sus atributos (<b>, </b>, <br>, <span class="…">…). Puedes moverlas dentro de la oración según el orden natural del idioma.
+- Conserva los signos de puntuación del inicio y del final y los dos puntos.
+- Un texto muy corto (un botón, una etiqueta) se traduce corto.
+- Si el texto ya está en ese idioma o es solo un nombre propio, devuélvelo igual.`;
+}
+
 // best Quechua first; the free tier allows few calls a day to the newest model, so the next ones take over
 const MODEL_FALLBACKS = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite"];
 const exhausted = new Map(); // model -> time when it can be tried again
-const keyOf = (text) => `qu:${createHash("sha1").update(text).digest("hex")}`;
+const keyOf = (text, lang = "qu") => `${lang}:${createHash("sha1").update(text).digest("hex")}`;
 
 /** Peruvian forms that the models still slip in, turned into their Bolivian (Cochabamba) forms. */
 export function bolivian(text) {
@@ -38,7 +56,7 @@ export function sameMarks(src, out) {
   return marks(src) === marks(out) && tags(src) === tags(out);
 }
 
-async function geminiTranslate(env, texts) {
+async function geminiTranslate(env, texts, lang = "qu") {
   const models = [env.TRANSLATE_MODEL, ...MODEL_FALLBACKS].filter(Boolean);
   let lastError = null;
   for (const model of [...new Set(models)]) {
@@ -47,7 +65,7 @@ async function geminiTranslate(env, texts) {
       method: "POST",
       headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: QUECHUA_RULES }] },
+        systemInstruction: { parts: [{ text: rulesFor(lang) }] },
         contents: [{ role: "user", parts: [{ text: `Traduce cada elemento de este arreglo JSON. Responde solo con un arreglo JSON de la misma longitud y en el mismo orden.\n${JSON.stringify(texts)}` }] }],
         generationConfig: { temperature: 0.2, responseMimeType: "application/json", responseSchema: { type: "ARRAY", items: { type: "STRING" } } },
       }),
@@ -55,7 +73,9 @@ async function geminiTranslate(env, texts) {
     });
     if (!r.ok) {
       // out of quota (429) or model gone (404): skip it for a while and try the next one
-      if (r.status === 429 || r.status === 404) exhausted.set(model, Date.now() + (r.status === 429 ? 30 : 24 * 60) * 60e3);
+      // a per-minute limit passes soon; a daily one (or a model that is gone) keeps it out much longer
+      if (r.status === 429) { const why = await r.text().catch(() => ""); exhausted.set(model, Date.now() + (/PerDay/i.test(why) ? 6 * 3600e3 : 90e3)); }
+      if (r.status === 404) exhausted.set(model, Date.now() + 24 * 3600e3);
       lastError = new Error(`${model}: HTTP ${r.status}`);
       continue;
     }
@@ -70,20 +90,22 @@ async function geminiTranslate(env, texts) {
 }
 
 /**
- * createTranslator({ env, cache }) -> { translate(texts) -> { [text]: quechua } }
+ * createTranslator({ env, cache }) -> { translate(texts, lang) -> { [text]: translation } } (lang: qu by default)
  * cache: object with get/set (Netlify Blobs or a local file). Texts that fail the checks stay out of the answer,
  * so the web keeps them in Spanish instead of showing a broken sentence.
  */
 export function createTranslator({ env, cache }) {
   return {
     available: () => Boolean(env.GEMINI_API_KEY),
-    async translate(texts) {
+    async translate(texts, lang = "qu") {
+      if (!LANGUAGES[lang]) lang = "qu";
       const clean = [...new Set(texts.filter((t) => typeof t === "string" && t.trim() && t.length <= 2000))].slice(0, 80);
       const result = {};
       const missing = [];
       for (const text of clean) {
-        const hit = cache ? await cache.get(keyOf(text)).catch(() => null) : null;
-        if (hit && hit.qu) result[text] = hit.qu; else missing.push(text);
+        const hit = cache ? await cache.get(keyOf(text, lang)).catch(() => null) : null;
+        const known = hit && (hit.tr || hit.qu);
+        if (known) result[text] = known; else missing.push(text);
       }
       if (!missing.length || !env.GEMINI_API_KEY) return result;
       // batches small enough for one answer
@@ -98,12 +120,12 @@ export function createTranslator({ env, cache }) {
       if (batch.length) batches.push(batch);
       for (const b of batches) {
         let out;
-        try { out = await geminiTranslate(env, b); } catch { continue; }
+        try { out = await geminiTranslate(env, b, lang); } catch { continue; }
         for (let i = 0; i < b.length; i++) {
           if (!sameMarks(b[i], out[i])) continue;
-          const qu = bolivian(out[i]);
-          result[b[i]] = qu;
-          if (cache) await cache.set(keyOf(b[i]), { es: b[i], qu, at: new Date().toISOString().slice(0, 10) }).catch(() => {});
+          const tr = lang === "qu" ? bolivian(out[i]) : out[i];
+          result[b[i]] = tr;
+          if (cache) await cache.set(keyOf(b[i], lang), { es: b[i], tr, lang, at: new Date().toISOString().slice(0, 10) }).catch(() => {});
         }
       }
       return result;

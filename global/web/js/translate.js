@@ -1,6 +1,7 @@
-// Quechua for the whole page, including everything the app computes and draws later (results, messages, Tiri).
+// Any language for the whole page (Quechua, Aymara, Guarani, English, Portuguese, French, German, Italian, Swahili,
+// Hindi, Chinese, Arabic), including everything the app computes and draws later (results, messages, Tiri).
 // It works on the rendered page: each sentence-sized element (or text piece) is looked up in
-//   1. web/data/qu.json   reviewed dictionary in the repository (a speaker can correct it)
+//   1. web/data/<lang>.json   dictionary in the repository (qu.json reviewed; en/pt pre-generated)
 //   2. this browser's cache of earlier answers
 //   3. POST /api/translate (Gemini on the server, cached there too)
 // Numbers are replaced by {0}, {1}… before the lookup, so "Unos 25 mm" and "Unos 40 mm" share one translation.
@@ -10,14 +11,16 @@ const INLINE = new Set(["B", "STRONG", "I", "EM", "BR", "SMALL", "SUP", "SUB", "
 const SKIP = "script,style,noscript,textarea,code,pre,svg text,[translate='no'],.notranslate,.leaflet-control-attribution,.leaflet-tile-pane,.sprite";
 const ATTRS = ["placeholder", "aria-label", "title", "alt"];
 const LETTERS = /[A-Za-zÁÉÍÓÚÜáéíóúüÑñ]{2,}/;
-const CACHE = "yatirix.qu.v2";
+const CACHE = (l) => (l === "qu" ? "yatirix.qu.v2" : `yatirix.tr.${l}.v1`);
+const BUSY = { qu: "Runasimiman t'ikrachkan…", en: "Translating…", pt: "Traduzindo…", fr: "Traduction…", de: "Übersetzung…", it: "Traduzione…", sw: "Inatafsiri…", hi: "अनुवाद हो रहा है…", zh: "正在翻译…", ar: "جارٍ الترجمة…" };
 const MAX_BLOCK = 1600;
 
 let lang = "es";
-let dict = null;
-let dictLoading = null;
-let local = {};
-let skip = new Set();
+// one store per language: { dict, local, known, terms, loading }
+const stores = {};
+const store = (l = lang) => (stores[l] ||= { dict: null, local: {}, known: new Set(), terms: null, loading: null });
+let skipQu = new Set();
+const noSkip = new Set();
 let observer = null;
 const translated = new Set();
 const pending = new Map(); // key -> Set of targets
@@ -28,13 +31,15 @@ let busy = 0;
 
 // Crop names work like numbers: "Sembrar pepino…" and "Sembrar haba…" share one translation, and each name is put
 // back in Quechua (maíz -> sara). Set with setTerms().
-let terms = new Map(); // lower-case Spanish -> Quechua
+let termKeys = []; // the Spanish names, as written
 let pattern = /\d+(?:[.,]\d+)*/gu;
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-/** terms: { "Maíz": "Sara", "Frijol (poroto)": "Purutu", … } */
+const termMap = (obj) => new Map(Object.entries(obj).map(([es, tr]) => [es.toLowerCase(), tr]));
+/** terms: { "Maíz": "Sara", "Frijol (poroto)": "Purutu", … } (Quechua); other languages get theirs from the dictionary */
 export function setTerms(map) {
-  terms = new Map(Object.entries(map).map(([es, qu]) => [es.toLowerCase(), qu]));
-  const names = [...terms.keys()].sort((a, b) => b.length - a.length).map(escape);
+  termKeys = Object.keys(map);
+  store("qu").terms = termMap(map);
+  const names = termKeys.map((k) => k.toLowerCase()).sort((a, b) => b.length - a.length).map(escape);
   pattern = names.length ? new RegExp(`(?<![\\p{L}])(?:${names.join("|")})(?![\\p{L}])|\\d+(?:[.,]\\d+)*`, "giu") : /\d+(?:[.,]\d+)*/gu;
 }
 function normalize(s) {
@@ -45,34 +50,64 @@ function normalize(s) {
   return { key, nums, lead, trail };
 }
 function termOut(m) {
-  const qu = terms.get(m.toLowerCase());
+  const t = store().terms;
+  const qu = t && t.get(m.toLowerCase());
   if (!qu) return m;
   return m[0] === m[0].toUpperCase() ? qu[0].toUpperCase() + qu.slice(1) : qu.toLowerCase();
 }
 const fill = (tr, nums) => tr.replace(/\{(\d+)\}/g, (_, i) => (nums[Number(i)] === undefined ? "" : termOut(nums[Number(i)])));
 /** a key that is only marks and punctuation ("{0}", "{0}, {1}, {2}") needs no dictionary */
 const onlyMarks = (key) => !LETTERS.test(plain(key).replace(/\{\d+\}/g, ""));
-const lookup = (key) => (dict && dict[key]) || local[key] || null;
-// every Quechua text we know or wrote: never sent back to be "translated" again
-const quechua = new Set();
-const remember = (tr) => { if (tr) quechua.add(tr); };
+const lookup = (key, l = lang) => { const s = store(l); return (s.dict && s.dict[key]) || s.local[key] || null; };
+// every translated text we know or wrote: never sent back to be "translated" again
+const isKnown = (key) => store().known.has(key);
+const remember = (tr, l = lang) => { if (tr) store(l).known.add(tr); };
+const skip = { has: (v) => (lang === "qu" ? skipQu : noSkip).has(v) };
 const plain = (html) => html.replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ");
 
-function loadDict() {
-  if (dict) return Promise.resolve(dict);
-  if (!dictLoading) {
-    try { local = JSON.parse(localStorage.getItem(CACHE)) || {}; } catch { local = {}; }
-    dictLoading = fetch("data/qu.json").then((r) => (r.ok ? r.json() : { entries: {} })).catch(() => ({ entries: {} }))
-      .then((d) => { dict = d.entries || {}; Object.values(dict).forEach(remember); Object.values(local).forEach(remember); return dict; });
+function loadDict(l) {
+  const s = store(l);
+  if (s.dict) return Promise.resolve(s.dict);
+  if (!s.loading) {
+    try { s.local = JSON.parse(localStorage.getItem(CACHE(l))) || {}; } catch { s.local = {}; }
+    s.loading = fetch(`data/${l}.json`).then((r) => (r.ok ? r.json() : { entries: {} })).catch(() => ({ entries: {} }))
+      .then((d) => {
+        s.dict = d.entries || {};
+        if (d.terms && l !== "qu") s.terms = termMap(d.terms);
+        Object.values(s.dict).forEach((v) => remember(v, l));
+        Object.values(s.local).forEach((v) => remember(v, l));
+        return s.dict;
+      });
   }
-  return dictLoading;
+  return s.loading;
 }
-function saveLocal() {
+function saveLocal(l) {
+  const local = store(l).local;
   try {
     const keys = Object.keys(local);
     if (keys.length > 4000) for (const k of keys.slice(0, keys.length - 4000)) delete local[k];
-    localStorage.setItem(CACHE, JSON.stringify(local));
+    localStorage.setItem(CACHE(l), JSON.stringify(local));
   } catch { /* storage full or off: translations still work for this visit */ }
+}
+async function ask(texts, l) {
+  const r = await fetch("/api/translate", {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ texts, lang: l }),
+    signal: AbortSignal.timeout(90000),
+  });
+  return r.ok ? (await r.json()).translations || {} : {};
+}
+/** crop and month names for a language without a dictionary file: asked once, then kept in this browser */
+async function ensureTerms(l) {
+  const s = store(l);
+  if (s.terms || !termKeys.length) return false;
+  const key = `yatirix.terms.${l}.v1`;
+  try { const saved = JSON.parse(localStorage.getItem(key)); if (saved) { s.terms = termMap(saved); return true; } } catch { /* ask */ }
+  const out = {};
+  for (let i = 0; i < termKeys.length; i += 80) Object.assign(out, await ask(termKeys.slice(i, i + 80), l).catch(() => ({})));
+  if (!Object.keys(out).length) return false;
+  s.terms = termMap(out);
+  try { localStorage.setItem(key, JSON.stringify(out)); } catch { /* this visit only */ }
+  return true;
 }
 
 /** runs fn without feeding its own changes back into the observer */
@@ -96,7 +131,7 @@ function isBlock(el) {
 }
 
 function want(key, target) {
-  if ((failed.get(key) || 0) > Date.now()) return;
+  if ((failed.get(`${lang}|${key}`) || 0) > Date.now()) return;
   if (!pending.has(key)) pending.set(key, new Set());
   pending.get(key).add(target);
   clearTimeout(timer);
@@ -110,7 +145,7 @@ function doBlock(el) {
   if (!LETTERS.test(text) || skip.has(text)) return;
   const { key, nums } = normalize(html);
   const tr = lookup(key) || (onlyMarks(key) ? key : null);
-  if (!tr) { if (!quechua.has(key)) want(key, el); return; }
+  if (!tr) { if (!isKnown(key)) want(key, el); return; }
   el.__quSrc = html;
   el.__quOut = fill(tr, nums);
   quietly(() => { el.innerHTML = el.__quOut; el.__quOut = el.innerHTML; });
@@ -124,7 +159,7 @@ function doText(n) {
   if (!parent || parent.closest(SKIP)) return;
   const { key, nums, lead, trail } = normalize(v);
   const tr = lookup(key) || (onlyMarks(key) ? key : null);
-  if (!tr) { if (!quechua.has(key)) want(key, n); return; }
+  if (!tr) { if (!isKnown(key)) want(key, n); return; }
   n.__quSrc = v;
   n.__quOut = lead + fill(tr, nums) + trail;
   quietly(() => { n.nodeValue = n.__quOut; });
@@ -140,7 +175,7 @@ function doAttrs(el) {
     if (!LETTERS.test(v) || skip.has(v.trim())) continue;
     const { key, nums } = normalize(v);
     const tr = lookup(key) || (onlyMarks(key) ? key : null);
-    if (!tr) { if (!quechua.has(key)) want(key, { el, attr: name }); continue; }
+    if (!tr) { if (!isKnown(key)) want(key, { el, attr: name }); continue; }
     el.__quAttr[name] = { src: v, out: fill(tr, nums) };
     quietly(() => el.setAttribute(name, el.__quAttr[name].out));
     translated.add(el);
@@ -169,32 +204,29 @@ function retry(target) {
 }
 
 async function flush() {
-  if (lang !== "qu" || !pending.size) return;
+  if (lang === "es" || !pending.size) return;
+  const l = lang;
   const keys = [...pending.keys()].slice(0, 80);
   const targets = keys.map((k) => [k, pending.get(k)]);
   keys.forEach((k) => pending.delete(k));
   busy += 1;
   setBusy();
   try {
-    const r = await fetch("/api/translate", {
-      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ texts: keys }),
-      signal: AbortSignal.timeout(90000),
-    });
-    const data = r.ok ? await r.json() : { translations: {} };
-    for (const [k, v] of Object.entries(data.translations || {})) { local[k] = v; remember(v); }
-    saveLocal();
+    const translations = await ask(keys, l);
+    for (const [k, v] of Object.entries(translations)) { store(l).local[k] = v; remember(v, l); }
+    saveLocal(l);
     for (const [k, set] of targets) {
-      if (!lookup(k)) { failed.set(k, Date.now() + 120e3); continue; }
-      if (lang === "qu") set.forEach(retry);
+      if (!lookup(k, l)) { failed.set(`${l}|${k}`, Date.now() + 120e3); continue; }
+      if (lang === l) set.forEach(retry);
     }
   } catch {
-    keys.forEach((k) => failed.set(k, Date.now() + 60e3));
+    keys.forEach((k) => failed.set(`${l}|${k}`, Date.now() + 60e3));
   } finally {
     busy -= 1;
     setBusy();
     if (pending.size) flush();
     // what could not be translated now is tried again in a couple of minutes
-    if (failed.size) { clearTimeout(revisit); revisit = setTimeout(() => { if (lang === "qu") visit(document.body); }, 130e3); }
+    if (failed.size) { clearTimeout(revisit); revisit = setTimeout(() => { if (lang !== "es") visit(document.body); }, 130e3); }
   }
 }
 
@@ -205,14 +237,14 @@ function setBusy() {
     chip.id = "qu-busy";
     chip.className = "qu-busy notranslate";
     chip.setAttribute("role", "status");
-    chip.textContent = "Runasimiman t'ikrachkan…";
     document.body.append(chip);
   }
-  chip.hidden = !(busy > 0 && lang === "qu");
+  chip.textContent = BUSY[lang] || "Traduciendo…";
+  chip.hidden = !(busy > 0 && lang !== "es");
 }
 
 function onRecords(records) {
-  if (lang !== "qu") return;
+  if (lang === "es") return;
   const seen = new Set();
   for (const rec of records) {
     if (rec.type === "childList") rec.addedNodes.forEach((n) => { if (!seen.has(n)) { seen.add(n); visit(n); } });
@@ -226,7 +258,9 @@ function onRecords(records) {
 }
 
 function restore() {
-  quietly(() => {
+  // changes waiting in the observer belong to the language we leave: a full pass follows for the new one
+  if (observer) observer.takeRecords();
+  (() => {
     for (const t of translated) {
       if (t.nodeType === 3) { if (t.isConnected && t.nodeValue === t.__quOut) t.nodeValue = t.__quSrc; delete t.__quOut; continue; }
       if (t.__quAttr) {
@@ -236,7 +270,8 @@ function restore() {
       if (t.__quOut !== undefined) { if (t.isConnected && t.innerHTML === t.__quOut) t.innerHTML = t.__quSrc; delete t.__quOut; }
     }
     if (document.__quTitle) { document.title = document.__quTitle; delete document.__quTitle; }
-  });
+  })();
+  if (observer) observer.takeRecords();
   translated.clear();
   pending.clear();
 }
@@ -250,19 +285,24 @@ async function translateTitle() {
 
 /** skipValues: texts that are already Quechua (the hand-made interface dictionary). */
 export async function setLanguage(next, { skipValues } = {}) {
-  if (skipValues) skip = skipValues;
+  if (skipValues) skipQu = skipValues;
   if (next === lang) return;
+  if (lang !== "es") restore();
   lang = next;
   if (!observer) {
     observer = new MutationObserver(onRecords);
     observer.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
   }
-  if (lang !== "qu") { restore(); setBusy(); return; }
-  await loadDict();
-  if (lang !== "qu") return;
+  if (lang === "es") { setBusy(); return; }
+  const l = lang;
+  await loadDict(l);
+  if (lang !== l) return;
   translateTitle();
   visit(document.body);
+  // crop and month names: when they arrive, the page is gone over again with them
+  if (await ensureTerms(l).catch(() => false)) { if (lang === l) { restore(); translateTitle(); visit(document.body); } }
 }
+export const currentLanguage = () => lang;
 
 /** The Quechua of one Spanish text if it is already known (for texts built outside the page, like alerts). */
 export function known(text) {

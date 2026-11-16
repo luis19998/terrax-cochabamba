@@ -5,7 +5,7 @@
 //   GET  /api/health
 //   GET  /api/n8n/alerts|digest     messages to send now (header x-alerts-secret); POST /api/n8n/sent marks them
 //   POST /api/crop-profile          { name } -> agronomic values of a crop that is not in the catalogue (Gemini)
-//   POST /api/translate             { texts: [...] } -> { translations: { text: quechua } } (Gemini, cached)
+//   POST /api/translate             { texts: [...], lang } -> { translations: { text: translation } } (Gemini, cached)
 //   POST /api/recommend             body: { altitude, history, irrigation, priorities, preferred, scenario }
 //   GET  /api/gamc/wms?layer=       WMS proxy for the GAMC layers (the API key is added here, never in the browser)
 //   GET  /api/gamc/info?lat=&lon=   district and peri-urban zone of a point (GAMC GetFeatureInfo)
@@ -21,6 +21,7 @@ import { markSent, pendingMessages, runAlerts } from "./alerts.mjs";
 import { createPlotService } from "./plot.mjs";
 import { createTerra, usableKey } from "./terra.mjs";
 import { createGlobal } from "./global.mjs";
+import { createAgent } from "./agent.mjs";
 import { createTranslator } from "./translate.mjs";
 import { createCropProfiler } from "./crop_profile.mjs";
 import { createWhatsApp } from "./whatsapp.mjs";
@@ -121,6 +122,7 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge, subscrib
   const plotService = world.plotService;
   const outlook = world.outlook;
   const terra = createTerra({ env, climate, climateFor: world.climateFor, crops, knowledge, plotService, gamcInfo, forecast, outlook });
+  const agent = createAgent({ env, terra, outlook, crops, knowledge });
   const whatsapp = createWhatsApp({ env, terra, crops, subscribers, sessionStore });
   const translator = createTranslator({ env, cache: translationStore });
   const profiler = createCropProfiler({ env });
@@ -202,7 +204,7 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge, subscrib
       if (request.method !== "POST") throw fail(405, "Usa POST");
       const input = await body(request, url);
       const texts = Array.isArray(input.texts) ? input.texts : [];
-      return json(200, { translations: await translator.translate(texts), engine: translator.available() ? "gemini" : "ninguno" });
+      return json(200, { translations: await translator.translate(texts, typeof input.lang === "string" ? input.lang : "qu"), engine: translator.available() ? "gemini" : "ninguno" });
     }
     if (path === "/api/tiri" || path === "/api/terra") return json(200, await terra.ask(await body(request, url)));
     const terrainTile = path.match(/^\/api\/terrain\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})\.png$/);
@@ -220,6 +222,10 @@ export function createApi({ env, climate, crops, gamc, grid, knowledge, subscrib
         remember(key, tile, 400);
       }
       return new Response(tile, { status: 200, headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" } });
+    }
+    if (path === "/api/agent") {
+      if (request.method !== "POST") throw fail(405, "Usa POST");
+      return json(200, await agent.run(await body(request, url)));
     }
     if (path === "/api/elevation") {
       const la = Number(url.searchParams.get("lat"));

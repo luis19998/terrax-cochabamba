@@ -21,10 +21,26 @@
   <header class="topbar">
     <a class="logo" href="#inicio" data-go="home"><img class="logo__mark" src="img/logo-mark.png" alt="" width="28" height="38"><img class="logo__word" src="img/logo-word.png" alt="Yatiri X" width="130" height="28"></a>
     <div class="topbar__tools">
-      <div class="switch" role="group" aria-label="Idioma" data-i18n-aria="language">
-        <button type="button" data-lang="es" aria-pressed="true" translate="no">Español</button>
-        <button type="button" data-lang="qu" aria-pressed="false" translate="no">Quechua</button>
-      </div>
+      <label class="lang-select" translate="no">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-2.95a15.7 15.7 0 0 0-1.38-3.56A8.03 8.03 0 0 1 18.9 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14a8.2 8.2 0 0 1 0-4h3.38a16.5 16.5 0 0 0 0 4H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 0 1 5.08 16zm2.95-8H5.08a7.99 7.99 0 0 1 4.33-3.56A15.7 15.7 0 0 0 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82A13.7 13.7 0 0 1 12 19.96zM14.34 14H9.66a14.7 14.7 0 0 1 0-4h4.68a14.7 14.7 0 0 1 0 4zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56zM16.36 14a16.5 16.5 0 0 0 0-4h3.38a8.2 8.2 0 0 1 0 4h-3.38z"/></svg>
+        <span class="sr-only">Idioma</span>
+        <select id="lang" aria-label="Idioma">
+          <option value="es">Español</option>
+          <option value="qu">Quechua</option>
+          <option value="ay">Aymar aru</option>
+          <option value="gn">Avañe'ẽ (guaraní)</option>
+          <option value="en">English</option>
+          <option value="pt">Português</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="it">Italiano</option>
+          <option value="sw">Kiswahili</option>
+          <option value="hi">हिन्दी</option>
+          <option value="zh">中文</option>
+          <option value="ar">العربية</option>
+        </select>
+      </label>
+      <button type="button" class="hc-toggle" id="hc" aria-pressed="false" aria-label="Alto contraste" title="Alto contraste"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2v16a8 8 0 0 1 0-16z"/></svg></button>
       <label class="mode-select">
         <span data-i18n="mode">Información</span>
         <select id="mode">
@@ -263,6 +279,7 @@
 
   <div class="loader" id="loader" hidden role="status" aria-live="polite">
     <div class="loader__card">
+      <div class="reel reel--loader" id="loader-reel" aria-hidden="true"></div>
       <svg class="grow" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="102" rx="34" ry="7" fill="#8a5a2b" opacity=".85"/><path class="grow__stem" pathLength="1" d="M60 100C60 86 58 72 60 52" fill="none" stroke="#4f7d2c" stroke-width="5" stroke-linecap="round"/><path class="grow__leaf grow__leaf--l" d="M60 80C47 79 39 70 37 61c11 0 20 7 23 19z" fill="url(#g-leaf)"/><path class="grow__leaf grow__leaf--r" d="M60 66c13-1 21-10 23-19-11 0-20 7-23 19z" fill="url(#g-leaf)"/><circle class="grow__bud" cx="60" cy="50" r="6" fill="#c06840"/></svg>
       <p class="loader__title">Analizando tu terreno</p>
       <p class="loader__msg" id="loader-msg"></p>
@@ -271,17 +288,23 @@
 
   <!-- ===================== TIRI ===================== -->
   <aside class="tiri no-print" id="tiri" aria-labelledby="h-tiri">
+    <div class="tiri-say" id="tiri-say" hidden role="status"></div>
     <button class="tiri__toggle" type="button" id="tiri-toggle" aria-expanded="false" aria-controls="tiri-body">
-      <span aria-hidden="true">🌱</span> <span data-i18n="askTiri">Pregúntale a Tiri</span>
+      <span id="tiri-avatar"></span> <span data-i18n="askTiri">Pregúntale a Tiri</span>
     </button>
     <div class="tiri__body" id="tiri-body" hidden>
-      <h2 id="h-tiri">Tiri</h2>
+      <div class="tiri__head"><span id="tiri-avatar-big"></span><div><h2 id="h-tiri">Tiri</h2><p class="tiri__role">Agente agrícola con IA · usa datos de la NASA</p></div></div>
+      <div class="tiri__tools">
+        <label class="tiri__switch"><input type="checkbox" id="tiri-voice"> Leer en voz alta</label>
+        <button type="button" class="link small" id="tiri-notify">Activar avisos del navegador</button>
+      </div>
       <a class="btn btn--small" id="tiri-wa" hidden target="_blank" rel="noopener">Hablar con Tiri por WhatsApp</a>
       <div class="chat" id="tiri-log" aria-live="polite"></div>
       <div class="chips chips--small" id="tiri-suggestions"></div>
       <form class="ask" id="tiri-form">
         <label class="sr-only" for="tiri-input" data-i18n="yourQuestion">Tu pregunta para Tiri</label>
-        <input id="tiri-input" type="text" autocomplete="off" maxlength="300" placeholder="Escribe tu pregunta" data-i18n-placeholder="askPh">
+        <button class="btn btn--ghost tiri__mic" type="button" id="tiri-mic" aria-label="Hablarle a Tiri" hidden><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V22h2v-3.08A7 7 0 0 0 19 12z"/></svg></button>
+        <input id="tiri-input" type="text" autocomplete="off" maxlength="300" placeholder="Escribe o habla tu pregunta" data-i18n-placeholder="askPh">
         <button class="btn btn--primary" type="submit" data-i18n="ask">Preguntar</button>
       </form>
     </div>

@@ -132,7 +132,8 @@ export function t(key, lang) {
 
 /** Applies the language to every element marked with data-i18n, data-i18n-placeholder or data-i18n-aria. */
 export function applyLanguage(lang) {
-  document.documentElement.lang = lang === "qu" ? "qu" : "es";
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.dataset.i18n;
     if (!original.has(key)) original.set(key, el.textContent);
