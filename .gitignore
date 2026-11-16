@@ -26,3 +26,7 @@ Thumbs.db
 # Local WhatsApp subscriptions and chat state (personal data)
 data/local/
 .netlify/
+
+# Yatiri X Global local caches
+global/data/local/
+global/.env

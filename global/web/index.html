@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yatiri X Global: conocemos tu tierra, cultivamos un mejor futuro</title>
+  <meta name="description" content="Yatiri X Global analiza cualquier terreno del planeta con 45 años de datos de la NASA: clima, relieve, agua, riesgos, plagas y qué sembrar. Con Tiri, agente de IA en muchos idiomas.">
+  <meta name="theme-color" content="#687870">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="preload" href="vendor/fonts/plus-jakarta-sans/plus-jakarta-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="vendor/fonts/plus-jakarta-sans/plus-jakarta-sans-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="vendor/fonts/plus-jakarta-sans/fonts.css">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/motion.css">
+  <link rel="stylesheet" href="css/world.css">
+  <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.min.js" } }</script>
+</head>
+<body data-mode="medio">
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="logo" href="#inicio" data-go="home"><img class="logo__mark" src="img/logo-mark.png" alt="" width="28" height="38"><img class="logo__word" src="img/logo-word.png" alt="Yatiri X" width="130" height="28"></a>
+    <div class="topbar__tools">
+      <div class="switch" role="group" aria-label="Idioma" data-i18n-aria="language">
+        <button type="button" data-lang="es" aria-pressed="true" translate="no">Español</button>
+        <button type="button" data-lang="qu" aria-pressed="false" translate="no">Quechua</button>
+      </div>
+      <label class="mode-select">
+        <span data-i18n="mode">Información</span>
+        <select id="mode">
+          <option value="simple" data-i18n="modeSimple">Sencilla</option>
+          <option value="medio" selected data-i18n="modeMedium">Media</option>
+          <option value="avanzado" data-i18n="modeAdvanced">Avanzada</option>
+        </select>
+      </label>
+    </div>
+  </header>
+  <p class="qu-note" id="qu-note" hidden data-i18n="quNote">Runasimi rimaykunaqa qhawarisqa kanankupaq kachkan. Willakuykuna kastilla simipi.</p>
+
+  <!-- ===================== PORTADA ===================== -->
+  <main id="view-home" class="view">
+    <section class="world" aria-labelledby="world-title">
+      <div class="world__globe" id="globe" role="application" aria-label="Planeta Tierra en 3D: toca un lugar para analizarlo"></div>
+      <div class="world__loader" id="globe-loader" aria-live="polite">
+        <div class="reel" id="globe-reel"></div>
+        <p class="world__loading">Armando el planeta con imágenes de la NASA… <b id="globe-pct">0 %</b></p>
+        <span class="world__bar"><span id="globe-progress"></span></span>
+      </div>
+      <div class="world__intro">
+        <p class="eyebrow" data-reveal><span class="eyebrow__tag" translate="no">NASA Space Apps 2026</span><span class="eyebrow__text">Yatiri X Global</span></p>
+        <h1 class="world__title" id="world-title" data-reveal>Conocemos tu tierra. <span>Ahora, todo el planeta.</span></h1>
+        <p class="world__lead" data-reveal>Toca cualquier lugar del mundo: Yatiri X lee 45 años de clima de la NASA, su relieve y el pronóstico, y te dice qué sembrar, cuándo y con cuánta agua.</p>
+        <form class="world__search" id="world-search" role="search" data-reveal>
+          <input id="world-q" type="search" placeholder="Busca un lugar: Cochabamba, Nairobi, Cusco…" aria-label="Buscar un lugar del planeta">
+          <button class="btn btn--primary" type="submit">Ir</button>
+          <button class="btn btn--ghost" type="button" id="world-locate">Mi ubicación</button>
+        </form>
+      </div>
+      <aside class="world__panel" aria-label="Capas del planeta">
+        <p class="world__panel-title">Capas de la NASA</p>
+        <div class="world__layers" id="world-layers"></div>
+        <div class="world__legend" id="world-legend"></div>
+        <label class="world__toggle"><input type="checkbox" id="world-bands"> Franjas climáticas</label>
+        <div class="world__bands" id="world-bands-legend" hidden></div>
+        <label class="world__slider">Relieve exagerado <input type="range" id="world-relief" min="0" max="0.14" step="0.005" value="0.035"></label>
+      </aside>
+      <div class="world__pick" id="world-pick" hidden aria-live="polite"></div>
+    </section>
+
+    <section class="hero">
+      <div class="hero__scene" aria-hidden="true">
+        <div class="hero__glow"></div>
+        <div class="hero__seeds" data-depth="0.6"></div>
+        <div class="hero__sun" data-depth="0.3"><span></span></div>
+        <div class="hero__cloud hero__cloud--1" data-depth="0.9"></div>
+        <div class="hero__cloud hero__cloud--2" data-depth="0.5"></div>
+        <svg class="hero__hills" data-depth="0.35" viewBox="0 0 1440 260" preserveAspectRatio="none"><path d="M0 170C160 120 300 110 470 150S760 210 930 160 1250 90 1440 130V260H0Z" fill="#c9dfb2"/></svg>
+        <svg class="hero__hills hero__hills--mid" data-depth="0.7" viewBox="0 0 1440 260" preserveAspectRatio="none"><path d="M0 200C200 150 380 160 560 190S900 230 1080 190 1330 150 1440 170V260H0Z" fill="#a8cd86"/></svg>
+        <svg class="hero__hills hero__hills--front" data-depth="1.1" viewBox="0 0 1440 260" preserveAspectRatio="none"><path d="M0 230C240 200 420 215 640 228S1020 248 1220 226 1380 214 1440 220V260H0Z" fill="#7da95a"/><g class="hero__rows" stroke="#5e8c3a" stroke-width="3" stroke-linecap="round" opacity=".55"><path d="M80 246l60-10M200 248l60-10M320 250l60-10M440 250l60-10M560 250l60-10M680 252l60-10M800 252l60-10M920 250l60-10M1040 248l60-10M1160 244l60-10M1280 242l60-10"/></g></svg>
+      </div>
+      <div class="hero__text">
+        <p class="eyebrow" data-reveal><span class="eyebrow__tag" translate="no">NASA Space Apps 2026</span><span class="eyebrow__text">Cochabamba · Bolivia</span></p>
+        <h1 class="hero__title" data-split data-i18n="heroTitle">Conocemos tu tierra, cultivamos un mejor futuro.</h1>
+        <p class="hero__lead" data-reveal data-i18n="heroLead">En los valles y zonas periurbanas de Cochabamba, una sequía imprevista, una helada o una lluvia que desborda el canal pueden llevarse la cosecha de todo un año. Yatiri X junta 45 años de datos de la NASA, la información del municipio y el pronóstico para decirte qué sembrar, cuándo regar y cómo cuidar tu terreno.</p>
+        <div class="hero__cta" data-reveal>
+          <button class="btn btn--primary btn--shine" type="button" data-go="wizard" data-magnetic data-i18n="ctaStart">Analizar mi terreno</button>
+          <a class="btn btn--ghost" href="#como" data-i18n="ctaHow">Cómo funciona</a>
+        </div>
+      </div>
+      <div class="hero__side">
+        <div class="orbit" aria-hidden="false">
+          <span class="orbit__ring orbit__ring--1" aria-hidden="true"></span>
+          <span class="orbit__ring orbit__ring--2" aria-hidden="true"></span>
+          <span class="orbit__sat orbit__sat--1" aria-hidden="true"><svg width="26" height="26"><use href="#i-sun"/></svg></span>
+          <span class="orbit__sat orbit__sat--2" aria-hidden="true"><svg width="24" height="24"><use href="#i-drop"/></svg></span>
+          <span class="orbit__sat orbit__sat--3" aria-hidden="true"><svg width="26" height="26"><use href="#i-cloud"/></svg></span>
+          <img class="hero__logo" src="img/logo-full.png" alt="Logo de Yatiri X: una hoja con tres ondas de agua y tierra" width="240" height="266">
+        </div>
+        <figure class="hero__fact" id="hero-fact" aria-live="polite" data-reveal data-tilt>
+          <p class="hero__fact-label" data-i18n="heroFactLabel">Ejemplo real, Distrito 9</p>
+          <p class="hero__fact-body">Calculando con datos de la NASA…</p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="marquee" aria-label="Fuentes de datos">
+      <div class="marquee__track" translate="no">
+        <span>NASA POWER</span><span>NASA SRTM</span><span>NASA SMAP</span><span>GPM IMERG</span><span>MODIS</span><span>GAMC Cochabamba</span><span>Open-Meteo</span><span>GFS Ensemble</span><span>SoilGrids</span><span>FAO-56</span><span>FAO ECOCROP</span><span>Gemini</span>
+        <span aria-hidden="true">NASA POWER</span><span aria-hidden="true">NASA SRTM</span><span aria-hidden="true">NASA SMAP</span><span aria-hidden="true">GPM IMERG</span><span aria-hidden="true">MODIS</span><span aria-hidden="true">GAMC Cochabamba</span><span aria-hidden="true">Open-Meteo</span><span aria-hidden="true">GFS Ensemble</span><span aria-hidden="true">SoilGrids</span><span aria-hidden="true">FAO-56</span><span aria-hidden="true">FAO ECOCROP</span><span aria-hidden="true">Gemini</span>
+      </div>
+    </section>
+
+    <section class="band" id="modulos">
+      <h2 data-reveal data-i18n="modulesTitle">Plataforma inteligente de análisis de terrenos agrícolas</h2>
+      <div class="modules" id="home-modules" data-reveal-group></div>
+      <button class="module module--start" type="button" data-go="wizard" data-reveal data-magnetic>
+        <span class="module__icon" aria-hidden="true" data-icon="map"></span>
+        <span><b data-i18n="startTitle">Comenzar análisis</b><span class="module__sub" data-i18n="startSub">Conoce las condiciones de tu parcela agrícola.</span></span>
+      </button>
+    </section>
+
+    <section class="band" id="problema">
+      <div class="band__grid" data-reveal-group>
+        <article class="point" data-tilt>
+          <h2 data-i18n="problemTitle">El problema</h2>
+          <p data-i18n="problemText">Elegir qué sembrar y cuándo regar se hace por costumbre. Pero las lluvias llegan cada vez más irregulares, el agua de riego no alcanza en los meses críticos y en época de lluvias los canales se desbordan. En el municipio llueven en promedio unos 480 mm al año, mientras los cultivos y el suelo pierden por evaporación más del triple.</p>
+        </article>
+        <article class="point" data-tilt>
+          <h2 data-i18n="whoTitle">A quién afecta</h2>
+          <p data-i18n="whoText">A las familias productoras de los valles y zonas periurbanas como La Maica, el Distrito 9 y el Distrito 13; a las asociaciones de regantes que reparten el agua; y al municipio, que gestiona canales y torrenteras.</p>
+        </article>
+        <article class="point" data-tilt>
+          <h2 data-i18n="riskTitle">Qué se arriesga</h2>
+          <p data-i18n="riskText">La cosecha y el dinero invertido en semilla, abono y trabajo; el agua, que se pierde por desbordes o falta en el momento justo; y el suelo, que se agota cuando se repite el mismo cultivo o se erosiona en las laderas.</p>
+        </article>
+        <article class="point" data-tilt>
+          <h2 data-i18n="saveTitle">Qué se ahorra</h2>
+          <p id="save-text" data-i18n="saveText">Agua de riego, al elegir cultivos y fechas que aprovechan la lluvia; pérdidas por heladas, al sembrar fuera de los meses fríos; y fertilizante, al rotar con leguminosas que devuelven nitrógeno al suelo.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="band band--plain" id="como">
+      <h2 data-reveal data-i18n="howTitle">Cómo funciona</h2>
+      <ol class="steps-intro" data-reveal-group>
+        <li><b data-i18n="s1">Ubica tu terreno</b><span data-i18n="s1d">Con el GPS, en el mapa o buscando tu comunidad. Puedes dibujar los límites.</span></li>
+        <li><b data-i18n="s2">Cuéntanos lo que sabes</b><span data-i18n="s2d">Qué sembraste, tu tipo de suelo y tu agua. Si no sabes algo, déjalo en blanco.</span></li>
+        <li><b data-i18n="s3">Yatiri X analiza</b><span data-i18n="s3d">Clima, pronóstico, relieve, suelo, agua y riesgos con datos reales de la NASA y del municipio.</span></li>
+        <li><b data-i18n="s4">Recibe recomendaciones</b><span data-i18n="s4d">Qué sembrar, cuándo, cuánta agua, qué plagas vigilar y qué cuidados tomar. Descárgalo en PDF.</span></li>
+      </ol>
+      <p class="honest" data-reveal data-i18n="honest">Cuando no hay datos suficientes, Yatiri X lo dice en lugar de inventar resultados. Es una ayuda para decidir: no reemplaza al agricultor ni al técnico.</p>
+      <button class="btn btn--primary" type="button" data-go="wizard" data-i18n="ctaStart">Analizar mi terreno</button>
+    </section>
+  </main>
+
+  <!-- ===================== PASOS ===================== -->
+  <main id="view-wizard" class="view" hidden>
+    <nav class="stepper" aria-label="Pasos">
+      <ol id="stepper"></ol>
+    </nav>
+
+    <section class="panel step" data-step="1" aria-labelledby="h-step1">
+      <h2 id="h-step1" data-i18n="step1Title">Ubica tu terreno</h2>
+      <div class="actions">
+        <button class="btn" type="button" id="gps" data-i18n="useGps">Usar mi ubicación actual</button>
+        <form class="search" id="search-form" role="search">
+          <label class="sr-only" for="search-input" data-i18n="searchLabel">Buscar municipio o comunidad</label>
+          <input id="search-input" type="search" placeholder="Busca tu comunidad o zona" data-i18n-placeholder="searchPh">
+          <button class="btn" type="submit" data-i18n="search">Buscar</button>
+        </form>
+      </div>
+      <ul class="results-list" id="search-results"></ul>
+      <p class="field-label">¿Cómo quieres marcar tu terreno?</p>
+      <div class="draw-modes" id="draw-modes" role="group" aria-label="Cómo marcar el terreno"></div>
+      <p class="hint" id="map-hint">Toca el mapa en el centro de tu terreno.</p>
+      <div class="map-wrap">
+        <div class="basemaps" id="basemaps" role="group" aria-label="Tipo de mapa"></div>
+        <div id="map" class="map" role="application" aria-label="Mapa del municipio de Cochabamba"></div>
+      </div>
+      <div class="map-tools" id="map-tools" aria-live="polite"></div>
+      <details class="layers">
+        <summary data-i18n="layers">Capas del mapa</summary>
+        <div class="chips chips--small" id="layer-toggles"></div>
+      </details>
+      <div id="site" class="site" aria-live="polite"></div>
+      <div class="field">
+        <label for="plot-name" data-i18n="plotName">Nombre de tu terreno</label>
+        <input id="plot-name" type="text" maxlength="60" placeholder="Por ejemplo: Chacra de abajo" data-i18n-placeholder="plotNamePh">
+      </div>
+      <div class="saved" id="saved"></div>
+    </section>
+
+    <section class="panel step" data-step="2" aria-labelledby="h-step2" hidden>
+      <h2 id="h-step2" data-i18n="step2Title">Tu cultivo y tu suelo</h2>
+      <fieldset class="field"><legend data-i18n="lastCrop">¿Qué sembraste la última campaña?</legend><p class="hint small">Puedes marcar varios. Si no está en la lista, usa «+ Otro».</p><div class="crop-picker" id="last-crop"></div></fieldset>
+      <fieldset class="field"><legend data-i18n="prevCrop">¿Y la campaña anterior?</legend><div class="crop-picker" id="previous-crop"></div></fieldset>
+      <fieldset class="field"><legend data-i18n="soilType">¿Cómo es tu suelo?</legend><div class="chips" id="soil-type"></div></fieldset>
+      <details class="field">
+        <summary data-i18n="labTitle">Tengo resultados de laboratorio</summary>
+        <div class="grid2">
+          <label>pH<input type="number" id="lab-ph" min="3" max="10" step="0.1" inputmode="decimal"></label>
+          <label><span data-i18n="labOm">Materia orgánica (%)</span><input type="number" id="lab-om" min="0" max="20" step="0.1" inputmode="decimal"></label>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel step" data-step="3" aria-labelledby="h-step3" hidden>
+      <h2 id="h-step3" data-i18n="step3Title">Tu agua</h2>
+      <fieldset class="field"><legend data-i18n="waterSource">¿De dónde viene tu agua?</legend><div class="chips" id="water-source"></div></fieldset>
+      <fieldset class="field"><legend data-i18n="irrigSystem">¿Cómo riegas?</legend><div class="chips" id="irrig-system"></div></fieldset>
+      <fieldset class="field"><legend data-i18n="waterAvail">¿Cuánta agua tienes?</legend><div class="chips" id="water-avail"></div></fieldset>
+      <label class="field"><span data-i18n="moisture">Humedad del suelo que mediste (%), si la tienes</span><input type="number" id="moisture" min="0" max="100" step="1" inputmode="numeric"></label>
+    </section>
+
+    <section class="panel step" data-step="4" aria-labelledby="h-step4" hidden>
+      <h2 id="h-step4" data-i18n="step4Title">¿Qué te importa más?</h2>
+      <p class="hint" data-i18n="step4Hint">Puedes marcar varias.</p>
+      <div class="chips" id="priorities"></div>
+      <fieldset class="field" id="preferred-field" hidden><legend data-i18n="preferred">¿Qué cultivos prefieres sembrar o vender?</legend><div class="crop-picker" id="preferred"></div></fieldset>
+    </section>
+
+    <section class="panel step" data-step="5" aria-labelledby="h-step5" hidden>
+      <h2 id="h-step5" data-i18n="step5Title">Revisa y analiza</h2>
+      <dl class="review" id="review"></dl>
+      <button class="btn btn--primary btn--wide" type="button" id="analyze" data-i18n="analyze">Analizar mi terreno</button>
+      <p class="hint" data-i18n="analyzeHint">Yatiri X consulta datos de la NASA, del municipio y del pronóstico. Tarda unos segundos.</p>
+    </section>
+
+    <div class="wizard-nav">
+      <button class="btn btn--ghost" type="button" id="prev" data-i18n="back">Atrás</button>
+      <p class="wizard-msg" id="wizard-msg" aria-live="polite"></p>
+      <button class="btn btn--primary" type="button" id="next" data-i18n="next">Siguiente</button>
+    </div>
+  </main>
+
+  <!-- ===================== RESULTADOS ===================== -->
+  <main id="view-results" class="view" hidden>
+    <nav class="plot-switch" id="plot-switch" aria-label="Cambiar de terreno" hidden></nav>
+    <section class="summary-card" id="summary-card" aria-live="polite" data-tilt></section>
+    <nav class="tabs" id="tabs" aria-label="Secciones del análisis"></nav>
+    <div class="tab-panels">
+      <section class="panel tab" data-tab="general"></section>
+      <section class="panel tab" data-tab="predicciones"></section>
+      <section class="panel tab" data-tab="clima"></section>
+      <section class="panel tab" data-tab="suelo"></section>
+      <section class="panel tab" data-tab="relieve"></section>
+      <section class="panel tab" data-tab="agua"></section>
+      <section class="panel tab" data-tab="riesgos"></section>
+      <section class="panel tab" data-tab="comparar"></section>
+      <section class="panel tab" data-tab="cultivos"></section>
+      <section class="panel tab" data-tab="catalogo"></section>
+      <section class="panel tab" data-tab="plagas"></section>
+      <section class="panel tab" data-tab="legal"></section>
+      <section class="panel tab" data-tab="ganancias"></section>
+      <section class="panel tab" data-tab="fuentes"></section>
+    </div>
+    <div class="result-actions no-print">
+      <button class="btn" type="button" id="pdf" data-i18n="pdf">Descargar informe PDF</button>
+      <button class="btn btn--ghost" type="button" id="edit" data-i18n="edit">Cambiar mis datos</button>
+      <button class="btn btn--ghost adv-only" type="button" id="json" data-i18n="json">Descargar datos (JSON)</button>
+    </div>
+  </main>
+
+  <div class="loader" id="loader" hidden role="status" aria-live="polite">
+    <div class="loader__card">
+      <svg class="grow" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="102" rx="34" ry="7" fill="#8a5a2b" opacity=".85"/><path class="grow__stem" pathLength="1" d="M60 100C60 86 58 72 60 52" fill="none" stroke="#4f7d2c" stroke-width="5" stroke-linecap="round"/><path class="grow__leaf grow__leaf--l" d="M60 80C47 79 39 70 37 61c11 0 20 7 23 19z" fill="url(#g-leaf)"/><path class="grow__leaf grow__leaf--r" d="M60 66c13-1 21-10 23-19-11 0-20 7-23 19z" fill="url(#g-leaf)"/><circle class="grow__bud" cx="60" cy="50" r="6" fill="#c06840"/></svg>
+      <p class="loader__title">Analizando tu terreno</p>
+      <p class="loader__msg" id="loader-msg"></p>
+    </div>
+  </div>
+
+  <!-- ===================== TIRI ===================== -->
+  <aside class="tiri no-print" id="tiri" aria-labelledby="h-tiri">
+    <button class="tiri__toggle" type="button" id="tiri-toggle" aria-expanded="false" aria-controls="tiri-body">
+      <span aria-hidden="true">🌱</span> <span data-i18n="askTiri">Pregúntale a Tiri</span>
+    </button>
+    <div class="tiri__body" id="tiri-body" hidden>
+      <h2 id="h-tiri">Tiri</h2>
+      <a class="btn btn--small" id="tiri-wa" hidden target="_blank" rel="noopener">Hablar con Tiri por WhatsApp</a>
+      <div class="chat" id="tiri-log" aria-live="polite"></div>
+      <div class="chips chips--small" id="tiri-suggestions"></div>
+      <form class="ask" id="tiri-form">
+        <label class="sr-only" for="tiri-input" data-i18n="yourQuestion">Tu pregunta para Tiri</label>
+        <input id="tiri-input" type="text" autocomplete="off" maxlength="300" placeholder="Escribe tu pregunta" data-i18n-placeholder="askPh">
+        <button class="btn btn--primary" type="submit" data-i18n="ask">Preguntar</button>
+      </form>
+    </div>
+  </aside>
+
+  <footer class="foot">
+    <p data-i18n="footer1">Yatiri X es una ayuda para decidir: no reemplaza al agricultor ni al técnico de la zona.</p>
+    <p>Clima: NASA POWER. Altitud y relieve: NASA SRTM (también vía teselas Terrarium de AWS Open Data). Imágenes: NASA SMAP, GPM IMERG y MODIS (GIBS); satélite: Esri World Imagery (Esri, Maxar, Earthstar Geographics); fotos: Wikimedia Commons, con su autor y licencia. Municipio: Gobierno Autónomo Municipal de Cochabamba. Suelo: SoilGrids (ISRIC). Pronóstico: GFS Ensemble (NOAA) y Open-Meteo. Mapa base: © OpenStreetMap.</p>
+    <p data-i18n="footer2">Tus datos se guardan solo en este dispositivo.</p>
+  </footer>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

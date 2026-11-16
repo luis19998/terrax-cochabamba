@@ -1,0 +1,3985 @@
+{
+ "meta": {
+  "status": "Borrador para validar con SENASAG, INIAF o un técnico agrónomo. Es conocimiento agronómico general de los valles andinos de Bolivia, no un dato medido en la parcela.",
+  "sources": [
+   "Centro Internacional de la Papa (CIP): manejo integrado del gorgojo de los Andes y de las polillas de la papa",
+   "Fundación PROINPA (Bolivia): manejo de plagas de papa y quinua",
+   "FAO: guías de manejo integrado de plagas y de fertilidad del suelo",
+   "SENASAG: Servicio Nacional de Sanidad Agropecuaria e Inocuidad Alimentaria, autoridad de sanidad vegetal en Bolivia",
+   "FAO, Irrigation and Drainage Paper 56 (Allen y otros, 1998): duración de etapas y coeficientes Kc",
+   "FAO ECOCROP: rangos de pH y temperatura de los cultivos",
+   "SENASAG: plagas bajo vigilancia oficial en Bolivia (mosca de la fruta)"
+  ],
+  "safety": "Probar cualquier preparado casero primero en pocas plantas. No mezclar con productos químicos. Lavar las manos y los alimentos. Ante una plaga que se extiende rápido, avisar a SENASAG o a un técnico."
+ },
+ "pests": {
+  "papa": [
+   {
+    "name": "Gorgojo de los Andes",
+    "scientific": "Premnotrypes spp.",
+    "type": "insecto",
+    "season": "lluvias, desde la emergencia hasta la cosecha",
+    "signs": "Tubérculos con galerías y agujeros; adultos que comen hojas de noche.",
+    "prevention": "Rotar: no sembrar papa después de papa. Cosechar a tiempo. Recoger adultos a mano. Dejar que gallinas recorran el terreno después de la cosecha.",
+    "homemade": "Zanjas o barreras de plástico alrededor de la parcela para que el adulto, que no vuela, no entre."
+   },
+   {
+    "name": "Polilla de la papa",
+    "scientific": "Phthorimaea operculella y Symmetrischema tangolias",
+    "type": "insecto",
+    "season": "todo el año; más en el almacén y en época seca",
+    "signs": "Galerías en tubérculos almacenados, con excremento fino.",
+    "prevention": "Aporque alto para que el tubérculo no quede expuesto. Almacenar solo semilla sana, con luz difusa.",
+    "homemade": "Cubrir la papa almacenada con ramas de muña (Minthostachys), práctica andina tradicional que ahuyenta a la polilla."
+   },
+   {
+    "name": "Tizón tardío o rancha",
+    "scientific": "Phytophthora infestans",
+    "type": "hongo",
+    "season": "lluvias con días nublados y húmedos",
+    "signs": "Manchas oscuras y húmedas en hojas que avanzan rápido; olor a podrido.",
+    "prevention": "Semilla sana y variedades tolerantes. Sacar y enterrar lejos las plantas enfermas. Buena ventilación entre surcos.",
+    "homemade": "No hay un remedio casero fiable: ante manchas que avanzan, consultar a un técnico."
+   },
+   {
+    "name": "Nematodo quiste de la papa",
+    "scientific": "Globodera spp.",
+    "type": "gusano microscópico del suelo",
+    "season": "se acumula cuando se siembra papa seguido",
+    "signs": "Plantas débiles y amarillas en manchones; quistes pequeños en las raíces.",
+    "prevention": "Rotación larga con cultivos que no son solanáceas, como la que propone Yatiri X.",
+    "homemade": "Solo la rotación lo reduce."
+   },
+   {
+    "name": "Pulguilla",
+    "scientific": "Epitrix spp.",
+    "type": "insecto",
+    "season": "inicio de lluvias",
+    "signs": "Hojas con muchos agujeritos redondos, como perdigones.",
+    "prevention": "Rotar y eliminar malezas solanáceas.",
+    "homemade": "Ceniza fina espolvoreada sobre las hojas en la mañana."
+   },
+   {
+    "name": "Gusano cortador (ticona)",
+    "scientific": "Agrotis ipsilon",
+    "type": "insecto",
+    "season": "inicio de campaña, plantas recién nacidas",
+    "signs": "Plantitas cortadas a ras del suelo por la noche; gusanos grises enrollados en la tierra.",
+    "prevention": "Arar con anticipación para exponer las larvas; limpiar malezas antes de sembrar.",
+    "homemade": "Collares de cartón o botella alrededor del tallo; buscar y recoger larvas al amanecer."
+   },
+   {
+    "name": "Virosis (mosaico)",
+    "scientific": "Potato virus Y",
+    "type": "virus",
+    "season": "cuando hay muchos pulgones",
+    "signs": "Hojas con manchas verde claro y oscuro, arrugadas o enrolladas; plantas pequeñas.",
+    "prevention": "Semilla sana; controlar pulgones; arrancar plantas enfermas temprano.",
+    "homemade": "Sacar plantas enfermas y no usar sus tubérculos como semilla."
+   },
+   {
+    "name": "Marchitez bacteriana",
+    "scientific": "Ralstonia solanacearum",
+    "type": "bacteria",
+    "season": "calor y suelo húmedo",
+    "signs": "Plantas que se marchitan de golpe; al cortar el tallo sale un hilo lechoso.",
+    "prevention": "Semilla certificada; rotar largo; no regar de un terreno enfermo a uno sano.",
+    "homemade": "Sacar y quemar las plantas enfermas; no hay remedio casero que cure."
+   },
+   {
+    "name": "Tizón temprano (alternaria)",
+    "scientific": "Alternaria solani",
+    "type": "hongo",
+    "season": "calor y humedad alterna",
+    "signs": "Manchas cafés con anillos, como un blanco de tiro, en hojas viejas.",
+    "prevention": "Rotar; quitar hojas bajas enfermas; buena nutrición.",
+    "homemade": "Quitar hojas manchadas; caldo de cola de caballo."
+   }
+  ],
+  "maiz": [
+   {
+    "name": "Gusano cogollero",
+    "scientific": "Spodoptera frugiperda",
+    "type": "insecto",
+    "season": "primeras semanas del cultivo, en época cálida",
+    "signs": "Hojas del cogollo comidas y con excremento.",
+    "prevention": "Siembra uniforme y oportuna. Revisar el cogollo cada semana.",
+    "homemade": "Extracto de ajo y ají aplicado al cogollo; un poco de ceniza o tierra fina en el cogollo, práctica tradicional."
+   },
+   {
+    "name": "Gusano de la mazorca",
+    "scientific": "Helicoverpa spp.",
+    "type": "insecto",
+    "season": "floración y llenado de la mazorca",
+    "signs": "Granos comidos en la punta de la mazorca.",
+    "prevention": "Cosechar a tiempo y eliminar rastrojos infestados.",
+    "homemade": "Unas gotas de aceite vegetal en los pelos de la mazorca, práctica casera."
+   },
+   {
+    "name": "Gusano cortador (ticona)",
+    "scientific": "Agrotis ipsilon",
+    "type": "insecto",
+    "season": "inicio de campaña, plantas recién nacidas",
+    "signs": "Plantitas cortadas a ras del suelo por la noche; gusanos grises enrollados en la tierra.",
+    "prevention": "Arar con anticipación para exponer las larvas; limpiar malezas antes de sembrar.",
+    "homemade": "Collares de cartón o botella alrededor del tallo; buscar y recoger larvas al amanecer."
+   },
+   {
+    "name": "Carbón del maíz",
+    "scientific": "Ustilago maydis",
+    "type": "hongo",
+    "season": "lluvias",
+    "signs": "Agallas grandes blancas que se vuelven polvo negro en mazorcas y tallos.",
+    "prevention": "Rotar; quitar agallas antes de que se abran.",
+    "homemade": "Cortar y enterrar las agallas cuando aún están blancas."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "haba": [
+   {
+    "name": "Mancha chocolate",
+    "scientific": "Botrytis fabae",
+    "type": "hongo",
+    "season": "lluvias y alta humedad",
+    "signs": "Puntos café rojizo en hojas y flores.",
+    "prevention": "No sembrar muy denso. Rotar. Eliminar restos enfermos.",
+    "homemade": "Mejorar la ventilación; no hay un remedio casero fiable."
+   },
+   {
+    "name": "Pulgón negro",
+    "scientific": "Aphis fabae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias negras en brotes tiernos; hojas enrolladas.",
+    "prevention": "Cuidar a las mariquitas, que se comen al pulgón.",
+    "homemade": "Agua con jabón neutro (no detergente) rociada sobre las colonias; extracto de ajo."
+   },
+   {
+    "name": "Gorgojo de la haba",
+    "scientific": "Bruchus rufimanus",
+    "type": "insecto",
+    "season": "en el almacén",
+    "signs": "Granos con agujeros redondos.",
+    "prevention": "Secar bien el grano antes de guardarlo.",
+    "homemade": "Guardar el grano en envases bien cerrados; mezclarlo con ceniza."
+   },
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   }
+  ],
+  "arveja": [
+   {
+    "name": "Oídio",
+    "scientific": "Erysiphe pisi",
+    "type": "hongo",
+    "season": "días secos con noches frescas",
+    "signs": "Polvo blanco sobre hojas y vainas.",
+    "prevention": "Sembrar en la fecha recomendada y no muy denso.",
+    "homemade": "Rociar leche diluida en agua es un remedio casero conocido para oídio; probar primero en pocas plantas."
+   },
+   {
+    "name": "Minador de hojas",
+    "scientific": "Liriomyza spp.",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Caminitos blancos dentro de las hojas.",
+    "prevention": "Eliminar hojas muy dañadas.",
+    "homemade": "Trampas amarillas con pegamento."
+   },
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   },
+   {
+    "name": "Oídio (ceniza)",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "época seca con noches frescas",
+    "signs": "Polvo blanco como harina sobre las hojas.",
+    "prevention": "Distancia entre plantas para que circule el aire; no regar las hojas de tarde.",
+    "homemade": "Leche diluida (1 parte en 9 de agua) o bicarbonato con jabón, por la mañana."
+   }
+  ],
+  "trigo": [
+   {
+    "name": "Royas",
+    "scientific": "Puccinia spp.",
+    "type": "hongo",
+    "season": "humedad y temperaturas templadas",
+    "signs": "Pústulas color óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes y rotación.",
+    "homemade": "No hay remedio casero fiable; consultar variedades con INIAF."
+   },
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "cebada": [
+   {
+    "name": "Royas",
+    "scientific": "Puccinia spp.",
+    "type": "hongo",
+    "season": "humedad y temperaturas templadas",
+    "signs": "Pústulas color óxido en hojas.",
+    "prevention": "Variedades resistentes y rotación.",
+    "homemade": "No hay remedio casero fiable."
+   },
+   {
+    "name": "Pulgones de los cereales",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Colonias en hojas y espigas.",
+    "prevention": "Cuidar a los enemigos naturales.",
+    "homemade": "Agua con jabón neutro."
+   },
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "quinua": [
+   {
+    "name": "Polilla de la quinua o kcona kcona",
+    "scientific": "Eurysacca quinoae y E. melanocampta",
+    "type": "insecto",
+    "season": "formación del grano, más en años secos",
+    "signs": "Hojas pegadas con hilos; granos comidos en la panoja.",
+    "prevention": "Cosechar a tiempo y no dejar panojas en el campo.",
+    "homemade": "Extractos de plantas amargas de la zona, como la muña; trampas de luz de noche."
+   },
+   {
+    "name": "Mildiu de la quinua",
+    "scientific": "Peronospora variabilis",
+    "type": "hongo",
+    "season": "lluvias con alta humedad",
+    "signs": "Manchas amarillas en las hojas con polvo gris por debajo.",
+    "prevention": "Semilla sana y no sembrar denso.",
+    "homemade": "No hay remedio casero fiable."
+   },
+   {
+    "name": "Tórtolas y palomas",
+    "scientific": "Zenaida auriculata",
+    "type": "ave",
+    "season": "siembra y maduración del grano",
+    "signs": "Semillas desenterradas y granos comidos en la panoja.",
+    "prevention": "Sembrar a buena profundidad; espantapájaros y cintas brillantes que se muevan.",
+    "homemade": "Cintas reflectantes o CD viejos colgados."
+   }
+  ],
+  "alfalfa": [
+   {
+    "name": "Pulgones de la alfalfa",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Colonias en brotes; plantas pegajosas.",
+    "prevention": "Cortar a tiempo; cuidar mariquitas.",
+    "homemade": "Agua con jabón neutro."
+   },
+   {
+    "name": "Gusanos de tierra o cortadores",
+    "scientific": "Agrotis spp.",
+    "type": "insecto",
+    "season": "al rebrotar",
+    "signs": "Plantas cortadas a ras del suelo.",
+    "prevention": "Preparar bien el suelo antes de sembrar.",
+    "homemade": "Revisar de noche y recoger a mano; cebos de afrecho con melaza."
+   }
+  ],
+  "cebolla": [
+   {
+    "name": "Trips",
+    "scientific": "Thrips tabaci",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Hojas plateadas con puntitos.",
+    "prevention": "Riego regular; eliminar malezas alrededor.",
+    "homemade": "Trampas azules con pegamento; agua con jabón neutro."
+   },
+   {
+    "name": "Mildiu de la cebolla",
+    "scientific": "Peronospora destructor",
+    "type": "hongo",
+    "season": "humedad alta",
+    "signs": "Manchas pálidas con polvo violeta en las hojas.",
+    "prevention": "Rotar y no regar al atardecer.",
+    "homemade": "No hay remedio casero fiable."
+   }
+  ],
+  "tomate": [
+   {
+    "name": "Polilla del tomate",
+    "scientific": "Tuta absoluta",
+    "type": "insecto",
+    "season": "época cálida",
+    "signs": "Galerías en hojas y frutos.",
+    "prevention": "Eliminar restos del cultivo anterior; rotar.",
+    "homemade": "Trampas de agua con luz de noche; recoger frutos dañados."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Bemisia tabaci y Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "época cálida y seca",
+    "signs": "Nubes de mosquitas blancas al mover las plantas.",
+    "prevention": "Eliminar malezas que las hospedan.",
+    "homemade": "Trampas amarillas con pegamento; extracto de ajo y ají."
+   },
+   {
+    "name": "Tizón temprano (alternaria)",
+    "scientific": "Alternaria solani",
+    "type": "hongo",
+    "season": "calor y humedad alterna",
+    "signs": "Manchas cafés con anillos, como un blanco de tiro, en hojas viejas.",
+    "prevention": "Rotar; quitar hojas bajas enfermas; buena nutrición.",
+    "homemade": "Quitar hojas manchadas; caldo de cola de caballo."
+   },
+   {
+    "name": "Nematodo agallador",
+    "scientific": "Meloidogyne spp.",
+    "type": "nematodo",
+    "season": "suelos cálidos y arenosos",
+    "signs": "Raíces con nudos o bolitas; plantas amarillas y chicas.",
+    "prevention": "Rotar con gramíneas; plantines sanos; huacataya y marigold como cultivo trampa.",
+    "homemade": "Incorporar huacataya o mucha materia orgánica."
+   }
+  ],
+  "oca": [
+   {
+    "name": "Gorgojo de los Andes",
+    "scientific": "Premnotrypes spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Tubérculos con galerías.",
+    "prevention": "Rotar con cultivos que no son tubérculos andinos; cosechar a tiempo.",
+    "homemade": "Barreras alrededor de la parcela; recoger adultos."
+   }
+  ],
+  "papalisa": [
+   {
+    "name": "Gorgojo de los Andes",
+    "scientific": "Premnotrypes spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Tubérculos con galerías.",
+    "prevention": "Rotar; cosechar a tiempo.",
+    "homemade": "Barreras alrededor de la parcela; recoger adultos."
+   }
+  ],
+  "avena": [
+   {
+    "name": "Royas",
+    "scientific": "Puccinia spp.",
+    "type": "hongo",
+    "season": "humedad y temperaturas templadas",
+    "signs": "Pústulas color óxido en hojas.",
+    "prevention": "Variedades resistentes; no sembrar muy denso.",
+    "homemade": "No hay remedio casero fiable."
+   }
+  ],
+  "amaranto": [
+   {
+    "name": "Pulgones",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "frijol": [
+   {
+    "name": "Gorgojo del frijol",
+    "scientific": "Acanthoscelides obtectus",
+    "type": "insecto",
+    "season": "en el almacén",
+    "signs": "Granos con agujeros redondos.",
+    "prevention": "Secar bien el grano y guardarlo cerrado.",
+    "homemade": "Mezclar el grano con ceniza fina."
+   },
+   {
+    "name": "Roya del frijol",
+    "scientific": "Uromyces appendiculatus",
+    "type": "hongo",
+    "season": "humedad",
+    "signs": "Pústulas café rojizo en hojas.",
+    "prevention": "Rotar y usar semilla sana.",
+    "homemade": "No hay remedio casero fiable."
+   }
+  ],
+  "tarwi": [
+   {
+    "name": "Antracnosis del lupino",
+    "scientific": "Colletotrichum lupini",
+    "type": "hongo",
+    "season": "lluvias",
+    "signs": "Tallos torcidos con manchas hundidas.",
+    "prevention": "Semilla sana y rotación.",
+    "homemade": "No hay remedio casero fiable."
+   }
+  ],
+  "vicia": [
+   {
+    "name": "Pulgones",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "ajo": [
+   {
+    "name": "Trips",
+    "scientific": "Thrips tabaci",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas plateadas.",
+    "prevention": "Riego regular; eliminar malezas.",
+    "homemade": "Trampas azules; agua con jabón neutro."
+   }
+  ],
+  "locoto": [
+   {
+    "name": "Pulgones",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Bemisia tabaci y Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "época cálida",
+    "signs": "Mosquitas blancas al mover las plantas.",
+    "prevention": "Eliminar malezas hospederas.",
+    "homemade": "Trampas amarillas; extracto de ajo y ají."
+   },
+   {
+    "name": "Virosis (mosaico)",
+    "scientific": "Potato virus Y",
+    "type": "virus",
+    "season": "cuando hay muchos pulgones",
+    "signs": "Hojas con manchas verde claro y oscuro, arrugadas o enrolladas; plantas pequeñas.",
+    "prevention": "Semilla sana; controlar pulgones; arrancar plantas enfermas temprano.",
+    "homemade": "Sacar plantas enfermas y no usar sus tubérculos como semilla."
+   }
+  ],
+  "aji": [
+   {
+    "name": "Pulgones",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Virosis (mosaico)",
+    "scientific": "Potato virus Y",
+    "type": "virus",
+    "season": "cuando hay muchos pulgones",
+    "signs": "Hojas con manchas verde claro y oscuro, arrugadas o enrolladas; plantas pequeñas.",
+    "prevention": "Semilla sana; controlar pulgones; arrancar plantas enfermas temprano.",
+    "homemade": "Sacar plantas enfermas y no usar sus tubérculos como semilla."
+   }
+  ],
+  "zanahoria": [
+   {
+    "name": "Pulgones",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "apio": [
+   {
+    "name": "Minador de hojas",
+    "scientific": "Liriomyza spp.",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Caminitos blancos en las hojas.",
+    "prevention": "Quitar hojas dañadas.",
+    "homemade": "Trampas amarillas."
+   }
+  ],
+  "repollo": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas y agujeros; gusanitos verdes.",
+    "prevention": "Rotar con cultivos que no son coles; eliminar restos.",
+    "homemade": "Extracto de ajo y ají; revisar y recoger a mano."
+   },
+   {
+    "name": "Pulgón de la col",
+    "scientific": "Brevicoryne brassicae",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Colonias grisáceas en hojas.",
+    "prevention": "Cuidar enemigos naturales.",
+    "homemade": "Agua con jabón neutro."
+   },
+   {
+    "name": "Mariposa de la col",
+    "scientific": "Leptophobia aripa",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Gusanos verdes en grupo que dejan solo las nervaduras de la hoja.",
+    "prevention": "Revisar el envés de las hojas y quitar los huevos amarillos.",
+    "homemade": "Recoger los gusanos a mano; extracto de ajo y ají."
+   }
+  ],
+  "coliflor": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas y agujeros; gusanitos verdes.",
+    "prevention": "Rotar con cultivos que no son coles; eliminar restos.",
+    "homemade": "Extracto de ajo y ají; revisar y recoger a mano."
+   },
+   {
+    "name": "Pulgón de la col",
+    "scientific": "Brevicoryne brassicae",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Colonias grisáceas en hojas.",
+    "prevention": "Cuidar enemigos naturales.",
+    "homemade": "Agua con jabón neutro."
+   },
+   {
+    "name": "Mariposa de la col",
+    "scientific": "Leptophobia aripa",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Gusanos verdes en grupo que dejan solo las nervaduras de la hoja.",
+    "prevention": "Revisar el envés de las hojas y quitar los huevos amarillos.",
+    "homemade": "Recoger los gusanos a mano; extracto de ajo y ají."
+   }
+  ],
+  "brocoli": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas y agujeros; gusanitos verdes.",
+    "prevention": "Rotar con cultivos que no son coles; eliminar restos.",
+    "homemade": "Extracto de ajo y ají; revisar y recoger a mano."
+   },
+   {
+    "name": "Pulgón de la col",
+    "scientific": "Brevicoryne brassicae",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Colonias grisáceas en hojas.",
+    "prevention": "Cuidar enemigos naturales.",
+    "homemade": "Agua con jabón neutro."
+   },
+   {
+    "name": "Mariposa de la col",
+    "scientific": "Leptophobia aripa",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Gusanos verdes en grupo que dejan solo las nervaduras de la hoja.",
+    "prevention": "Revisar el envés de las hojas y quitar los huevos amarillos.",
+    "homemade": "Recoger los gusanos a mano; extracto de ajo y ají."
+   }
+  ],
+  "rabano": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas y agujeros; gusanitos verdes.",
+    "prevention": "Rotar con cultivos que no son coles; eliminar restos.",
+    "homemade": "Extracto de ajo y ají; revisar y recoger a mano."
+   }
+  ],
+  "nabo": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas y agujeros; gusanitos verdes.",
+    "prevention": "Rotar con cultivos que no son coles; eliminar restos.",
+    "homemade": "Extracto de ajo y ají; revisar y recoger a mano."
+   }
+  ],
+  "zapallo": [
+   {
+    "name": "Oídio de las cucurbitáceas",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "días secos y noches frescas",
+    "signs": "Polvo blanco en las hojas.",
+    "prevention": "Buena ventilación; no mojar las hojas.",
+    "homemade": "Leche diluida en agua, probada primero en pocas plantas."
+   }
+  ],
+  "pepino": [
+   {
+    "name": "Oídio de las cucurbitáceas",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "días secos y noches frescas",
+    "signs": "Polvo blanco en las hojas.",
+    "prevention": "Buena ventilación; no mojar las hojas.",
+    "homemade": "Leche diluida en agua, probada primero en pocas plantas."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Bemisia tabaci y Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "época cálida",
+    "signs": "Mosquitas blancas al mover las plantas.",
+    "prevention": "Eliminar malezas hospederas.",
+    "homemade": "Trampas amarillas."
+   }
+  ],
+  "remolacha": [
+   {
+    "name": "Minador de hojas",
+    "scientific": "Liriomyza spp.",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Caminitos blancos en las hojas.",
+    "prevention": "Quitar hojas dañadas.",
+    "homemade": "Trampas amarillas."
+   }
+  ],
+  "frutilla": [
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas.",
+    "prevention": "Riego regular; cubrir el suelo con paja.",
+    "homemade": "Lavar las hojas con agua; agua con jabón neutro."
+   },
+   {
+    "name": "Moho gris",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad",
+    "signs": "Frutos con moho gris.",
+    "prevention": "Paja bajo los frutos; cosechar a tiempo.",
+    "homemade": "Retirar frutos enfermos."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "lechuga": [
+   {
+    "name": "Pulgones",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Babosas",
+    "scientific": "varias especies",
+    "type": "molusco",
+    "season": "humedad y noches frescas",
+    "signs": "Hojas comidas y rastros brillantes.",
+    "prevention": "Eliminar escondites (piedras, restos).",
+    "homemade": "Trampas de cerveza o de cáscara de cítricos; ceniza alrededor de las plantas."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   },
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   }
+  ],
+  "espinaca": [
+   {
+    "name": "Minador de hojas",
+    "scientific": "Liriomyza spp.",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Caminitos blancos en las hojas.",
+    "prevention": "Quitar hojas dañadas.",
+    "homemade": "Trampas amarillas."
+   },
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   }
+  ],
+  "acelga": [
+   {
+    "name": "Minador de hojas",
+    "scientific": "Liriomyza spp.",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Caminitos blancos en las hojas.",
+    "prevention": "Quitar hojas dañadas.",
+    "homemade": "Trampas amarillas."
+   },
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   }
+  ],
+  "cilantro": [
+   {
+    "name": "Pulgones",
+    "scientific": "varias especies",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "isano": [
+   {
+    "name": "Gorgojo de los Andes",
+    "scientific": "Premnotrypes spp.",
+    "type": "insecto",
+    "season": "lluvias, desde la emergencia hasta la cosecha",
+    "signs": "Tubérculos con galerías y agujeros; adultos que comen hojas de noche.",
+    "prevention": "Rotar: no sembrar papa después de papa. Cosechar a tiempo. Recoger adultos a mano. Dejar que gallinas recorran el terreno después de la cosecha.",
+    "homemade": "Zanjas o barreras de plástico alrededor de la parcela para que el adulto, que no vuela, no entre."
+   },
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "yacon": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   }
+  ],
+  "racacha": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Chupadera (mal de almácigo)",
+    "scientific": "Pythium spp.",
+    "type": "oomiceto (hongo)",
+    "season": "almácigos con exceso de humedad",
+    "signs": "Plantitas que se doblan y mueren a ras del suelo.",
+    "prevention": "Almácigo con tierra desinfectada al sol; no regar en exceso.",
+    "homemade": "Tierra del almácigo tapada con plástico al sol varios días (solarización)."
+   }
+  ],
+  "camote": [
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Virosis (mosaico)",
+    "scientific": "Potato virus Y",
+    "type": "virus",
+    "season": "cuando hay muchos pulgones",
+    "signs": "Hojas con manchas verde claro y oscuro, arrugadas o enrolladas; plantas pequeñas.",
+    "prevention": "Semilla sana; controlar pulgones; arrancar plantas enfermas temprano.",
+    "homemade": "Sacar plantas enfermas y no usar sus tubérculos como semilla."
+   }
+  ],
+  "centeno": [
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "triticale": [
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "sorgo": [
+   {
+    "name": "Gusano cogollero",
+    "scientific": "Spodoptera frugiperda",
+    "type": "insecto",
+    "season": "lluvias, plantas jóvenes",
+    "signs": "Hojas comidas en el cogollo con aserrín húmedo; agujeros en las hojas nuevas.",
+    "prevention": "Sembrar con las primeras lluvias firmes; revisar el cogollo cada semana.",
+    "homemade": "Un poco de ceniza o tierra fina en el cogollo; extracto de ajo y ají."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Tórtolas y palomas",
+    "scientific": "Zenaida auriculata",
+    "type": "ave",
+    "season": "siembra y maduración del grano",
+    "signs": "Semillas desenterradas y granos comidos en la panoja.",
+    "prevention": "Sembrar a buena profundidad; espantapájaros y cintas brillantes que se muevan.",
+    "homemade": "Cintas reflectantes o CD viejos colgados."
+   }
+  ],
+  "canahua": [
+   {
+    "name": "Polilla de la quinua (kcona kcona)",
+    "scientific": "Eurysacca melanocampta",
+    "type": "insecto",
+    "season": "floración y llenado del grano",
+    "signs": "Panojas con hilos de seda y granos comidos; gusanitos verdes o rosados.",
+    "prevention": "Sembrar a tiempo, cosechar oportuno y eliminar rastrojos.",
+    "homemade": "Extracto de muña o de tarwi amargo."
+   },
+   {
+    "name": "Mildiu de la quinua",
+    "scientific": "Peronospora variabilis",
+    "type": "oomiceto (hongo)",
+    "season": "lluvias",
+    "signs": "Manchas amarillas o rojizas en las hojas con pelusa gris debajo; hojas que caen.",
+    "prevention": "Variedades tolerantes; distancia entre surcos; semilla sana.",
+    "homemade": "Quitar plantas muy enfermas; caldo de cola de caballo."
+   },
+   {
+    "name": "Tórtolas y palomas",
+    "scientific": "Zenaida auriculata",
+    "type": "ave",
+    "season": "siembra y maduración del grano",
+    "signs": "Semillas desenterradas y granos comidos en la panoja.",
+    "prevention": "Sembrar a buena profundidad; espantapájaros y cintas brillantes que se muevan.",
+    "homemade": "Cintas reflectantes o CD viejos colgados."
+   }
+  ],
+  "lenteja": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "garbanzo": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "mani": [
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   },
+   {
+    "name": "Ratones de campo",
+    "scientific": "Akodon spp.",
+    "type": "roedor",
+    "season": "cosecha y almacén",
+    "signs": "Tubérculos y granos roídos; caminos y cuevas en los bordes.",
+    "prevention": "Limpiar bordes y malezas; guardar en depósitos cerrados.",
+    "homemade": "Gatos y trampas; no usar venenos cerca de casas y animales."
+   }
+  ],
+  "vainita": [
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Chupadera (mal de almácigo)",
+    "scientific": "Pythium spp.",
+    "type": "oomiceto (hongo)",
+    "season": "almácigos con exceso de humedad",
+    "signs": "Plantitas que se doblan y mueren a ras del suelo.",
+    "prevention": "Almácigo con tierra desinfectada al sol; no regar en exceso.",
+    "homemade": "Tierra del almácigo tapada con plástico al sol varios días (solarización)."
+   }
+  ],
+  "trebol": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "ryegrass": [
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   }
+  ],
+  "festuca": [
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   }
+  ],
+  "maiz_forrajero": [
+   {
+    "name": "Gusano cogollero",
+    "scientific": "Spodoptera frugiperda",
+    "type": "insecto",
+    "season": "lluvias, plantas jóvenes",
+    "signs": "Hojas comidas en el cogollo con aserrín húmedo; agujeros en las hojas nuevas.",
+    "prevention": "Sembrar con las primeras lluvias firmes; revisar el cogollo cada semana.",
+    "homemade": "Un poco de ceniza o tierra fina en el cogollo; extracto de ajo y ají."
+   },
+   {
+    "name": "Gusano cortador (ticona)",
+    "scientific": "Agrotis ipsilon",
+    "type": "insecto",
+    "season": "inicio de campaña, plantas recién nacidas",
+    "signs": "Plantitas cortadas a ras del suelo por la noche; gusanos grises enrollados en la tierra.",
+    "prevention": "Arar con anticipación para exponer las larvas; limpiar malezas antes de sembrar.",
+    "homemade": "Collares de cartón o botella alrededor del tallo; buscar y recoger larvas al amanecer."
+   },
+   {
+    "name": "Carbón del maíz",
+    "scientific": "Ustilago maydis",
+    "type": "hongo",
+    "season": "lluvias",
+    "signs": "Agallas grandes blancas que se vuelven polvo negro en mazorcas y tallos.",
+    "prevention": "Rotar; quitar agallas antes de que se abran.",
+    "homemade": "Cortar y enterrar las agallas cuando aún están blancas."
+   }
+  ],
+  "pimenton": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Virosis (mosaico)",
+    "scientific": "Potato virus Y",
+    "type": "virus",
+    "season": "cuando hay muchos pulgones",
+    "signs": "Hojas con manchas verde claro y oscuro, arrugadas o enrolladas; plantas pequeñas.",
+    "prevention": "Semilla sana; controlar pulgones; arrancar plantas enfermas temprano.",
+    "homemade": "Sacar plantas enfermas y no usar sus tubérculos como semilla."
+   },
+   {
+    "name": "Nematodo agallador",
+    "scientific": "Meloidogyne spp.",
+    "type": "nematodo",
+    "season": "suelos cálidos y arenosos",
+    "signs": "Raíces con nudos o bolitas; plantas amarillas y chicas.",
+    "prevention": "Rotar con gramíneas; plantines sanos; huacataya y marigold como cultivo trampa.",
+    "homemade": "Incorporar huacataya o mucha materia orgánica."
+   }
+  ],
+  "berenjena": [
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Pulguilla",
+    "scientific": "Epitrix spp.",
+    "type": "insecto",
+    "season": "inicio de lluvias",
+    "signs": "Hojas con muchos agujeritos redondos, como perdigones.",
+    "prevention": "Rotar y eliminar malezas solanáceas.",
+    "homemade": "Ceniza fina espolvoreada sobre las hojas en la mañana."
+   },
+   {
+    "name": "Nematodo agallador",
+    "scientific": "Meloidogyne spp.",
+    "type": "nematodo",
+    "season": "suelos cálidos y arenosos",
+    "signs": "Raíces con nudos o bolitas; plantas amarillas y chicas.",
+    "prevention": "Rotar con gramíneas; plantines sanos; huacataya y marigold como cultivo trampa.",
+    "homemade": "Incorporar huacataya o mucha materia orgánica."
+   }
+  ],
+  "zapallito": [
+   {
+    "name": "Oídio (ceniza)",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "época seca con noches frescas",
+    "signs": "Polvo blanco como harina sobre las hojas.",
+    "prevention": "Distancia entre plantas para que circule el aire; no regar las hojas de tarde.",
+    "homemade": "Leche diluida (1 parte en 9 de agua) o bicarbonato con jabón, por la mañana."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "sandia": [
+   {
+    "name": "Oídio (ceniza)",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "época seca con noches frescas",
+    "signs": "Polvo blanco como harina sobre las hojas.",
+    "prevention": "Distancia entre plantas para que circule el aire; no regar las hojas de tarde.",
+    "homemade": "Leche diluida (1 parte en 9 de agua) o bicarbonato con jabón, por la mañana."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "melon": [
+   {
+    "name": "Oídio (ceniza)",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "época seca con noches frescas",
+    "signs": "Polvo blanco como harina sobre las hojas.",
+    "prevention": "Distancia entre plantas para que circule el aire; no regar las hojas de tarde.",
+    "homemade": "Leche diluida (1 parte en 9 de agua) o bicarbonato con jabón, por la mañana."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "puerro": [
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Mildiu velloso",
+    "scientific": "Peronospora destructor",
+    "type": "oomiceto (hongo)",
+    "season": "lluvias y neblinas",
+    "signs": "Manchas pálidas con pelusa gris violeta debajo de la hoja.",
+    "prevention": "Rotar; sembrar en lugares ventilados; semilla sana.",
+    "homemade": "Quitar hojas enfermas; caldo bordelés solo con indicación técnica."
+   }
+  ],
+  "cebollin": [
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Mildiu velloso",
+    "scientific": "Peronospora destructor",
+    "type": "oomiceto (hongo)",
+    "season": "lluvias y neblinas",
+    "signs": "Manchas pálidas con pelusa gris violeta debajo de la hoja.",
+    "prevention": "Rotar; sembrar en lugares ventilados; semilla sana.",
+    "homemade": "Quitar hojas enfermas; caldo bordelés solo con indicación técnica."
+   }
+  ],
+  "perejil": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Chupadera (mal de almácigo)",
+    "scientific": "Pythium spp.",
+    "type": "oomiceto (hongo)",
+    "season": "almácigos con exceso de humedad",
+    "signs": "Plantitas que se doblan y mueren a ras del suelo.",
+    "prevention": "Almácigo con tierra desinfectada al sol; no regar en exceso.",
+    "homemade": "Tierra del almácigo tapada con plástico al sol varios días (solarización)."
+   }
+  ],
+  "rucula": [
+   {
+    "name": "Pulguilla",
+    "scientific": "Epitrix spp.",
+    "type": "insecto",
+    "season": "inicio de lluvias",
+    "signs": "Hojas con muchos agujeritos redondos, como perdigones.",
+    "prevention": "Rotar y eliminar malezas solanáceas.",
+    "homemade": "Ceniza fina espolvoreada sobre las hojas en la mañana."
+   },
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas transparentes y agujeros; gusanos verdes pequeños que se mueven rápido.",
+    "prevention": "Rotar con cultivos que no sean coles; cultivos trampa de mostaza.",
+    "homemade": "Extracto de ajo y ají; recoger larvas a mano."
+   }
+  ],
+  "kale": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas transparentes y agujeros; gusanos verdes pequeños que se mueven rápido.",
+    "prevention": "Rotar con cultivos que no sean coles; cultivos trampa de mostaza.",
+    "homemade": "Extracto de ajo y ají; recoger larvas a mano."
+   },
+   {
+    "name": "Mariposa de la col",
+    "scientific": "Leptophobia aripa",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Gusanos verdes en grupo que dejan solo las nervaduras de la hoja.",
+    "prevention": "Revisar el envés de las hojas y quitar los huevos amarillos.",
+    "homemade": "Recoger los gusanos a mano; extracto de ajo y ají."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "pakchoi": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas transparentes y agujeros; gusanos verdes pequeños que se mueven rápido.",
+    "prevention": "Rotar con cultivos que no sean coles; cultivos trampa de mostaza.",
+    "homemade": "Extracto de ajo y ají; recoger larvas a mano."
+   },
+   {
+    "name": "Mariposa de la col",
+    "scientific": "Leptophobia aripa",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Gusanos verdes en grupo que dejan solo las nervaduras de la hoja.",
+    "prevention": "Revisar el envés de las hojas y quitar los huevos amarillos.",
+    "homemade": "Recoger los gusanos a mano; extracto de ajo y ají."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "vainita_arbustiva": [
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Oídio (ceniza)",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "época seca con noches frescas",
+    "signs": "Polvo blanco como harina sobre las hojas.",
+    "prevention": "Distancia entre plantas para que circule el aire; no regar las hojas de tarde.",
+    "homemade": "Leche diluida (1 parte en 9 de agua) o bicarbonato con jabón, por la mañana."
+   }
+  ],
+  "esparrago": [
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "alcachofa": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   },
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   }
+  ],
+  "quirquina": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "huacataya": [
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   }
+  ],
+  "oregano": [
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "manzanilla": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "hierbabuena": [
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   }
+  ],
+  "muna": [
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   }
+  ],
+  "durazno": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Polilla oriental del durazno",
+    "scientific": "Grapholita molesta",
+    "type": "insecto",
+    "season": "primavera y verano",
+    "signs": "Brotes nuevos que se secan y doblan; frutos con galerías cerca del pedúnculo.",
+    "prevention": "Podar y quemar brotes dañados; trampas de feromona.",
+    "homemade": "Cortar los brotes dañados apenas aparecen."
+   },
+   {
+    "name": "Cloca o abolladura del durazno",
+    "scientific": "Taphrina deformans",
+    "type": "hongo",
+    "season": "brotación con frío y lluvia",
+    "signs": "Hojas nuevas gruesas, arrugadas y rojizas que caen.",
+    "prevention": "Tratamiento de invierno con cobre, con indicación técnica; poda sanitaria.",
+    "homemade": "Quitar y quemar las hojas deformadas."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Piojo de San José (conchuela)",
+    "scientific": "Diaspidiotus perniciosus",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Costras grises en ramas y frutos; frutos con manchitas rojas.",
+    "prevention": "Poda que ventile la copa; quitar ramas muy atacadas.",
+    "homemade": "Aceite vegetal con jabón (emulsión) en invierno, con el árbol sin hojas."
+   }
+  ],
+  "manzano": [
+   {
+    "name": "Polilla de la manzana (carpocapsa)",
+    "scientific": "Cydia pomonella",
+    "type": "insecto",
+    "season": "primavera y verano",
+    "signs": "Frutos agusanados con un agujero y aserrín oscuro; caen antes de madurar.",
+    "prevention": "Recoger fruta caída; fajas de cartón corrugado en el tronco para atrapar larvas; trampas de feromona.",
+    "homemade": "Fajas de cartón en el tronco, revisadas y quemadas cada semana."
+   },
+   {
+    "name": "Pulgón lanígero",
+    "scientific": "Eriosoma lanigerum",
+    "type": "insecto",
+    "season": "primavera y otoño",
+    "signs": "Copos como algodón en ramas y heridas de poda; nudos en las ramas.",
+    "prevention": "Cuidar a su enemigo natural (la avispita Aphelinus mali); no abonar con exceso de nitrógeno.",
+    "homemade": "Cepillar los copos con agua y jabón neutro."
+   },
+   {
+    "name": "Sarna del manzano",
+    "scientific": "Venturia inaequalis",
+    "type": "hongo",
+    "season": "primavera lluviosa",
+    "signs": "Manchas oscuras como hollín en hojas y frutos; frutos rajados.",
+    "prevention": "Recoger y enterrar las hojas caídas en otoño; poda que ventile.",
+    "homemade": "Caldo de cola de caballo en primavera."
+   },
+   {
+    "name": "Piojo de San José (conchuela)",
+    "scientific": "Diaspidiotus perniciosus",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Costras grises en ramas y frutos; frutos con manchitas rojas.",
+    "prevention": "Poda que ventile la copa; quitar ramas muy atacadas.",
+    "homemade": "Aceite vegetal con jabón (emulsión) en invierno, con el árbol sin hojas."
+   }
+  ],
+  "peral": [
+   {
+    "name": "Polilla de la manzana (carpocapsa)",
+    "scientific": "Cydia pomonella",
+    "type": "insecto",
+    "season": "primavera y verano",
+    "signs": "Frutos agusanados con un agujero y aserrín oscuro; caen antes de madurar.",
+    "prevention": "Recoger fruta caída; fajas de cartón corrugado en el tronco para atrapar larvas; trampas de feromona.",
+    "homemade": "Fajas de cartón en el tronco, revisadas y quemadas cada semana."
+   },
+   {
+    "name": "Piojo de San José (conchuela)",
+    "scientific": "Diaspidiotus perniciosus",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Costras grises en ramas y frutos; frutos con manchitas rojas.",
+    "prevention": "Poda que ventile la copa; quitar ramas muy atacadas.",
+    "homemade": "Aceite vegetal con jabón (emulsión) en invierno, con el árbol sin hojas."
+   },
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   }
+  ],
+  "ciruelo": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Piojo de San José (conchuela)",
+    "scientific": "Diaspidiotus perniciosus",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Costras grises en ramas y frutos; frutos con manchitas rojas.",
+    "prevention": "Poda que ventile la copa; quitar ramas muy atacadas.",
+    "homemade": "Aceite vegetal con jabón (emulsión) en invierno, con el árbol sin hojas."
+   }
+  ],
+  "membrillo": [
+   {
+    "name": "Polilla de la manzana (carpocapsa)",
+    "scientific": "Cydia pomonella",
+    "type": "insecto",
+    "season": "primavera y verano",
+    "signs": "Frutos agusanados con un agujero y aserrín oscuro; caen antes de madurar.",
+    "prevention": "Recoger fruta caída; fajas de cartón corrugado en el tronco para atrapar larvas; trampas de feromona.",
+    "homemade": "Fajas de cartón en el tronco, revisadas y quemadas cada semana."
+   },
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   }
+  ],
+  "vid": [
+   {
+    "name": "Oídio de la vid",
+    "scientific": "Erysiphe necator",
+    "type": "hongo",
+    "season": "primavera y verano",
+    "signs": "Polvo blanco en hojas y racimos; granos que se rajan.",
+    "prevention": "Poda en verde para ventilar; quitar brotes enfermos.",
+    "homemade": "Azufre en polvo con indicación técnica; leche diluida en ataques leves."
+   },
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   },
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   }
+  ],
+  "higuera": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Hormiga cortadora (sepe)",
+    "scientific": "Acromyrmex spp.",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Hojas cortadas en medialuna; caminos de hormigas cargando hojas.",
+    "prevention": "Ubicar y tratar el nido; barreras en troncos.",
+    "homemade": "Ceniza o cal en los caminos; cáscaras de cítricos fermentadas cerca del nido."
+   }
+  ],
+  "nogal": [
+   {
+    "name": "Polilla de la manzana (carpocapsa)",
+    "scientific": "Cydia pomonella",
+    "type": "insecto",
+    "season": "primavera y verano",
+    "signs": "Frutos agusanados con un agujero y aserrín oscuro; caen antes de madurar.",
+    "prevention": "Recoger fruta caída; fajas de cartón corrugado en el tronco para atrapar larvas; trampas de feromona.",
+    "homemade": "Fajas de cartón en el tronco, revisadas y quemadas cada semana."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "palto": [
+   {
+    "name": "Pudrición de raíz del palto",
+    "scientific": "Phytophthora cinnamomi",
+    "type": "oomiceto (hongo)",
+    "season": "suelos encharcados",
+    "signs": "Hojas pequeñas y amarillas, ramas secas desde la punta; raíces negras.",
+    "prevention": "Plantar en camellón con muy buen drenaje; no encharcar.",
+    "homemade": "Abundante materia orgánica y acolchado al pie."
+   },
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   }
+  ],
+  "chirimoya": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Hormiga cortadora (sepe)",
+    "scientific": "Acromyrmex spp.",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Hojas cortadas en medialuna; caminos de hormigas cargando hojas.",
+    "prevention": "Ubicar y tratar el nido; barreras en troncos.",
+    "homemade": "Ceniza o cal en los caminos; cáscaras de cítricos fermentadas cerca del nido."
+   }
+  ],
+  "tuna": [
+   {
+    "name": "Piojo de San José (conchuela)",
+    "scientific": "Diaspidiotus perniciosus",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Costras grises en ramas y frutos; frutos con manchitas rojas.",
+    "prevention": "Poda que ventile la copa; quitar ramas muy atacadas.",
+    "homemade": "Aceite vegetal con jabón (emulsión) en invierno, con el árbol sin hojas."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "tumbo": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "aguaymanto": [
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Pulguilla",
+    "scientific": "Epitrix spp.",
+    "type": "insecto",
+    "season": "inicio de lluvias",
+    "signs": "Hojas con muchos agujeritos redondos, como perdigones.",
+    "prevention": "Rotar y eliminar malezas solanáceas.",
+    "homemade": "Ceniza fina espolvoreada sobre las hojas en la mañana."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   }
+  ],
+  "clavel": [
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   },
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   }
+  ],
+  "gladiolo": [
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "ajipa": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   }
+  ],
+  "mauka": [
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   },
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   }
+  ],
+  "maca": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas transparentes y agujeros; gusanos verdes pequeños que se mueven rápido.",
+    "prevention": "Rotar con cultivos que no sean coles; cultivos trampa de mostaza.",
+    "homemade": "Extracto de ajo y ají; recoger larvas a mano."
+   },
+   {
+    "name": "Pulguilla",
+    "scientific": "Epitrix spp.",
+    "type": "insecto",
+    "season": "inicio de lluvias",
+    "signs": "Hojas con muchos agujeritos redondos, como perdigones.",
+    "prevention": "Rotar y eliminar malezas solanáceas.",
+    "homemade": "Ceniza fina espolvoreada sobre las hojas en la mañana."
+   }
+  ],
+  "achojcha": [
+   {
+    "name": "Oídio (ceniza)",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "época seca con noches frescas",
+    "signs": "Polvo blanco como harina sobre las hojas.",
+    "prevention": "Distancia entre plantas para que circule el aire; no regar las hojas de tarde.",
+    "homemade": "Leche diluida (1 parte en 9 de agua) o bicarbonato con jabón, por la mañana."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "trigo_sarraceno": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "mijo": [
+   {
+    "name": "Tórtolas y palomas",
+    "scientific": "Zenaida auriculata",
+    "type": "ave",
+    "season": "siembra y maduración del grano",
+    "signs": "Semillas desenterradas y granos comidos en la panoja.",
+    "prevention": "Sembrar a buena profundidad; espantapájaros y cintas brillantes que se muevan.",
+    "homemade": "Cintas reflectantes o CD viejos colgados."
+   },
+   {
+    "name": "Gusano cogollero",
+    "scientific": "Spodoptera frugiperda",
+    "type": "insecto",
+    "season": "lluvias, plantas jóvenes",
+    "signs": "Hojas comidas en el cogollo con aserrín húmedo; agujeros en las hojas nuevas.",
+    "prevention": "Sembrar con las primeras lluvias firmes; revisar el cogollo cada semana.",
+    "homemade": "Un poco de ceniza o tierra fina en el cogollo; extracto de ajo y ají."
+   }
+  ],
+  "linaza": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "girasol": [
+   {
+    "name": "Tórtolas y palomas",
+    "scientific": "Zenaida auriculata",
+    "type": "ave",
+    "season": "siembra y maduración del grano",
+    "signs": "Semillas desenterradas y granos comidos en la panoja.",
+    "prevention": "Sembrar a buena profundidad; espantapájaros y cintas brillantes que se muevan.",
+    "homemade": "Cintas reflectantes o CD viejos colgados."
+   },
+   {
+    "name": "Gusano cortador (ticona)",
+    "scientific": "Agrotis ipsilon",
+    "type": "insecto",
+    "season": "inicio de campaña, plantas recién nacidas",
+    "signs": "Plantitas cortadas a ras del suelo por la noche; gusanos grises enrollados en la tierra.",
+    "prevention": "Arar con anticipación para exponer las larvas; limpiar malezas antes de sembrar.",
+    "homemade": "Collares de cartón o botella alrededor del tallo; buscar y recoger larvas al amanecer."
+   },
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   }
+  ],
+  "canola": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas transparentes y agujeros; gusanos verdes pequeños que se mueven rápido.",
+    "prevention": "Rotar con cultivos que no sean coles; cultivos trampa de mostaza.",
+    "homemade": "Extracto de ajo y ají; recoger larvas a mano."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Pulguilla",
+    "scientific": "Epitrix spp.",
+    "type": "insecto",
+    "season": "inicio de lluvias",
+    "signs": "Hojas con muchos agujeritos redondos, como perdigones.",
+    "prevention": "Rotar y eliminar malezas solanáceas.",
+    "homemade": "Ceniza fina espolvoreada sobre las hojas en la mañana."
+   }
+  ],
+  "chia": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Hormiga cortadora (sepe)",
+    "scientific": "Acromyrmex spp.",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Hojas cortadas en medialuna; caminos de hormigas cargando hojas.",
+    "prevention": "Ubicar y tratar el nido; barreras en troncos.",
+    "homemade": "Ceniza o cal en los caminos; cáscaras de cítricos fermentadas cerca del nido."
+   }
+  ],
+  "pallar": [
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "soya": [
+   {
+    "name": "Gusano cogollero",
+    "scientific": "Spodoptera frugiperda",
+    "type": "insecto",
+    "season": "lluvias, plantas jóvenes",
+    "signs": "Hojas comidas en el cogollo con aserrín húmedo; agujeros en las hojas nuevas.",
+    "prevention": "Sembrar con las primeras lluvias firmes; revisar el cogollo cada semana.",
+    "homemade": "Un poco de ceniza o tierra fina en el cogollo; extracto de ajo y ají."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   }
+  ],
+  "caupi": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Gorgojo de los granos",
+    "scientific": "Sitophilus zeamais",
+    "type": "insecto",
+    "season": "almacén, todo el año",
+    "signs": "Granos guardados con agujeros y polvillo; gorgojos pequeños oscuros.",
+    "prevention": "Secar bien el grano antes de guardar; envases cerrados; limpiar el depósito.",
+    "homemade": "Mezclar ceniza fina o hojas de muña con el grano guardado."
+   }
+  ],
+  "trebol_rojo": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "pasto_sudan": [
+   {
+    "name": "Gusano cogollero",
+    "scientific": "Spodoptera frugiperda",
+    "type": "insecto",
+    "season": "lluvias, plantas jóvenes",
+    "signs": "Hojas comidas en el cogollo con aserrín húmedo; agujeros en las hojas nuevas.",
+    "prevention": "Sembrar con las primeras lluvias firmes; revisar el cogollo cada semana.",
+    "homemade": "Un poco de ceniza o tierra fina en el cogollo; extracto de ajo y ají."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "cebada_forrajera": [
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "pasto_ovillo": [
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Gusano blanco (gallina ciega)",
+    "scientific": "Phyllophaga spp.",
+    "type": "insecto",
+    "season": "lluvias",
+    "signs": "Raíces y tubérculos comidos; plantas que se marchitan sin razón; larvas blancas en forma de C.",
+    "prevention": "Arar para exponer larvas a las aves; usar estiércol bien descompuesto.",
+    "homemade": "Dejar que gallinas recorran el terreno al arar."
+   }
+  ],
+  "choclo": [
+   {
+    "name": "Gusano cogollero",
+    "scientific": "Spodoptera frugiperda",
+    "type": "insecto",
+    "season": "lluvias, plantas jóvenes",
+    "signs": "Hojas comidas en el cogollo con aserrín húmedo; agujeros en las hojas nuevas.",
+    "prevention": "Sembrar con las primeras lluvias firmes; revisar el cogollo cada semana.",
+    "homemade": "Un poco de ceniza o tierra fina en el cogollo; extracto de ajo y ají."
+   },
+   {
+    "name": "Gusano cortador (ticona)",
+    "scientific": "Agrotis ipsilon",
+    "type": "insecto",
+    "season": "inicio de campaña, plantas recién nacidas",
+    "signs": "Plantitas cortadas a ras del suelo por la noche; gusanos grises enrollados en la tierra.",
+    "prevention": "Arar con anticipación para exponer las larvas; limpiar malezas antes de sembrar.",
+    "homemade": "Collares de cartón o botella alrededor del tallo; buscar y recoger larvas al amanecer."
+   },
+   {
+    "name": "Carbón del maíz",
+    "scientific": "Ustilago maydis",
+    "type": "hongo",
+    "season": "lluvias",
+    "signs": "Agallas grandes blancas que se vuelven polvo negro en mazorcas y tallos.",
+    "prevention": "Rotar; quitar agallas antes de que se abran.",
+    "homemade": "Cortar y enterrar las agallas cuando aún están blancas."
+   }
+  ],
+  "col_bruselas": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas transparentes y agujeros; gusanos verdes pequeños que se mueven rápido.",
+    "prevention": "Rotar con cultivos que no sean coles; cultivos trampa de mostaza.",
+    "homemade": "Extracto de ajo y ají; recoger larvas a mano."
+   },
+   {
+    "name": "Mariposa de la col",
+    "scientific": "Leptophobia aripa",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Gusanos verdes en grupo que dejan solo las nervaduras de la hoja.",
+    "prevention": "Revisar el envés de las hojas y quitar los huevos amarillos.",
+    "homemade": "Recoger los gusanos a mano; extracto de ajo y ají."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "colinabo": [
+   {
+    "name": "Polilla de la col",
+    "scientific": "Plutella xylostella",
+    "type": "insecto",
+    "season": "época seca",
+    "signs": "Hojas con ventanitas transparentes y agujeros; gusanos verdes pequeños que se mueven rápido.",
+    "prevention": "Rotar con cultivos que no sean coles; cultivos trampa de mostaza.",
+    "homemade": "Extracto de ajo y ají; recoger larvas a mano."
+   },
+   {
+    "name": "Pulguilla",
+    "scientific": "Epitrix spp.",
+    "type": "insecto",
+    "season": "inicio de lluvias",
+    "signs": "Hojas con muchos agujeritos redondos, como perdigones.",
+    "prevention": "Rotar y eliminar malezas solanáceas.",
+    "homemade": "Ceniza fina espolvoreada sobre las hojas en la mañana."
+   }
+  ],
+  "hinojo": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "chirivia": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "escarola": [
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   }
+  ],
+  "achicoria": [
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "berro": [
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "chalota": [
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Mildiu velloso",
+    "scientific": "Peronospora destructor",
+    "type": "oomiceto (hongo)",
+    "season": "lluvias y neblinas",
+    "signs": "Manchas pálidas con pelusa gris violeta debajo de la hoja.",
+    "prevention": "Rotar; sembrar en lugares ventilados; semilla sana.",
+    "homemade": "Quitar hojas enfermas; caldo bordelés solo con indicación técnica."
+   }
+  ],
+  "albahaca": [
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "romero": [
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   }
+  ],
+  "tomillo": [
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   }
+  ],
+  "toronjil": [
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "cedron": [
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   }
+  ],
+  "lavanda": [
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "ruda": [
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   }
+  ],
+  "eneldo": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "estevia": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   }
+  ],
+  "paico": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "tomate_arbol": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Oídio (ceniza)",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "época seca con noches frescas",
+    "signs": "Polvo blanco como harina sobre las hojas.",
+    "prevention": "Distancia entre plantas para que circule el aire; no regar las hojas de tarde.",
+    "homemade": "Leche diluida (1 parte en 9 de agua) o bicarbonato con jabón, por la mañana."
+   }
+  ],
+  "damasco": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Piojo de San José (conchuela)",
+    "scientific": "Diaspidiotus perniciosus",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Costras grises en ramas y frutos; frutos con manchitas rojas.",
+    "prevention": "Poda que ventile la copa; quitar ramas muy atacadas.",
+    "homemade": "Aceite vegetal con jabón (emulsión) en invierno, con el árbol sin hojas."
+   }
+  ],
+  "cerezo": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Tórtolas y palomas",
+    "scientific": "Zenaida auriculata",
+    "type": "ave",
+    "season": "siembra y maduración del grano",
+    "signs": "Semillas desenterradas y granos comidos en la panoja.",
+    "prevention": "Sembrar a buena profundidad; espantapájaros y cintas brillantes que se muevan.",
+    "homemade": "Cintas reflectantes o CD viejos colgados."
+   }
+  ],
+  "almendro": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Piojo de San José (conchuela)",
+    "scientific": "Diaspidiotus perniciosus",
+    "type": "insecto",
+    "season": "todo el año",
+    "signs": "Costras grises en ramas y frutos; frutos con manchitas rojas.",
+    "prevention": "Poda que ventile la copa; quitar ramas muy atacadas.",
+    "homemade": "Aceite vegetal con jabón (emulsión) en invierno, con el árbol sin hojas."
+   }
+  ],
+  "olivo": [
+   {
+    "name": "Cochinilla negra",
+    "scientific": "Saissetia oleae",
+    "type": "insecto",
+    "season": "verano",
+    "signs": "Escamas negras con forma de H en ramas y hojas; hollín negro.",
+    "prevention": "Poda que ventile la copa.",
+    "homemade": "Emulsión de aceite vegetal y jabón en invierno."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   }
+  ],
+  "granado": [
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   },
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   }
+  ],
+  "nispero": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "pacay": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   }
+  ],
+  "lucuma": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   }
+  ],
+  "limonero": [
+   {
+    "name": "Minador de los cítricos",
+    "scientific": "Phyllocnistis citrella",
+    "type": "insecto",
+    "season": "brotes nuevos, época cálida",
+    "signs": "Galerías plateadas y serpenteantes en hojas nuevas que se enrollan.",
+    "prevention": "Abonar para que los brotes salgan juntos; no podar en época de ataque.",
+    "homemade": "Aceite vegetal con jabón sobre los brotes tiernos."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   },
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Gomosis de los cítricos",
+    "scientific": "Phytophthora citrophthora",
+    "type": "oomiceto (hongo)",
+    "season": "suelo encharcado",
+    "signs": "Goma que sale de grietas en la base del tronco; corteza que se pudre.",
+    "prevention": "No encharcar el pie del árbol; injertos altos; buen drenaje.",
+    "homemade": "Pasta de cal y cobre en el tronco, con indicación técnica."
+   }
+  ],
+  "naranjo": [
+   {
+    "name": "Minador de los cítricos",
+    "scientific": "Phyllocnistis citrella",
+    "type": "insecto",
+    "season": "brotes nuevos, época cálida",
+    "signs": "Galerías plateadas y serpenteantes en hojas nuevas que se enrollan.",
+    "prevention": "Abonar para que los brotes salgan juntos; no podar en época de ataque.",
+    "homemade": "Aceite vegetal con jabón sobre los brotes tiernos."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   },
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Gomosis de los cítricos",
+    "scientific": "Phytophthora citrophthora",
+    "type": "oomiceto (hongo)",
+    "season": "suelo encharcado",
+    "signs": "Goma que sale de grietas en la base del tronco; corteza que se pudre.",
+    "prevention": "No encharcar el pie del árbol; injertos altos; buen drenaje.",
+    "homemade": "Pasta de cal y cobre en el tronco, con indicación técnica."
+   }
+  ],
+  "mandarino": [
+   {
+    "name": "Minador de los cítricos",
+    "scientific": "Phyllocnistis citrella",
+    "type": "insecto",
+    "season": "brotes nuevos, época cálida",
+    "signs": "Galerías plateadas y serpenteantes en hojas nuevas que se enrollan.",
+    "prevention": "Abonar para que los brotes salgan juntos; no podar en época de ataque.",
+    "homemade": "Aceite vegetal con jabón sobre los brotes tiernos."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   },
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Gomosis de los cítricos",
+    "scientific": "Phytophthora citrophthora",
+    "type": "oomiceto (hongo)",
+    "season": "suelo encharcado",
+    "signs": "Goma que sale de grietas en la base del tronco; corteza que se pudre.",
+    "prevention": "No encharcar el pie del árbol; injertos altos; buen drenaje.",
+    "homemade": "Pasta de cal y cobre en el tronco, con indicación técnica."
+   }
+  ],
+  "guayabo": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   }
+  ],
+  "frambuesa": [
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   }
+  ],
+  "mora": [
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   }
+  ],
+  "arandano": [
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   },
+   {
+    "name": "Tórtolas y palomas",
+    "scientific": "Zenaida auriculata",
+    "type": "ave",
+    "season": "siembra y maduración del grano",
+    "signs": "Semillas desenterradas y granos comidos en la panoja.",
+    "prevention": "Sembrar a buena profundidad; espantapájaros y cintas brillantes que se muevan.",
+    "homemade": "Cintas reflectantes o CD viejos colgados."
+   }
+  ],
+  "kiwi": [
+   {
+    "name": "Cochinilla harinosa",
+    "scientific": "Planococcus citri",
+    "type": "insecto",
+    "season": "época seca y cálida",
+    "signs": "Bolitas blancas como algodón en ramas, hojas y frutos; hojas pegajosas con hollín negro.",
+    "prevention": "Controlar a las hormigas que las protegen; podar ramas muy atacadas.",
+    "homemade": "Algodón con alcohol en focos pequeños; agua con jabón neutro."
+   },
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   }
+  ],
+  "maracuya": [
+   {
+    "name": "Mosca de la fruta",
+    "scientific": "Ceratitis capitata",
+    "type": "insecto",
+    "season": "maduración de la fruta, época cálida",
+    "signs": "Frutos con picaduras, zonas blandas y gusanos blancos adentro; fruta que cae antes de tiempo.",
+    "prevention": "Recoger y enterrar la fruta caída; cosechar a tiempo; trampas; avisar a SENASAG, es plaga bajo control oficial.",
+    "homemade": "Trampas de botella con agua, azúcar y un poco de vinagre o jugo de fruta."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   }
+  ],
+  "rosa": [
+   {
+    "name": "Mancha negra del rosal",
+    "scientific": "Diplocarpon rosae",
+    "type": "hongo",
+    "season": "lluvias",
+    "signs": "Manchas negras con borde deshilachado en las hojas, que se ponen amarillas y caen.",
+    "prevention": "Recoger hojas caídas; no mojar las hojas al regar; poda que ventile.",
+    "homemade": "Caldo de cola de caballo; purín de ortiga para fortalecer."
+   },
+   {
+    "name": "Oídio (ceniza)",
+    "scientific": "Podosphaera xanthii",
+    "type": "hongo",
+    "season": "época seca con noches frescas",
+    "signs": "Polvo blanco como harina sobre las hojas.",
+    "prevention": "Distancia entre plantas para que circule el aire; no regar las hojas de tarde.",
+    "homemade": "Leche diluida (1 parte en 9 de agua) o bicarbonato con jabón, por la mañana."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Arañita roja",
+    "scientific": "Tetranychus urticae",
+    "type": "ácaro",
+    "season": "época seca y calurosa",
+    "signs": "Hojas con puntitos amarillos y telitas finas debajo; plantas polvorientas.",
+    "prevention": "Mantener la humedad del suelo; no usar insecticidas que matan a sus enemigos naturales.",
+    "homemade": "Lavar las hojas con agua y jabón neutro; rociar azufre mojable solo con indicación técnica."
+   },
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   }
+  ],
+  "crisantemo": [
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   },
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Roya",
+    "scientific": "Puccinia graminis",
+    "type": "hongo",
+    "season": "lluvias con calor",
+    "signs": "Pústulas anaranjadas o cafés como óxido en hojas y tallos.",
+    "prevention": "Variedades resistentes; rotar; eliminar rastrojos enfermos.",
+    "homemade": "Quitar hojas muy atacadas al inicio."
+   }
+  ],
+  "cala": [
+   {
+    "name": "Babosas y caracoles",
+    "scientific": "Deroceras reticulatum",
+    "type": "molusco",
+    "season": "lluvias, noches húmedas",
+    "signs": "Hojas comidas con bordes irregulares y rastros brillantes de baba.",
+    "prevention": "Quitar escondites (piedras, tablas, malezas); regar en la mañana.",
+    "homemade": "Trampas con cerveza o agua con levadura; ceniza o cáscara de huevo molida alrededor de las plantas."
+   },
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   }
+  ],
+  "astromelia": [
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Pulgones",
+    "scientific": "Myzus persicae",
+    "type": "insecto",
+    "season": "época seca y templada",
+    "signs": "Colonias en brotes y bajo las hojas; hojas enrolladas y pegajosas.",
+    "prevention": "Cuidar a las mariquitas; no abonar con exceso de nitrógeno.",
+    "homemade": "Agua con jabón neutro; extracto de ajo y ají."
+   },
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   }
+  ],
+  "gerbera": [
+   {
+    "name": "Mosca blanca",
+    "scientific": "Trialeurodes vaporariorum",
+    "type": "insecto",
+    "season": "calor, sobre todo en invernaderos",
+    "signs": "Nubes de mosquitas blancas al mover las plantas; hojas pegajosas con hollín negro.",
+    "prevention": "Trampas amarillas pegajosas; quitar malezas hospederas; mallas en invernaderos.",
+    "homemade": "Agua con jabón neutro bajo las hojas, por la tarde."
+   },
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Mosca minadora",
+    "scientific": "Liriomyza huidobrensis",
+    "type": "insecto",
+    "season": "todo el año, más en época seca",
+    "signs": "Galerías blancas y sinuosas dentro de las hojas.",
+    "prevention": "Trampas amarillas pegajosas; quitar y enterrar hojas dañadas; rotar.",
+    "homemade": "Trampas amarillas hechas con plástico y aceite."
+   },
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   }
+  ],
+  "lisianthus": [
+   {
+    "name": "Trips",
+    "scientific": "Frankliniella occidentalis",
+    "type": "insecto",
+    "season": "época seca y calurosa",
+    "signs": "Manchas plateadas y puntitos negros en las hojas; flores y frutos deformes.",
+    "prevention": "Trampas azules pegajosas; riego que evite el estrés; quitar malezas.",
+    "homemade": "Agua con jabón neutro; extracto de ajo."
+   },
+   {
+    "name": "Marchitez por fusarium",
+    "scientific": "Fusarium oxysporum",
+    "type": "hongo",
+    "season": "calor",
+    "signs": "Plantas que se marchitan de un lado; tallo cortado con vetas cafés por dentro.",
+    "prevention": "Rotar largo; semilla y plantines sanos; no encharcar.",
+    "homemade": "Arrancar y sacar las plantas enfermas del terreno."
+   },
+   {
+    "name": "Moho gris (botrytis)",
+    "scientific": "Botrytis cinerea",
+    "type": "hongo",
+    "season": "humedad y frío",
+    "signs": "Frutos y flores con pudrición blanda cubierta de moho gris.",
+    "prevention": "Ventilar; no mojar flores y frutos; cosechar a tiempo.",
+    "homemade": "Quitar y enterrar partes enfermas; acolchado de paja bajo la frutilla."
+   }
+  ]
+ },
+ "invasive": [
+  {
+   "name": "Kikuyo",
+   "scientific": "Cenchrus clandestinus (Pennisetum clandestinum)",
+   "origin": "África oriental",
+   "risk": "Pasto que se extiende por estolones, invade cultivos y bordes de canales y compite por agua.",
+   "action": "Arrancar con todas sus raíces antes de sembrar y no dejar fragmentos; cubrir el suelo con cultivos densos.",
+   "kind": "planta"
+  },
+  {
+   "name": "Eucalipto en bordes de parcela",
+   "scientific": "Eucalyptus globulus",
+   "origin": "Australia",
+   "risk": "Especie introducida y muy plantada en los valles. Cerca de la parcela consume mucha agua y seca el suelo.",
+   "action": "No plantarlo junto a cultivos ni canales; dejar una franja libre entre árboles y cultivo.",
+   "kind": "planta"
+  },
+  {
+   "name": "Caracol gigante africano",
+   "scientific": "Lissachatina fulica",
+   "origin": "África oriental",
+   "risk": "Plaga invasora reportada en Bolivia, sobre todo en zonas cálidas. Daña cultivos y puede transmitir parásitos a las personas.",
+   "action": "No tocarlo sin guantes ni moverlo de lugar. Avisar a SENASAG si aparece.",
+   "kind": "planta"
+  },
+  {
+   "name": "Pino",
+   "scientific": "Pinus radiata",
+   "kind": "planta",
+   "origin": "California (Estados Unidos)",
+   "risk": "Se dispersa solo por semillas y acidifica el suelo bajo su copa.",
+   "action": "Arrancar plantitas jóvenes que aparezcan lejos de la plantación."
+  },
+  {
+   "name": "Retama",
+   "scientific": "Spartium junceum",
+   "kind": "planta",
+   "origin": "Mediterráneo",
+   "risk": "Arbusto que invade laderas y bordes de caminos y desplaza la vegetación nativa.",
+   "action": "Arrancar plantas jóvenes con raíz; cortar antes de que suelte semillas."
+  },
+  {
+   "name": "Higuerilla (ricino)",
+   "scientific": "Ricinus communis",
+   "kind": "planta",
+   "origin": "África oriental",
+   "risk": "Crece rápido en bordes y torrenteras; sus semillas son muy venenosas para personas y animales.",
+   "action": "Arrancar antes de que dé semilla; no dejar semillas al alcance de niños ni animales."
+  },
+  {
+   "name": "Caña brava",
+   "scientific": "Arundo donax",
+   "kind": "planta",
+   "origin": "Asia y Mediterráneo",
+   "risk": "Forma macizos en canales y ríos, tapa el paso del agua y aumenta el riesgo de desborde.",
+   "action": "Cortar y sacar los rizomas; no plantar en bordes de canales."
+  },
+  {
+   "name": "Pasto bermuda (gramilla)",
+   "scientific": "Cynodon dactylon",
+   "kind": "planta",
+   "origin": "África",
+   "risk": "Maleza que se extiende por estolones y rizomas; compite fuerte por agua y nutrientes.",
+   "action": "Sacar los rizomas al arar en época seca; cubrir el suelo con cultivos densos."
+  },
+  {
+   "name": "Coquito (cebollín)",
+   "scientific": "Cyperus rotundus",
+   "kind": "planta",
+   "origin": "Eurasia",
+   "risk": "Una de las peores malezas del mundo: sus tubérculos rebrotan y se multiplican al arar.",
+   "action": "Arrancar a mano antes de que forme tubérculos; acolchado grueso."
+  },
+  {
+   "name": "Sorgo de Alepo",
+   "scientific": "Sorghum halepense",
+   "kind": "planta",
+   "origin": "Mediterráneo",
+   "risk": "Maleza perenne de rizomas que invade maizales y forrajes.",
+   "action": "Sacar rizomas al arar; no dejar que semille."
+  },
+  {
+   "name": "Mostacilla (nabo silvestre)",
+   "scientific": "Brassica rapa",
+   "kind": "planta",
+   "origin": "Europa",
+   "risk": "Maleza de cereales y papa; hospeda plagas de las coles.",
+   "action": "Deshierbe temprano, antes de la floración."
+  },
+  {
+   "name": "Lengua de vaca",
+   "scientific": "Rumex crispus",
+   "kind": "planta",
+   "origin": "Europa",
+   "risk": "Maleza de raíz profunda en suelos húmedos y potreros.",
+   "action": "Sacar con toda la raíz; mejorar el drenaje."
+  },
+  {
+   "name": "Diente de león",
+   "scientific": "Taraxacum officinale",
+   "kind": "planta",
+   "origin": "Europa",
+   "risk": "Se dispersa por el viento; compite en almácigos y hortalizas pequeñas.",
+   "action": "Arrancar con raíz antes de la floración; tiene uso medicinal y como forraje."
+  },
+  {
+   "name": "Ataco (amaranto silvestre)",
+   "scientific": "Amaranthus hybridus",
+   "kind": "planta",
+   "origin": "América",
+   "risk": "Maleza de crecimiento rápido en hortalizas y maíz; produce miles de semillas.",
+   "action": "Deshierbe temprano, antes de que semille."
+  },
+  {
+   "name": "Paloma doméstica",
+   "scientific": "Columba livia",
+   "kind": "animal",
+   "origin": "Europa y Asia",
+   "risk": "Come semillas recién sembradas y granos; ensucia depósitos.",
+   "action": "Sembrar a buena profundidad; cubrir almácigos con malla."
+  },
+  {
+   "name": "Rata",
+   "scientific": "Rattus rattus",
+   "kind": "animal",
+   "origin": "Asia",
+   "risk": "Daña granos y tubérculos guardados y transmite enfermedades.",
+   "action": "Depósitos cerrados y limpios; trampas; no dejar restos de comida."
+  }
+ ],
+ "repellents": [
+  {
+   "name": "Extracto de ajo y ají",
+   "for": "pulgones, mosca blanca y orugas pequeñas",
+   "how": "Moler una cabeza de ajo y dos ajíes, dejar en un litro de agua un día, colar y diluir en unos cuatro litros de agua antes de rociar.",
+   "care": "Usar guantes y no rociar en los ojos."
+  },
+  {
+   "name": "Agua con jabón neutro",
+   "for": "pulgones y trips",
+   "how": "Disolver jabón neutro rallado (no detergente) en agua tibia y rociar sobre las colonias, de preferencia al atardecer.",
+   "care": "Probar primero en pocas plantas: en exceso quema las hojas."
+  },
+  {
+   "name": "Muña",
+   "for": "polilla de la papa en el almacén",
+   "how": "Cubrir las papas almacenadas con ramas secas de muña.",
+   "care": "Cambiar las ramas cuando pierdan el olor."
+  },
+  {
+   "name": "Ceniza",
+   "for": "gorgojos en granos almacenados y gusano cogollero",
+   "how": "Mezclar ceniza fina con el grano guardado, o poner un poco en el cogollo del maíz.",
+   "care": "Usar ceniza de leña, no de plásticos ni basura."
+  },
+  {
+   "name": "Trampas de colores con pegamento",
+   "for": "amarillas: mosca blanca, pulgones y minadores; azules: trips",
+   "how": "Láminas de plástico del color indicado untadas con aceite o pegamento, colgadas a la altura del cultivo.",
+   "care": "Sirven para vigilar y reducir; cambiarlas cuando se llenen."
+  },
+  {
+   "name": "Purín de ortiga",
+   "for": "pulgones; también fortalece la planta",
+   "how": "Dejar ortiga picada en agua una o dos semanas, colar y diluir mucho antes de aplicar.",
+   "care": "Tiene olor fuerte; aplicar diluido."
+  },
+  {
+   "name": "Caldo de cola de caballo",
+   "for": "hongos como oídio, alternaria y roya",
+   "how": "Hervir 100 gramos de cola de caballo seca en un litro de agua por media hora, colar y diluir en cinco litros de agua.",
+   "care": "Preventivo: aplicar antes de que aparezca la enfermedad."
+  },
+  {
+   "name": "Leche diluida",
+   "for": "oídio (ceniza)",
+   "how": "Una parte de leche en nueve de agua; rociar las hojas por la mañana con sol.",
+   "care": "Funciona en ataques leves."
+  },
+  {
+   "name": "Trampas amarillas pegajosas",
+   "for": "mosca blanca, mosca minadora y pulgones con alas",
+   "how": "Plástico o cartón amarillo untado con aceite o grasa, colgado a la altura de las plantas.",
+   "care": "Cambiar o limpiar cuando estén llenas."
+  },
+  {
+   "name": "Extracto de muña",
+   "for": "polillas y gorgojos de granos y tubérculos guardados",
+   "how": "Ramas secas de muña entre los tubérculos o granos guardados, o un macerado de muña en agua por dos días para rociar.",
+   "care": "Práctica andina tradicional; renovar las ramas cada mes."
+  },
+  {
+   "name": "Huacataya en los bordes",
+   "for": "nematodos y algunas plagas del suelo",
+   "how": "Sembrar huacataya entre surcos o en los bordes; incorporarla al suelo al florecer.",
+   "care": "Puede volverse maleza si se deja semillar."
+  },
+  {
+   "name": "Caldo bordelés",
+   "for": "tizón, mildiu y cloca del durazno",
+   "how": "Sulfato de cobre y cal viva disueltos por separado y mezclados, en las proporciones que indique un técnico.",
+   "care": "Es un producto con cobre: usar guantes, no aplicar con flores abiertas y seguir la indicación técnica."
+  }
+ ],
+ "fertility": {
+  "papa": "Pide mucho potasio y fósforo. Estiércol bien descompuesto incorporado antes de la siembra.",
+  "maiz": "Pide mucho nitrógeno: rinde mejor después de una leguminosa (haba, arveja, alfalfa).",
+  "haba": "Fija su propio nitrógeno: necesita poco abono nitrogenado; agradece fósforo y materia orgánica.",
+  "arveja": "Fija su propio nitrógeno: poco abono nitrogenado; agradece fósforo.",
+  "trigo": "Nitrógeno moderado; aprovecha el que deja una leguminosa anterior.",
+  "cebada": "Nitrógeno moderado; aprovecha el que deja una leguminosa anterior.",
+  "quinua": "Demanda moderada; responde bien a estiércol descompuesto.",
+  "alfalfa": "Fija nitrógeno; pide fósforo y suelos no ácidos (si el pH es bajo, suele necesitar cal).",
+  "cebolla": "Demanda moderada de nitrógeno y potasio; abono orgánico bien descompuesto.",
+  "tomate": "Pide potasio y calcio en la fructificación; abono orgánico bien descompuesto.",
+  "oca": "Demanda moderada; responde bien a estiércol descompuesto. Suele sembrarse después de papa en la rotación andina.",
+  "papalisa": "Demanda moderada; estiércol descompuesto antes de la siembra.",
+  "avena": "Nitrógeno moderado; aprovecha el que deja una leguminosa. Buena para cubrir el suelo y para forraje.",
+  "amaranto": "Demanda moderada de nitrógeno; responde a estiércol descompuesto. Tolera suelos pobres mejor que el maíz.",
+  "frijol": "Fija su propio nitrógeno: poco abono nitrogenado; agradece fósforo.",
+  "tarwi": "Fija mucho nitrógeno y mejora suelos pobres; casi no necesita abono.",
+  "vicia": "Fija nitrógeno; se incorpora al suelo como abono verde antes de florecer o se corta como forraje.",
+  "ajo": "Pide potasio y azufre; abono orgánico bien descompuesto, nunca fresco.",
+  "locoto": "Pide potasio en la fructificación; abono orgánico bien descompuesto.",
+  "aji": "Pide potasio en la fructificación; abono orgánico bien descompuesto.",
+  "zanahoria": "Poco nitrógeno (el exceso deforma la raíz); suelo suelto, sin piedras ni estiércol fresco.",
+  "apio": "Pide mucho nitrógeno y agua constante; abono orgánico bien descompuesto.",
+  "repollo": "Pide mucho nitrógeno; estiércol descompuesto y riego regular.",
+  "coliflor": "Pide mucho nitrógeno y boro; estiércol descompuesto.",
+  "brocoli": "Pide mucho nitrógeno; estiércol descompuesto.",
+  "zapallo": "Pide materia orgánica: compost en el hoyo de siembra.",
+  "pepino": "Pide materia orgánica y potasio; compost en el surco.",
+  "remolacha": "Pide potasio y boro; poco nitrógeno.",
+  "frutilla": "Pide materia orgánica y suelos algo ácidos; cubrir el suelo con paja (mulch).",
+  "lechuga": "Nitrógeno moderado y riego frecuente; compost maduro.",
+  "espinaca": "Pide nitrógeno; compost maduro.",
+  "acelga": "Nitrógeno moderado; compost maduro.",
+  "rabano": "Poca demanda; ciclo muy corto, entre cultivos principales.",
+  "nabo": "Poca demanda; sirve de forraje y entre cultivos principales.",
+  "cilantro": "Poca demanda; compost maduro.",
+  "isano": "Poco exigente: crece en suelos pobres. Estiércol descompuesto al surco; se suele sembrar junto a papa y oca.",
+  "yacon": "Pide suelo suelto y profundo con materia orgánica; compost antes de plantar y potasio para las raíces.",
+  "racacha": "Suelo suelto, profundo y con buen drenaje; estiércol descompuesto y potasio. No tolera encharcamiento.",
+  "camote": "Más potasio que nitrógeno: el exceso de nitrógeno da mucha hoja y poca raíz.",
+  "centeno": "Poco exigente; aguanta suelos pobres y ácidos. Nitrógeno moderado.",
+  "triticale": "Nitrógeno moderado, como el trigo; aprovecha el que deja una leguminosa.",
+  "sorgo": "Nitrógeno moderado; tolera la sequía mejor que el maíz.",
+  "canahua": "Muy poco exigente; aguanta frío, sequía y suelos pobres. Estiércol si hay.",
+  "lenteja": "Fija su propio nitrógeno; agradece fósforo. No necesita abono nitrogenado.",
+  "garbanzo": "Fija nitrógeno; agradece fósforo. Suelo con buen drenaje.",
+  "mani": "Fija nitrógeno; necesita calcio para llenar las vainas (yeso agrícola en floración).",
+  "vainita": "Fija nitrógeno; compost y fósforo. Tutorar las variedades de enrame.",
+  "trebol": "Fija nitrógeno; mejora el suelo y el forraje cuando se siembra con gramíneas.",
+  "ryegrass": "Pide nitrógeno después de cada corte; ideal en mezcla con trébol.",
+  "festuca": "Nitrógeno después de los cortes; aguanta sequía y suelos pesados.",
+  "maiz_forrajero": "Mucho nitrógeno y estiércol; rinde mejor después de una leguminosa.",
+  "pimenton": "Pide materia orgánica, potasio y calcio para frutos sanos.",
+  "berenjena": "Materia orgánica y potasio; mucho sol y calor.",
+  "zapallito": "Compost abundante en el hoyo; riego parejo.",
+  "sandia": "Materia orgánica y potasio; suelo arenoso y cálido.",
+  "melon": "Materia orgánica y potasio; poco nitrógeno al final para frutos más dulces.",
+  "puerro": "Nitrógeno moderado y materia orgánica; aporcar para blanquear el tallo.",
+  "cebollin": "Compost; nitrógeno moderado después de cada corte.",
+  "perejil": "Compost; nitrógeno moderado.",
+  "rucula": "Poco exigente; compost ligero.",
+  "kale": "Nitrógeno y compost; aguanta heladas.",
+  "pakchoi": "Nitrógeno y compost; crece rápido.",
+  "vainita_arbustiva": "Fija nitrógeno; fósforo y compost ligero.",
+  "esparrago": "Mucha materia orgánica antes de plantar; dura 10 o más años en el mismo lugar.",
+  "alcachofa": "Mucha materia orgánica y potasio; dura varios años.",
+  "quirquina": "Poco exigente; compost ligero.",
+  "huacataya": "Poco exigente; crece casi sola. Sirve para alejar plagas del suelo.",
+  "oregano": "Poco exigente; no abonar en exceso para no perder aroma.",
+  "manzanilla": "Poco exigente; compost ligero.",
+  "hierbabuena": "Compost y riego parejo; se extiende rápido.",
+  "muna": "Poco exigente; sus ramas protegen la papa guardada de la polilla.",
+  "durazno": "Estiércol descompuesto al pie cada invierno; nitrógeno moderado en primavera.",
+  "manzano": "Estiércol al pie en invierno; potasio y calcio para frutos de calidad.",
+  "peral": "Estiércol al pie en invierno; nitrógeno moderado.",
+  "ciruelo": "Estiércol al pie en invierno; nitrógeno moderado.",
+  "membrillo": "Poco exigente; estiércol al pie en invierno.",
+  "vid": "Poco nitrógeno; potasio y materia orgánica. Podar cada invierno.",
+  "higuera": "Poco exigente; aguanta suelos pobres y calcáreos.",
+  "nogal": "Suelo profundo; estiércol al pie y nitrógeno moderado.",
+  "palto": "Suelo suelto con muy buen drenaje; materia orgánica y zinc. No tolera encharcamiento.",
+  "chirimoya": "Materia orgánica y potasio; zona sin heladas.",
+  "tuna": "Muy poco exigente; aguanta sequía y suelos pobres.",
+  "tumbo": "Materia orgánica; necesita espaldera o tutor.",
+  "aguaymanto": "Compost moderado; el exceso de nitrógeno da mucha hoja.",
+  "clavel": "Materia orgánica, potasio y calcio; suelo con buen drenaje.",
+  "gladiolo": "Compost y potasio; suelo suelto.",
+  "ajipa": "Fija su propio nitrógeno; suelo suelto. Quitar las flores mejora el tamaño de la raíz.",
+  "mauka": "Poco exigente; estiércol descompuesto. Raíz andina tradicional que tarda casi un año.",
+  "maca": "Poco exigente; aguanta frío intenso. No repetir maca en el mismo lugar en varios años.",
+  "achojcha": "Compost en el hoyo; necesita tutor o enramada para trepar.",
+  "trigo_sarraceno": "Muy poco exigente; crece en suelos pobres y mejora la estructura del suelo.",
+  "mijo": "Poco exigente; aguanta sequía. Nitrógeno moderado.",
+  "linaza": "Nitrógeno moderado; suelo suelto y sin malezas al inicio.",
+  "girasol": "Nitrógeno moderado, potasio y boro; aguanta algo de sequía.",
+  "canola": "Nitrógeno y azufre; como las coles, no repetir con otras crucíferas.",
+  "chia": "Poco exigente; nitrógeno moderado. Necesita calor para florecer y madurar.",
+  "pallar": "Fija nitrógeno; agradece fósforo y tutor en las variedades de enrame.",
+  "soya": "Fija nitrógeno con la bacteria correcta (inoculante); agradece fósforo y potasio.",
+  "caupi": "Fija nitrógeno; aguanta sequía y suelos pobres.",
+  "trebol_rojo": "Fija nitrógeno; mejora el suelo y el forraje en mezcla con gramíneas.",
+  "pasto_sudan": "Nitrógeno después de cada corte; aguanta calor y sequía.",
+  "cebada_forrajera": "Nitrógeno moderado; rápida para dar forraje en invierno.",
+  "pasto_ovillo": "Nitrógeno después de los cortes; aguanta sombra y frío.",
+  "choclo": "Mucho nitrógeno y estiércol; riego parejo en la floración.",
+  "col_bruselas": "Nitrógeno y compost; aguanta heladas.",
+  "colinabo": "Compost y nitrógeno moderado; crece rápido.",
+  "hinojo": "Compost; riego parejo para que el bulbo no se ponga duro.",
+  "chirivia": "Suelo profundo y suelto, sin estiércol fresco para que la raíz no se deforme.",
+  "escarola": "Compost; nitrógeno moderado.",
+  "achicoria": "Poco exigente; compost ligero.",
+  "berro": "Necesita agua corriente o suelo siempre húmedo; compost.",
+  "chalota": "Como la cebolla: poco nitrógeno al final y suelo con buen drenaje.",
+  "albahaca": "Compost; mucho sol y calor. No soporta helada.",
+  "romero": "Poco exigente; suelo con buen drenaje. No abonar en exceso.",
+  "tomillo": "Poco exigente; suelo pobre y seco.",
+  "toronjil": "Compost ligero; algo de sombra.",
+  "cedron": "Compost; proteger de las heladas fuertes.",
+  "lavanda": "Suelo pobre, calcáreo y con buen drenaje; no abonar en exceso.",
+  "ruda": "Poco exigente; suelo seco. Su olor aleja algunas plagas.",
+  "eneldo": "Poco exigente; compost ligero.",
+  "estevia": "Compost y riego parejo; no soporta helada.",
+  "paico": "Muy poco exigente; crece casi solo.",
+  "tomate_arbol": "Materia orgánica y potasio; protegido del viento y de la helada.",
+  "damasco": "Estiércol al pie en invierno; nitrógeno moderado.",
+  "cerezo": "Estiércol al pie en invierno; necesita frío en invierno para florecer.",
+  "almendro": "Poco exigente; suelo con buen drenaje. Florece temprano: cuidado con heladas tardías.",
+  "olivo": "Poco exigente; aguanta sequía y suelos calcáreos.",
+  "granado": "Poco exigente; aguanta sequía y suelos pobres.",
+  "nispero": "Estiércol al pie; nitrógeno moderado.",
+  "pacay": "Fija nitrógeno; sirve de sombra para otros cultivos.",
+  "lucuma": "Materia orgánica; zona sin heladas.",
+  "limonero": "Nitrógeno, hierro y zinc; suelo con buen drenaje.",
+  "naranjo": "Nitrógeno, hierro y zinc; suelo con buen drenaje.",
+  "mandarino": "Nitrógeno, hierro y zinc; suelo con buen drenaje.",
+  "guayabo": "Poco exigente; materia orgánica.",
+  "frambuesa": "Materia orgánica y acolchado; podar las cañas que ya dieron fruta.",
+  "mora": "Materia orgánica; espaldera y poda cada año.",
+  "arandano": "Necesita suelo ácido (pH 4,5 a 5,5): turba o aserrín descompuesto; no usar cal.",
+  "kiwi": "Materia orgánica; espaldera, planta macho y hembra.",
+  "maracuya": "Materia orgánica y potasio; espaldera.",
+  "rosa": "Materia orgánica, potasio y calcio; poda en invierno.",
+  "crisantemo": "Compost y nitrógeno moderado; florece con días cortos.",
+  "cala": "Mucha materia orgánica y humedad.",
+  "astromelia": "Materia orgánica; suelo con buen drenaje.",
+  "gerbera": "Materia orgánica; suelo con buen drenaje y sin encharcamiento.",
+  "lisianthus": "Compost; suelo con pH cercano a neutro."
+ },
+ "legal": {
+  "summary": "Yatiri X no tiene acceso a registros oficiales de propiedad. Muestra lo que sí se sabe del lugar y dónde verificar lo demás.",
+  "checks": [
+   {
+    "topic": "Propiedad y título",
+    "where": "Derechos Reales (DD.RR.), Consejo de la Magistratura: folio real del inmueble."
+   },
+   {
+    "topic": "Catastro y uso de suelo urbano o periurbano",
+    "where": "Catastro y Planificación Territorial del Gobierno Autónomo Municipal de Cochabamba."
+   },
+   {
+    "topic": "Tierras rurales y saneamiento",
+    "where": "Instituto Nacional de Reforma Agraria (INRA)."
+   },
+   {
+    "topic": "Derecho de uso de agua para riego",
+    "where": "Registro de derechos de agua para riego del Servicio Nacional de Riego (SENARI), en el marco de la Ley de Riego 2878."
+   },
+   {
+    "topic": "Sanidad vegetal y plagas cuarentenarias",
+    "where": "SENASAG."
+   }
+  ],
+  "zone_notes": {
+   "Periurbanos consolidados": "Zona donde la ciudad ya se instaló. El uso agrícola puede tener restricciones del plan municipal de uso de suelo: verificar en Catastro antes de invertir.",
+   "Periurbanos en crecimiento": "Zona en transición entre campo y ciudad. Verificar en Catastro qué usos permite el plan municipal y si hay cambios previstos.",
+   "drainage": "La parcela está dentro del área de drenaje e influencia que marca el GAMC: suele haber franjas de seguridad junto a torrenteras y canales donde no se debe construir ni rellenar. Verificar en el GAMC."
+  }
+ }
+}
