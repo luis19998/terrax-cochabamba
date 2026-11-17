@@ -2,7 +2,7 @@
 
 La segunda versión de Yatiri X: la misma herramienta, pero para **cualquier lugar del planeta**.
 
-- En línea: https://yatirix-global.netlify.app
+- En línea: https://yatirix-global-bo.netlify.app
 - Versión original (Cochabamba): https://yatirix-cochabamba.netlify.app
 
 ## Qué añade a la versión de Cochabamba
