@@ -91,10 +91,26 @@ export function createAgent({ env, terra, outlook, crops, knowledge, quNames = {
       source: "FAO-56 y FAO ECOCROP (valores de referencia, a validar localmente)",
     };
   }
+  // OpenStreetMap first; Open-Meteo's place search takes over when Nominatim refuses the server or finds nothing
   async function findPlace({ query }) {
-    const r = await fetch(`https://nominatim.openstreetmap.org/search?${new URLSearchParams({ format: "jsonv2", q: query, limit: "1" })}`, { headers: { "User-Agent": "YatiriX-Global/1.0 (NASA Space Apps 2026)" }, signal: AbortSignal.timeout(8000) });
-    const [hit] = await r.json();
-    return hit ? { name: hit.display_name, lat: Number(hit.lat), lon: Number(hit.lon) } : { error: "No encontré ese lugar." };
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?${new URLSearchParams({ format: "jsonv2", q: query, limit: "1" })}`, { headers: { "User-Agent": "YatiriX-Global/1.0 (NASA Space Apps 2026)" }, signal: AbortSignal.timeout(6000) });
+      if (r.ok) {
+        const [hit] = await r.json();
+        if (hit) return { name: hit.display_name, lat: Number(hit.lat), lon: Number(hit.lon) };
+      }
+    } catch { /* try the next service */ }
+    try {
+      const name = String(query).split(",")[0].trim();
+      const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${new URLSearchParams({ name, count: "5", language: "es" })}`, { signal: AbortSignal.timeout(6000) });
+      const data = await r.json();
+      const rest = String(query).toLowerCase();
+      const hits = data.results || [];
+      // prefer a result whose region or country is named in the question ("Tiquipaya, Cochabamba")
+      const hit = hits.find((h) => [h.admin1, h.admin2, h.country].some((x) => x && rest.includes(String(x).toLowerCase()))) || hits[0];
+      if (hit) return { name: [hit.name, hit.admin1, hit.country].filter(Boolean).join(", "), lat: hit.latitude, lon: hit.longitude };
+    } catch { /* nothing found */ }
+    return { error: "No encontré ese lugar." };
   }
 
   // the free tier allows few calls per minute per model: when one is saturated, the next one answers

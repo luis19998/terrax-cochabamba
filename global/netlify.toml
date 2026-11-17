@@ -6,3 +6,8 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# The model name and the public GAMC service address appear in the code as defaults: they are not secrets.
+# The real keys (GEMINI_API_KEY, GAMC_API_KEY) are still scanned.
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "GEMINI_MODEL,GAMC_WMS_URL"
