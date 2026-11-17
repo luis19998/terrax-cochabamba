@@ -279,6 +279,8 @@ export async function renderTerrain3D(container, { lat, lon, polygon, exaggerati
   camera.position.set(0, -sizeKm * 1.05, sizeKm * 0.8);
   camera.up.set(0, 0, 1);
   const controls = new OrbitControls(camera, renderer.domElement);
+  // phones: one finger up or down scrolls the page, sideways turns the model, two fingers zoom
+  renderer.domElement.style.touchAction = "pan-y";
   controls.target.set(0, 0, -sizeKm * 0.02);
   controls.maxPolarAngle = Math.PI * 0.62;
   controls.enableDamping = true;

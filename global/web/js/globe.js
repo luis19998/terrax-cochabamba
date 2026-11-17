@@ -276,6 +276,8 @@ export async function createGlobe(container, { onPick = () => {}, onProgress = (
   const camera = new THREE.PerspectiveCamera(42, width() / height(), 0.005, 200);
   camera.position.set(0, 0.6, 3.2);
   const controls = new OrbitControls(camera, renderer.domElement);
+  // phones: one finger up or down scrolls the page, sideways turns the model, two fingers zoom
+  renderer.domElement.style.touchAction = "pan-y";
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.minDistance = 1.25;

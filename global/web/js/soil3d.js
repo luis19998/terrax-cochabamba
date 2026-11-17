@@ -22,19 +22,33 @@ function layerColor(l) {
   return base.map((v) => Math.round(v * dark));
 }
 
-/** The minerals a layer probably has, from pH and texture (a guide, not a mineral analysis). */
-export function likelyMinerals(l) {
+/** The minerals a layer probably has, from pH, texture and the place (a guide, not a mineral analysis).
+ *  ctx: { arid, saline, wet, andean } */
+export function likelyMinerals(l, ctx = {}) {
+  const ph = l.phh2o ?? 7;
+  const clay = l.clay ?? 0;
+  const sand = l.sand ?? 0;
+  const silt = l.silt ?? 0;
   const out = [];
-  if ((l.sand ?? 0) >= 45) out.push({ id: "quartz", name: "Cuarzo", why: "mucha arena: casi toda la arena es cuarzo", color: 0xf4f7ff });
-  if ((l.clay ?? 0) >= 25 && (l.phh2o ?? 7) < 6.2) out.push({ id: "kaolinite", name: "Caolinita (arcilla)", why: "arcilla en suelo ácido y lavado", color: 0xf2e6d0 });
-  if ((l.clay ?? 0) >= 25 && (l.phh2o ?? 7) >= 7) out.push({ id: "smectite", name: "Esmectita (arcilla que se hincha)", why: "arcilla en suelo alcalino: se hincha al mojarse y se agrieta al secar", color: 0xc9c2a0 });
-  if ((l.phh2o ?? 7) >= 7.6) out.push({ id: "calcite", name: "Calcita (carbonato de calcio)", why: `pH ${(l.phh2o ?? 0).toFixed(1)}: los suelos alcalinos suelen guardar cal`, color: 0xffffff });
-  if ((l.phh2o ?? 7) < 6.5 && (l.clay ?? 0) >= 20) out.push({ id: "ironoxide", name: "Óxidos de hierro (hematita, goethita)", why: "suelo ácido con arcilla: el hierro se oxida y da color rojizo", color: 0xc4471f });
-  if ((l.soc ?? 0) >= 15) out.push({ id: "humus", name: "Humus", why: "mucho carbono orgánico: restos de plantas ya descompuestos", color: 0x2a1a0e });
+  const add = (id, name, formula, why, use, color) => out.push({ id, name, formula, why, use, color });
+  if (sand >= 40) add("quartz", "Cuarzo", "SiO₂", "mucha arena: casi toda la arena es cuarzo", "No da nutrientes; hace el suelo suelto y bien drenado, pero guarda poca agua.", 0xf4f7ff);
+  if (sand >= 40 && ph >= 6) add("feldspar", "Feldespato potásico", "KAlSi₃O₈", "arena poco lavada, todavía con minerales que se desgastan", "Libera potasio poco a poco al meteorizarse.", 0xf1b9a0);
+  if (silt + clay >= 40 && ph >= 5.5 && ph < 8) add("illite", "Illita (arcilla)", "(K,H₃O)(Al,Mg,Fe)₂(Si,Al)₄O₁₀(OH)₂", "limo y arcilla de rocas como las lutitas y pizarras", "Guarda potasio y retiene nutrientes de forma moderada.", 0xb7c4a5);
+  if (silt + clay >= 40 && ctx.andean) add("chlorite", "Clorita", "(Mg,Fe)₅Al(AlSi₃O₁₀)(OH)₈", "arcilla verdosa que viene de pizarras y lutitas de los Andes", "Aporta magnesio y hierro al desgastarse.", 0x5f8f62);
+  if (silt >= 30 && ctx.andean) add("mica", "Mica (moscovita)", "KAl₂(AlSi₃O₁₀)(OH)₂", "láminas brillantes de rocas metamórficas como las pizarras", "Fuente lenta de potasio; brilla en el suelo seco.", 0xdfe3ea);
+  if (clay >= 25 && ph < 6.2) add("kaolinite", "Caolinita (arcilla)", "Al₂Si₂O₅(OH)₄", "arcilla de suelo ácido y muy lavado", "Retiene pocos nutrientes: el abono orgánico ayuda mucho.", 0xf2e6d0);
+  if (clay >= 25 && ph >= 7) add("smectite", "Esmectita (montmorillonita)", "(Na,Ca)₀.₃(Al,Mg)₂Si₄O₁₀(OH)₂·nH₂O", "arcilla de suelo alcalino", "Retiene mucha agua y nutrientes, pero se hincha al mojarse y se agrieta al secar.", 0xc9c2a0);
+  if (ph >= 7.6) add("calcite", "Calcita (carbonato de calcio)", "CaCO₃", `pH ${ph.toFixed(1)}: los suelos alcalinos suelen guardar cal`, "Da calcio, pero bloquea hierro, zinc y fósforo: hojas amarillas entre las venas.", 0xffffff);
+  if (ph >= 7.8 && ctx.arid) add("gypsum", "Yeso", "CaSO₄·2H₂O", "clima seco y suelo alcalino: el yeso se acumula al evaporarse el agua", "Aporta calcio y azufre; en exceso deja huecos al disolverse.", 0xf7f3e8);
+  if (ctx.saline) add("salts", "Sales de sodio (halita y otras)", "NaCl, Na₂SO₄", "el agua se evapora y deja las sales arriba, como en el Valle Alto", "Queman las raíces y endurecen el suelo: lavado con buena agua y yeso agrícola.", 0xe8f4ff);
+  if (ph < 6.5 && clay >= 20) add("ironoxide", "Óxidos de hierro (hematita, goethita)", "Fe₂O₃ · FeO(OH)", "suelo ácido con arcilla: el hierro se oxida y da color rojizo o amarillento", "Fijan el fósforo: conviene aplicarlo en banda y con materia orgánica.", 0xc4471f);
+  if (ctx.wet) add("mnoxide", "Óxidos de manganeso", "MnO₂", "manchas negras donde el agua se queda y luego se seca", "Señal de mal drenaje: haz zanjas o camellones.", 0x22201f);
+  if ((l.soc ?? 0) >= 15) add("humus", "Humus", "materia orgánica", "mucho carbono orgánico: restos de plantas ya descompuestos", "Guarda agua y nutrientes y alimenta la vida del suelo.", 0x2a1a0e);
   return out;
 }
 
-export async function renderSoil3D(container, { profile, summary, crop, wetBottom = false, onPick }) {
+export async function renderSoil3D(container, { profile, summary, crop, wetBottom = false, onPick, place = {} }) {
+  const mctx = { ...place, wet: wetBottom || place.wet };
   container.innerHTML = '<p class="hint" style="padding:1rem">Armando el corte del suelo en 3D…</p>';
   const [THREE, { OrbitControls }] = await Promise.all([import("three"), import("../vendor/three/OrbitControls.js")]);
   // layers: SoilGrids by depth, or an estimate from the 0-30 cm summary
@@ -71,6 +85,8 @@ export async function renderSoil3D(container, { profile, summary, crop, wetBotto
   const camera = new THREE.PerspectiveCamera(40, width / heightFor(width), 0.01, 50);
   camera.position.set(1.1, 0.15, 2.5);
   const controls = new OrbitControls(camera, renderer.domElement);
+  // phones: one finger up or down scrolls the page, sideways turns the model, two fingers zoom
+  renderer.domElement.style.touchAction = "pan-y";
   controls.target.set(0, -0.95, -0.1);
   controls.enableDamping = true;
   controls.minDistance = 1;
@@ -198,9 +214,9 @@ export async function renderSoil3D(container, { profile, summary, crop, wetBotto
   // likely minerals, as small crystals inside their layer
   const crystals = [];
   rows.forEach((l) => {
-    for (const m of likelyMinerals(l)) {
-      const geo = m.id === "calcite" ? new THREE.OctahedronGeometry(0.03) : m.id === "quartz" ? new THREE.ConeGeometry(0.018, 0.06, 6) : m.id === "humus" ? new THREE.DodecahedronGeometry(0.022) : new THREE.BoxGeometry(0.05, 0.008, 0.04);
-      const mat = new THREE.MeshStandardMaterial({ color: m.color, metalness: m.id === "ironoxide" ? 0.4 : 0.1, roughness: 0.25, emissive: m.color, emissiveIntensity: 0.25 });
+    for (const m of likelyMinerals(l, mctx)) {
+      const geo = m.id === "calcite" ? new THREE.OctahedronGeometry(0.03) : m.id === "quartz" ? new THREE.ConeGeometry(0.018, 0.06, 6) : m.id === "humus" || m.id === "mnoxide" ? new THREE.DodecahedronGeometry(0.022) : m.id === "salts" ? new THREE.BoxGeometry(0.028, 0.028, 0.028) : m.id === "gypsum" ? new THREE.BoxGeometry(0.014, 0.06, 0.014) : m.id === "feldspar" ? new THREE.BoxGeometry(0.034, 0.022, 0.026) : new THREE.BoxGeometry(0.05, 0.008, 0.04);
+      const mat = new THREE.MeshStandardMaterial({ color: m.color, metalness: m.id === "ironoxide" || m.id === "mica" ? 0.5 : 0.1, roughness: 0.25, emissive: m.color, emissiveIntensity: 0.25 });
       for (let k = 0; k < 4; k++) {
         const c = new THREE.Mesh(geo, mat);
         // on the open face, and a few on the sides
@@ -231,7 +247,7 @@ export async function renderSoil3D(container, { profile, summary, crop, wetBotto
   const describe = (o) => {
     if (o.userData.mineral) {
       const m = o.userData.mineral;
-      return { html: `<b>Posible: ${m.name}</b><br>${m.why}.<br><small>Deducido del pH y la textura, no de un análisis mineral.</small>`, text: `Posiblemente hay ${m.name.toLowerCase()} a ${o.userData.layer.depth.replace("cm", " cm")}: ${m.why}.` };
+      return { html: `<b>Posible: ${m.name}</b> <span class="formula">${m.formula}</span><br>${m.why}.<br>${m.use}<br><small>Deducido del pH, la textura y el lugar; no es un análisis mineral.</small>`, text: `Posiblemente hay ${m.name.toLowerCase()} a ${o.userData.layer.depth.replace("cm", " cm")}: ${m.why}.` };
     }
     const l = o.userData.layer;
     const f = (v, d = 0) => (v === null || v === undefined ? "—" : v.toFixed(d));
@@ -305,7 +321,7 @@ export async function renderSoil3D(container, { profile, summary, crop, wetBotto
     rows,
     rootDepth,
     tableDepth,
-    minerals: [...new Map(rows.flatMap((l) => likelyMinerals(l)).map((m) => [m.id, m])).values()],
+    minerals: [...new Map(rows.flatMap((l) => likelyMinerals(l, mctx).map((m) => ({ ...m, depth: l.depth }))).map((m) => [m.id, m])).values()],
     explode(x) { gap = x; },
     toggle(name, on) {
       if (name === "water") { drops.visible = on; aquifer.visible = on; }

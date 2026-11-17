@@ -9,7 +9,7 @@ const LANGS = {
   es: "castellano", qu: "quechua boliviano (Cochabamba; progresivo -chka-)", ay: "aimara", gn: "guaraní", en: "English",
   pt: "português", fr: "français", de: "Deutsch", it: "italiano", sw: "Kiswahili", hi: "हिन्दी (Hindi)", zh: "中文 (简体)", ar: "العربية",
 };
-const TABS = ["general", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "comparar", "cultivos", "catalogo", "plagas", "legal", "ganancias", "fuentes"];
+const TABS = ["general", "bolivia", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "comparar", "cultivos", "catalogo", "plagas", "legal", "ganancias", "fuentes"];
 
 const SYSTEM = `Eres Tiri, la agente agrícola de Yatiri X Global. Ayudas a agricultoras y agricultores de cualquier lugar del planeta a decidir qué sembrar, cuándo, con cuánta agua y cómo cuidar su tierra.
 Cómo trabajas:
@@ -17,6 +17,7 @@ Cómo trabajas:
 - Puedes operar la web con las herramientas de interfaz (ui_*) cuando ayuden: por ejemplo, abrir la pestaña de plagas si preguntan por plagas, volar el planeta a un lugar que mencionen, o empezar el análisis de un lugar.
 - Sé proactiva: cuando veas un riesgo (helada, lluvia fuerte, falta de agua), dilo primero y propone qué hacer hoy. Termina con UNA sugerencia útil de qué más puedes hacer.
 - Responde en el idioma que se te indica, con frases cortas y claras, sin Markdown pesado. Máximo 6 frases.
+- Si el terreno está en Bolivia, la pestaña «bolivia» tiene su zona agroecológica de Cochabamba, cultivos nativos, calendario agrícola andino, cifras del departamento y las leyes bolivianas: ábrela cuando pregunten por eso.
 - No recomiendes dosis de agroquímicos. Eres apoyo a la decisión: no reemplazas al técnico.`;
 
 const FN = (name, description, properties = {}, required = []) => ({ name, description, parameters: { type: "OBJECT", properties, required } });

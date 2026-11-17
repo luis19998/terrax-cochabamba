@@ -43,5 +43,6 @@ pronóstico) **no** los genera la IA: vienen de NASA y de las fuentes citadas.
 | 2026-11-14 | Claude Code | Cuentas con Supabase, quechua en toda la web, modos de mapa, flujos de n8n |
 | 2026-11-15 | Claude Code y Gemini | 147 cultivos, catálogo de plagas, «Otro» cultivo con Gemini, varias parcelas y comparación, animaciones, fuente Plus Jakarta Sans |
 | 2026-11-15 | Claude Code | Flujo de n8n por Gmail, documentación de entrega |
+| 2026-11-17 | Claude Code | Yatiri X Global: ajustes para teléfono y tableta, pestaña Cochabamba y Bolivia, leyes bolivianas, geología y 13 minerales, carga con kantuta y banderas; datos buscados en la web y citados con su fuente |
 | 2026-11-15 | Claude Code | Yatiri X Global: satélites detallados, nubes, Luna y secreto lunar, relieve 3D con cauces y cuenca, suelo 3D con raíces, agua y minerales probables |
 | 2026-11-15 | Claude Code y Gemini | Yatiri X Global: planeta 3D, clima NASA POWER para cualquier punto, Tiri con avatar, voz y agente, 13 idiomas, reloj climático, crecimiento del cultivo y escenas del tiempo |

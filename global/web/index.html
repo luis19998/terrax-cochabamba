@@ -58,6 +58,7 @@
     <section class="world" aria-labelledby="world-title">
       <div class="world__globe" id="globe" role="application" aria-label="Planeta Tierra en 3D: toca un lugar para analizarlo"></div>
       <div class="world__loader" id="globe-loader" aria-live="polite">
+        <div class="flags" aria-hidden="true"><span class="flag flag--cbba" data-flag></span><span class="flag flag--bolivia" data-flag></span></div>
         <div class="reel" id="globe-reel"></div>
         <p class="world__loading">Armando el planeta con imágenes de la NASA… <b id="globe-pct">0 %</b></p>
         <span class="world__bar"><span id="globe-progress"></span></span>
@@ -271,6 +272,7 @@
       <section class="panel tab" data-tab="catalogo"></section>
       <section class="panel tab" data-tab="plagas"></section>
       <section class="panel tab" data-tab="legal"></section>
+      <section class="panel tab" data-tab="bolivia"></section>
       <section class="panel tab" data-tab="ganancias"></section>
       <section class="panel tab" data-tab="fuentes"></section>
     </div>
@@ -284,8 +286,21 @@
   <div class="loader" id="loader" hidden role="status" aria-live="polite">
     <div class="loader__card">
       <div class="reel reel--loader" id="loader-reel" aria-hidden="true"></div>
-      <svg class="grow" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="102" rx="34" ry="7" fill="#8a5a2b" opacity=".85"/><path class="grow__stem" pathLength="1" d="M60 100C60 86 58 72 60 52" fill="none" stroke="#4f7d2c" stroke-width="5" stroke-linecap="round"/><path class="grow__leaf grow__leaf--l" d="M60 80C47 79 39 70 37 61c11 0 20 7 23 19z" fill="url(#g-leaf)"/><path class="grow__leaf grow__leaf--r" d="M60 66c13-1 21-10 23-19-11 0-20 7-23 19z" fill="url(#g-leaf)"/><circle class="grow__bud" cx="60" cy="50" r="6" fill="#c06840"/></svg>
+      <div class="loader__row">
+      <svg class="kantuta" viewBox="0 0 140 150" aria-hidden="true">
+        <defs><linearGradient id="kt-tube" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#f5a400"/></linearGradient></defs>
+        <ellipse cx="70" cy="140" rx="40" ry="7" fill="#8a5a2b" opacity=".85"/>
+        <path class="kt-stem" pathLength="1" d="M70 138C68 112 74 92 66 70S78 36 92 24" fill="none" stroke="#5b3d1e" stroke-width="4" stroke-linecap="round"/>
+        <path class="kt-stem kt-stem--b" pathLength="1" d="M68 96C56 86 46 74 34 66" fill="none" stroke="#5b3d1e" stroke-width="3" stroke-linecap="round"/>
+        <g class="kt-leaves" fill="#3f9142"><ellipse cx="74" cy="112" rx="7" ry="3" transform="rotate(-30 74 112)"/><ellipse cx="62" cy="104" rx="7" ry="3" transform="rotate(25 62 104)"/><ellipse cx="72" cy="80" rx="7" ry="3" transform="rotate(-35 72 80)"/><ellipse cx="48" cy="76" rx="6" ry="2.6" transform="rotate(30 48 76)"/><ellipse cx="84" cy="44" rx="6" ry="2.6" transform="rotate(-20 84 44)"/></g>
+        <g class="kt-flower" style="--d:0"><g transform="translate(92 24)"><path d="M-3 0h6l-1 6h-4z" fill="#2e8b3a"/><path d="M-3.4 6h6.8l2.6 30h-12z" fill="url(#kt-tube)"/><path d="M-9 36c2 6 4 8 9 8s7-2 9-8c-3 2-6 3-9 3s-6-1-9-3z" fill="#d52b1e"/><path d="M-6 37l-4 8M6 37l4 8M0 39v8" stroke="#ffd23f" stroke-width="1.2"/></g></g>
+        <g class="kt-flower" style="--d:1"><g transform="translate(34 66) rotate(12)"><path d="M-3 0h6l-1 6h-4z" fill="#2e8b3a"/><path d="M-3.4 6h6.8l2.6 28h-12z" fill="url(#kt-tube)"/><path d="M-9 34c2 6 4 8 9 8s7-2 9-8c-3 2-6 3-9 3s-6-1-9-3z" fill="#d52b1e"/><path d="M-6 35l-4 8M6 35l4 8M0 37v8" stroke="#ffd23f" stroke-width="1.2"/></g></g>
+        <g class="kt-flower" style="--d:2"><g transform="translate(66 70) rotate(-8)"><path d="M-3 0h6l-1 6h-4z" fill="#2e8b3a"/><path d="M-3.4 6h6.8l2.6 26h-12z" fill="url(#kt-tube)"/><path d="M-9 32c2 6 4 8 9 8s7-2 9-8c-3 2-6 3-9 3s-6-1-9-3z" fill="#d52b1e"/><path d="M-6 33l-4 8M6 33l4 8M0 35v8" stroke="#ffd23f" stroke-width="1.2"/></g></g>
+      </svg>
+      <div class="flags" aria-hidden="true"><span class="flag flag--cbba" data-flag></span><span class="flag flag--bolivia" data-flag></span></div>
+      </div>
       <p class="loader__title">Analizando tu terreno</p>
+      <p class="loader__note small">La kantuta, flor nacional de Bolivia, florece mientras Yatiri X lee los datos.</p>
       <p class="loader__msg" id="loader-msg"></p>
     </div>
   </div>

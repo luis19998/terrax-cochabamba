@@ -73,6 +73,7 @@ const QU = {
   tab_ganancias: "Qullqi",
   tab_fuentes: "Maymanta",
   tab_comparar: "Jallp'akunata tupachiy",
+  tab_bolivia: "Quchapampa, Bolivia",
   // stepper
   st1: "Maypi", st2: "Tarpuy", st3: "Yaku", st4: "Munasqa", st5: "Qhawariy",
 };
@@ -118,7 +119,7 @@ export const QU_VALUES = new Set(Object.values(QU));
 const TAB_ES = {
   tab_general: "Estado general", tab_predicciones: "Predicciones", tab_catalogo: "Todas las siembras", tab_comparar: "Comparar terrenos", tab_clima: "Clima y pronóstico", tab_suelo: "Suelo", tab_relieve: "Relieve", tab_agua: "Agua",
   tab_riesgos: "Riesgos", tab_cultivos: "Qué sembrar", tab_plagas: "Plagas y cuidados", tab_legal: "Legal", tab_ganancias: "Ganancias",
-  tab_fuentes: "Fuentes",
+  tab_fuentes: "Fuentes", tab_bolivia: "Cochabamba y Bolivia",
   st1: "Ubicación", st2: "Cultivo y suelo", st3: "Agua", st4: "Prioridades", st5: "Analizar",
 };
 

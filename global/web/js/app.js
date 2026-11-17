@@ -9,6 +9,7 @@ import { avatarSVG, microphone, say, setFace, setVoice, speak, voiceEnabled } fr
 import * as cloud from "./cloud.js";
 import { growthTimeline, radialYear, weatherScene } from "./viz.js";
 import { LUNAR_FARMING, lunarSite } from "./moon.js";
+import { GEOLOGY_CBBA, cochabambaZone, inBolivia, inCochabambaDept, legalBoliviaHtml, psiFromRas, renderBoliviaTab } from "./cochabamba.js";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -114,7 +115,7 @@ const MODULES = [
   { id: "agua", tab: "agua", icon: "drop", label: "Humedad y agua" },
   { id: "predicciones", tab: "predicciones", icon: "chart", label: "Predicciones" },
 ];
-const TABS = ["general", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "comparar", "cultivos", "catalogo", "plagas", "legal", "ganancias", "fuentes"];
+const TABS = ["general", "bolivia", "predicciones", "clima", "suelo", "relieve", "agua", "riesgos", "comparar", "cultivos", "catalogo", "plagas", "legal", "ganancias", "fuentes"];
 // one colour per plot, so several plots can be told apart on the map and in the comparison table
 const PLOT_COLORS = ["#ff8a3d", "#3d7bff", "#e8457f", "#1fb58f", "#f2b21b", "#8e5cd9", "#18a2b8", "#d64545", "#7cb342", "#8d6e63"];
 // the crops most sown in the Cochabamba valleys are shown first; the rest are one tap away with a search box
@@ -132,7 +133,7 @@ const LAYERS = [
   { id: "IMERG_Precipitation_Rate", label: "Lluvia reciente (NASA GPM IMERG)", on: false, kind: "gibs", zoom: 6, opacity: 0.6 },
   { id: "MODIS_Terra_NDVI_8Day", label: "Verdor de la vegetación (NASA MODIS)", on: false, kind: "gibs", zoom: 9, opacity: 0.6 },
 ];
-const TIRI_SUGGESTIONS = ["¿Qué siembro?", "¿Va a llover esta semana?", "¿Qué abono le pongo?", "¿Qué plagas debo vigilar?", "¿Qué riesgos tiene mi tierra?", "¿Tiene dueño mi terreno?"];
+const TIRI_SUGGESTIONS = ["¿Qué siembro y cuándo?", "¿Qué hago esta semana?"];
 const TIRI_HELLO = "¡Hola! Soy TIRI, tu asistente agrícola inteligente. Puedo ayudarte con cultivos, suelo, humedad, clima, relieve, riesgos y predicciones de tu parcela. Solo te oriento en temas agrícolas de Yatiri X.";
 const STORE = "yatirix.v1";
 // Small growing plant used while Tiri thinks (the full-screen loader has its own copy in index.html)
@@ -157,6 +158,7 @@ let crops;
 let grid;
 let knowledge;
 let images = { crops: {}, pests: {}, invasive: {}, places: {} };
+let cbbaPhotos = []; // real photos of Cochabamba for the loading screens
 let map;
 let miniMap;
 let terrainView;
@@ -1018,6 +1020,7 @@ const TAB_TIPS = {
   plagas: "Filtra por tu cultivo para ver qué plaga vigilar y su remedio casero.",
   catalogo: "Aquí están los 146 cultivos: busca el tuyo o usa «Otro».",
   comparar: "Compara tus terrenos lado a lado y toca «Ver» para abrir uno.",
+  bolivia: "Aquí está tu zona de Cochabamba, los cultivos nativos, el calendario andino y las leyes de Bolivia.",
 };
 const tipsShown = new Set();
 function tiriTip(tab) {
@@ -1179,7 +1182,7 @@ function renderResults() {
     <ul class="domains">${Object.entries(levels).map(([k, lv]) => `<li class="domain domain--${lv ? LEVEL[lv][0] : "none"}"><button type="button" data-tab-go="${k === "riesgos" ? "riesgos" : k}"><span aria-hidden="true">${icons[k]}</span><b>${names[k]}</b><span>${lv ? (isSimple() ? LEVEL_SIMPLE[lv] : LEVEL[lv][2]) : "Sin dato"}</span></button></li>`).join("")}</ul>`;
   $("summary-card").querySelectorAll("[data-tab-go]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tabGo)));
   renderTabs();
-  renderGeneral(); renderPredicciones(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderComparar(); renderCultivos(); renderCatalogo(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
+  renderGeneral(); renderBolivia(); renderPredicciones(); renderClima(); renderSuelo(); renderRelieve(); renderAgua(); renderRiesgos(); renderComparar(); renderCultivos(); renderCatalogo(); renderPlagas(); renderLegal(); renderGanancias(); renderFuentes();
 }
 
 // --- Do / don't ---
@@ -1554,8 +1557,16 @@ async function openSoil3D() {
   try {
     const { renderSoil3D } = await import("./soil3d.js");
     if (soilView) soilView.dispose();
+    const pick = selectedCrop();
+    const coverage = pick && pick.data ? pick.data.coverage : 1;
+    const czone = cochabambaZone(state.site.lat, state.site.lon, state.site.altitude);
+    const place = {
+      arid: coverage < 0.4,
+      saline: Boolean(czone && (czone.id === "valleAlto" || (coverage < 0.4 && czone.id !== "tropico" && czone.id !== "andina"))),
+      andean: inBolivia(state.site.lat, state.site.lon) && state.site.altitude > 1800,
+    };
     soilView = await renderSoil3D($("soil3d"), {
-      profile: s && s.profile, summary: s, crop, wetBottom,
+      profile: s && s.profile, summary: s, crop, wetBottom, place,
       onPick: (text) => say(text, { state: "talk", ms: 8000, onClick: openTiri }),
     });
     if (!soilView) return;
@@ -1570,7 +1581,10 @@ async function openSoil3D() {
         <div class="fact"><b>${num(soilView.tableDepth * 100)} cm</b><span>agua subterránea (esquema: ${wetBottom ? "zona baja, suele estar más cerca" : "estimación general"})</span></div>
         <div class="fact"><b>${soilView.minerals.length ? esc(soilView.minerals.map((m) => m.name.split(" (")[0]).join(", ")) : "Sin señales"}</b><span>minerales posibles</span></div>
       </div>
-      ${soilView.minerals.length ? `<ul class="legend">${soilView.minerals.map((m) => `<li><i style="background:#${m.color.toString(16).padStart(6, "0")}"></i><b>${esc(m.name)}:</b>&nbsp;${esc(m.why)}</li>`).join("")}</ul>` : ""}
+      ${soilView.minerals.length ? `<h3>Minerales probables en tu suelo</h3>
+      <div class="scroll"><table class="table minerals"><thead><tr><th>Mineral</th><th class="mid-up">Fórmula</th><th>Por qué aparece</th><th>Qué significa para tu cultivo</th></tr></thead><tbody>
+        ${soilView.minerals.map((m) => `<tr><td><i class="mineral-dot" style="background:#${m.color.toString(16).padStart(6, "0")}"></i><b>${esc(m.name)}</b><br><small>${esc(m.depth.replace("-", " a ").replace("cm", " cm"))}</small></td><td class="mid-up formula">${esc(m.formula)}</td><td>${esc(m.why)}</td><td>${esc(m.use)}</td></tr>`).join("")}
+      </tbody></table></div>` : ""}
       ${source(`${soilView.generic ? "SoilGrids no respondió ahora: se muestra un perfil típico de suelo franco solo como ejemplo. Vuelve a abrir el análisis más tarde o usa tu análisis de laboratorio en el paso 2." : soilView.estimated ? "Capas profundas estimadas a partir de los primeros 30 cm (SoilGrids no dio el perfil completo)." : "SoilGrids 2.0 (ISRIC), 6 profundidades hasta 2 m, 250 m."} Raíces: FAO-56, tabla 22. El nivel del agua subterránea y los minerales son orientativos: confirmar con un pozo, una calicata o un análisis de laboratorio.`)}`;
     say(top && (top.clay ?? 0) >= 35 ? "Tu suelo tiene mucha arcilla arriba: el agua entra despacio. Mira cómo bajan las gotas." : "Mira cómo baja el agua de lluvia por las capas y hasta dónde llegan las raíces. Toca una capa o un cristal para saber más.", { state: "talk", ms: 9000, onClick: openTiri });
   } catch (error) {
@@ -1623,6 +1637,10 @@ function renderSuelo() {
     </div>
     <div id="soil3d" class="terrain3d"></div>
     <div id="soil3d-notes"></div>
+    ${inCochabambaDept(state.site.lat, state.site.lon) ? `<h3>${esc(GEOLOGY_CBBA.title)}</h3>
+      ${list(GEOLOGY_CBBA.items.map(esc))}
+      <p>${esc(GEOLOGY_CBBA.mining)}</p>
+      ${source(GEOLOGY_CBBA.sources)}` : inBolivia(state.site.lat, state.site.lon) ? `<h3>Minería y agua</h3><p>${esc(GEOLOGY_CBBA.mining)}</p>` : ""}
     <h3>Abono para tu rotación recomendada</h3>
     ${list(bestCrops.map((id) => `<b>${esc(crops.crops.find((c) => c.id === id).name)}:</b> ${esc(knowledge.fertility[id] || "")}`))}
     <p class="hint">Orientación general, sin dosis: la cantidad la define un análisis de suelo y un técnico.</p>
@@ -2082,7 +2100,42 @@ function renderLegal() {
     ${notes.map((n) => notice(2, `<p>${esc(n)}</p>`)).join("")}
     <h3>Dónde verificar</h3>
     ${list(knowledge.legal.checks.map((c) => `<b>${esc(c.topic)}:</b> ${esc(c.where)}`))}
+    ${inBolivia(state.site.lat, state.site.lon) ? legalBoliviaHtml(isSimple()) : ""}
     <p class="hint">Orientación general, no es asesoría legal.</p>`;
+}
+
+// --- Cochabamba y Bolivia ---
+const GAMC_ZONE_TEXT = {
+  "Periurbanos consolidados": "La ciudad ya se instaló aquí. Producir sigue siendo posible en huertos y parcelas, pero el plan municipal puede limitar usos: consulta Catastro antes de invertir en riego o construcciones.",
+  "Periurbanos en crecimiento": "Zona de transición entre campo y ciudad, la más presionada por loteamientos. Producir aquí también protege áreas verdes y de recarga de agua.",
+};
+function renderBolivia() {
+  const g = (state.plot && state.plot.gamc) || state.site.gamc;
+  const zone = gamcZone(g);
+  const district = gamcDistrict(g);
+  const drainage = g && g.drenaje && !g.drenaje.error;
+  const pick = selectedCrop();
+  const gamcHtml = state.site.local && !district && !zone ? `
+    <h3>Municipio</h3>
+    <p>Tu terreno está fuera del municipio de Cochabamba (Cercado), así que las capas oficiales del GAMC no lo cubren. Para uso de suelo, catastro y riego, consulta a la alcaldía de tu municipio${state.site.place ? ` (<span translate="no">${esc(String(state.site.place).split(",")[0])}</span>)` : ""}.</p>` : state.site.local ? `
+    <h3>Tu terreno en el municipio de Cochabamba (GAMC)</h3>
+    <div class="facts">
+      <div class="fact"><b translate="no">${district ? esc(district.Distrito) : "Sin dato"}</b><span>${district ? `distrito · comuna <span translate="no">${esc(String(district.Comuna).toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase()))}</span>` : "distrito municipal"}</span></div>
+      <div class="fact"><b>${zone ? esc(zone.Periurbano) : "Fuera de zona periurbana"}</b><span>zona del plan municipal</span></div>
+      <div class="fact"><b>${drainage ? "Sí" : "No"}</b><span>${drainage ? "dentro del área de drenaje e influencia: franja de seguridad de torrenteras y canales" : "fuera del área de drenaje e influencia"}</span></div>
+    </div>
+    ${zone && GAMC_ZONE_TEXT[zone.Periurbano] ? `<p>${esc(GAMC_ZONE_TEXT[zone.Periurbano])}</p>` : ""}
+    ${drainage ? notice(2, "<p><b>Cerca de una torrentera o canal.</b> Las crecidas del Tunari bajan rápido: no rellenes ni construyas en la franja de seguridad, deja libre el paso del agua y no siembres en el cauce.</p>") : ""}
+    <p class="source">Capas oficiales del Gobierno Autónomo Municipal de Cochabamba (geoservicios del GAMC): distritos, zonas periurbanas y área de drenaje e influencia.</p>` : "";
+  panel("bolivia").innerHTML = renderBoliviaTab({ site: state.site, images, simple: isSimple(), coverage: pick && pick.data ? pick.data.coverage : 1, gamcHtml });
+  buildFlags();
+  const ras = $("ras-in");
+  if (ras) ras.addEventListener("input", () => {
+    const v = Number(ras.value);
+    if (!ras.value || !Number.isFinite(v)) { $("ras-out").textContent = "Escribe la RAS para estimar el sodio intercambiable."; return; }
+    const r = psiFromRas(v);
+    $("ras-out").innerHTML = `PSI estimado: <b>${num(r.psi, 1)} %</b>. ${esc(r.text)} <span class="source">Modelo del Valle Alto (84 muestras, R² = 0,85).</span>`;
+  });
 }
 
 // --- Ganancias ---
@@ -2212,10 +2265,29 @@ function renderHeroFact() {
 // ---------- The whole planet ----------
 let world = null;
 let worldBands = null;
+/** The flags of Cochabamba and Bolivia, cut in thin slices that wave one after another. */
+function buildFlags() {
+  const names = { "flag--cbba": "Cochabamba", "flag--bolivia": "Bolivia" };
+  document.querySelectorAll("[data-flag]").forEach((f) => {
+    if (f.children.length) return;
+    const cls = [...f.classList].find((c) => names[c]);
+    f.dataset.name = names[cls] || "";
+    const N = 14;
+    f.innerHTML = Array.from({ length: N }, (_, k) => `<i style="--i:${k};--amp:${((k / N) * 6).toFixed(1)};--shade:${(0.5 + 0.5 * Math.sin((k / N) * Math.PI * 2)).toFixed(2)};background-position:-${k * 5}px 0"></i>`).join("");
+  });
+}
+const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+/** Photos for the loading screens: Cochabamba first (two of every three), then crops, pests and invasive species. */
 function photoPool() {
   const pick = (group, label) => Object.values(images[group] || {}).filter(Boolean).map((x) => ({ src: x.thumb, title: x.title, credit: `${x.author}, ${x.licence}`, label }));
-  const pool = [...pick("crops", "Cultivo"), ...pick("pests", "Plaga o enfermedad"), ...pick("invasive", "Especie invasora")];
-  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const local = shuffle(cbbaPhotos.map((x) => ({ src: x.src, title: x.title, credit: `${x.author}, ${x.licence}`, label: /Bolivia/.test(x.title) && !/Cochabamba/.test(x.title) ? "Bolivia" : "Cochabamba" })));
+  const rest = shuffle([...pick("crops", "Cultivo"), ...pick("pests", "Plaga o enfermedad"), ...pick("invasive", "Especie invasora")]);
+  const pool = [];
+  while (local.length || rest.length) {
+    if (local.length) pool.push(local.shift());
+    if (local.length) pool.push(local.shift());
+    if (rest.length) pool.push(rest.shift());
+  }
   return pool;
 }
 /** While the planet loads: real photos of crops, pests and invasive species, one after another. */
@@ -2472,6 +2544,8 @@ async function start() {
   refreshTerms();
 
   try { images = await loadJson("data/images.json", 8000); } catch { /* photos are optional */ }
+  try { cbbaPhotos = (await loadJson("data/cbba_images.json", 8000)).photos || []; } catch { /* optional */ }
+  buildFlags();
   try {
     const sprite = await (await fetch("img/icons.svg")).text();
     const holder = document.createElement("div");

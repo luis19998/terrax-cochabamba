@@ -1,4 +1,31 @@
 /* Yatiri X Global: the planet section and the high-contrast theme. */
+
+/* ---------- loading: the kantuta blooms and the flags of Cochabamba and Bolivia wave ---------- */
+.loader__row { display: flex; align-items: flex-end; justify-content: center; gap: 1.6rem; padding-bottom: 2.6rem; margin-top: 0.4rem; }
+.kantuta { width: 150px; height: 160px; overflow: visible; margin-bottom: -2.4rem; }
+.kt-stem { stroke-dasharray: 1; stroke-dashoffset: 1; animation: kt-draw 1.1s ease forwards; }
+.kt-stem--b { animation-delay: 0.5s; }
+.kt-leaves ellipse { transform-box: fill-box; transform-origin: center; scale: 0; animation: kt-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
+.kt-leaves ellipse:nth-child(2) { animation-delay: 0.3s; } .kt-leaves ellipse:nth-child(3) { animation-delay: 0.5s; } .kt-leaves ellipse:nth-child(4) { animation-delay: 0.7s; } .kt-leaves ellipse:nth-child(5) { animation-delay: 0.9s; }
+.kt-flower { transform-box: fill-box; transform-origin: 50% 0; scale: 0; animation: kt-bloom 0.9s cubic-bezier(0.3, 1.5, 0.5, 1) forwards, kt-sway 3.2s ease-in-out infinite; animation-delay: calc(1s + var(--d) * 0.45s), calc(2s + var(--d) * -0.8s); }
+@keyframes kt-draw { to { stroke-dashoffset: 0; } }
+@keyframes kt-pop { to { scale: 1; } }
+@keyframes kt-bloom { to { scale: 1; } }
+@keyframes kt-sway { 0%, 100% { rotate: -4deg; } 50% { rotate: 5deg; } }
+.loader__note { margin: 0; color: var(--ink-soft); max-width: 30ch; text-align: center; }
+
+.flags { display: flex; gap: 2.6rem; align-items: flex-end; }
+.flag { position: relative; display: flex; width: 74px; height: 48px; padding-left: 4px; }
+.flag::before { content: ""; position: absolute; left: 0; top: -6px; bottom: -40px; width: 4px; border-radius: 2px; background: linear-gradient(90deg, #c9ccd3, #fff, #9aa0aa); }
+.flag::after { content: attr(data-name); position: absolute; left: 6px; bottom: -40px; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; color: var(--ink-soft); text-transform: uppercase; }
+.flag i { flex: 1; height: 100%; background-size: 70px 48px; animation: flag-wave 1.6s ease-in-out infinite; animation-delay: calc(var(--i) * -0.11s); box-shadow: inset 0 0 0 999px rgba(0, 0, 0, calc(var(--shade) * 0.18)); }
+.flag--cbba i { background-image: linear-gradient(180deg, #6fc3f2, #4fb0e8); }
+.flag--bolivia i { background-image: linear-gradient(180deg, #d52b1e 0 33.3%, #f9e300 33.3% 66.6%, #007934 66.6%); }
+@keyframes flag-wave { 0%, 100% { translate: 0 0; } 50% { translate: 0 calc(var(--amp) * 1px); } }
+.world__loader .flags { margin-bottom: 2.6rem; }
+.world__loader .flag::after { color: #c9d6f2; }
+@media (prefers-reduced-motion: reduce) { .kt-stem, .kt-leaves ellipse, .kt-flower, .flag i { animation: none !important; stroke-dashoffset: 0; scale: 1; } }
+
 :root {
   --space: #050a18;
   --space-2: #0b1530;
@@ -264,3 +291,65 @@ body.hc :focus-visible { outline: 3px solid #ff3d6e !important; outline-offset: 
 .terrain-tip b { color: #8ef0ff; }
 .terrain-facts { margin-top: 0.7rem; }
 #terrain-open, #soil-open { animation: tiri-glow 3.2s ease-in-out infinite; }
+
+/* phones: growth stages in an even grid so names never overlap; Tiri's bubble smaller */
+@media (max-width: 560px) {
+  .growth__track { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); height: auto; margin: 0; padding-bottom: 30px; }
+  .growth__stage { position: relative; left: auto; top: auto; translate: none; width: auto; }
+  .growth__stage figcaption { margin-top: 2px; }
+  .growth__track::before, .growth__fill { top: auto; bottom: 8px; }
+  .growth__now { top: auto; bottom: 18px; }
+  .tiri-say { max-width: min(250px, calc(100vw - 5rem)); font-size: 0.84rem; padding: 0.6rem 0.75rem; }
+  .terrain-toggles { font-size: 0.82rem; }
+  .world__pick { max-height: 70svh; overflow: auto; }
+}
+
+/* ---------- Cochabamba y Bolivia ---------- */
+.zone-hero { display: flex; align-items: center; gap: 1.2rem; padding: 1.1rem 1.2rem 2.6rem; margin: 0.6rem 0 1rem; border-radius: 20px; color: #fff; background: linear-gradient(120deg, #1d6fb8, #4fb0e8 55%, #8fd3ff); box-shadow: 0 24px 50px -28px rgba(29, 111, 184, 0.8); position: relative; overflow: hidden; }
+.zone-hero::after { content: ""; position: absolute; inset: auto -10% -40% -10%; height: 70%; background: radial-gradient(60% 100% at 50% 100%, rgba(255, 255, 255, 0.25), transparent); animation: zone-glow 6s ease-in-out infinite; }
+@keyframes zone-glow { 50% { translate: 0 -12px; opacity: 0.6; } }
+.zone-hero--tropico { background: linear-gradient(120deg, #0f7a3d, #2fbf71 55%, #b5e86b); }
+.zone-hero--andina { background: linear-gradient(120deg, #4a3f8c, #7a6fd0 55%, #c7d2ff); }
+.zone-hero--conosur { background: linear-gradient(120deg, #a8541f, #e08a3c 55%, #ffd08a); }
+.zone-hero--valleAlto { background: linear-gradient(120deg, #8a6d12, #d1a92b 55%, #ffe58a); color: #241a00; }
+.zone-hero--valleBajo { background: linear-gradient(120deg, #1f7a6d, #34b3a0 55%, #a6f0de); }
+.zone-hero p { margin: 0.15rem 0; }
+.zone-hero__name { font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 800; line-height: 1.1; }
+.eyebrow-small { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 800; opacity: 0.85; }
+.flags--inline .flag::after { color: currentColor; opacity: 0.85; }
+.zone-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.zone-cols section { padding: 0.9rem 1rem; border-radius: 16px; background: var(--pistachio-pale); border: 1px solid var(--line); }
+.zone-cols section + section { background: var(--alert-pale); }
+.facts--figs { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.fact--fig b { font-size: 1.5rem; background: linear-gradient(90deg, #1d6fb8, #2fbf71); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.fact--fig small { display: block; margin-top: 0.3rem; font-size: 0.7rem; color: var(--ink-soft); }
+.native-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.8rem; }
+.native { display: grid; grid-template-columns: 72px 1fr; gap: 0.7rem; align-items: start; padding: 0.7rem; border-radius: 16px; border: 1px solid var(--line); background: var(--paper); animation: card-in 0.6s cubic-bezier(0.3, 1.3, 0.5, 1) both; animation-delay: calc(var(--i) * 60ms); transition: transform 0.25s, box-shadow 0.25s; }
+.native:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -18px rgba(43, 29, 18, 0.5); }
+.native img { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; }
+.native:not(:has(img)) { grid-template-columns: 1fr; }
+.native p { margin: 0.2rem 0 0; font-size: 0.86rem; }
+@keyframes card-in { from { opacity: 0; translate: 0 14px; scale: 0.97; } }
+.andean-cal { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
+.andean-cal__m { position: relative; display: grid; gap: 0.2rem; align-content: start; padding: 0.6rem 0.7rem; border-radius: 14px; border: 1px solid var(--line); background: var(--paper); font-size: 0.82rem; animation: card-in 0.5s ease both; animation-delay: calc(var(--i) * 40ms); }
+.andean-cal__m b { font-size: 0.95rem; color: var(--leaf); }
+.andean-cal__m em { font-style: normal; font-weight: 700; color: #b8392f; }
+.andean-cal__m.is-now { border: 2px solid #4fb0e8; background: linear-gradient(180deg, #eaf6ff, #fff); box-shadow: 0 0 0 4px rgba(79, 176, 232, 0.18); }
+.andean-cal__m.is-now::after { content: "hoy"; position: absolute; top: 6px; right: 8px; font-size: 0.66rem; font-weight: 800; color: #fff; background: #1d6fb8; padding: 1px 7px; border-radius: 99px; animation: ry-pulse 1.6s ease-in-out infinite; }
+.ras-calc { display: grid; gap: 0.4rem; padding: 0.8rem; border-radius: 14px; background: #f3f8ff; border: 1px dashed #4fb0e8; margin: 0.5rem 0 1rem; }
+.ras-calc input { max-width: 9rem; min-height: 40px; border-radius: 10px; border: 1.5px solid var(--line); padding: 0 0.6rem; margin-left: 0.4rem; }
+.law-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.7rem; }
+.law { padding: 0.8rem 0.9rem; border-radius: 16px; border: 1px solid var(--line); border-left: 5px solid #d52b1e; background: var(--paper); animation: card-in 0.5s ease both; animation-delay: calc(var(--i) * 50ms); }
+.law:nth-child(3n + 2) { border-left-color: #f9c400; }
+.law:nth-child(3n) { border-left-color: #007934; }
+.law p { margin: 0.3rem 0 0; font-size: 0.88rem; }
+.law__act { font-weight: 700; color: var(--leaf); }
+.steps-list li { margin: 0.3rem 0; }
+.minerals .formula, .formula { font-family: ui-monospace, Consolas, monospace; font-size: 0.8rem; color: var(--ink-soft); }
+.mineral-dot { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: middle; border: 1px solid rgba(0, 0, 0, 0.25); }
+@media (max-width: 560px) {
+  .zone-hero { flex-direction: column; align-items: flex-start; padding-bottom: 1rem; }
+  .zone-hero .flags { margin-bottom: 2.2rem; }
+  .andean-cal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .native, .andean-cal__m, .law, .zone-hero::after { animation: none !important; } }
